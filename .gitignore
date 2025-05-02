@@ -1,0 +1,26 @@
+# IDE stuff
+.vscode/
+
+# Build artifacts
+target/
+*.class
+*.jar
+
+# OS junk
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+
+# Scripts
+*.bat
+*.sh
+*.ps1
+
+# Maven
+*.iml
+.idea/
+
+# Local config files (do NOT commit private keys!)
+/config.docs/wizard.txt
