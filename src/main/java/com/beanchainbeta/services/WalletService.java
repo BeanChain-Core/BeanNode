@@ -4,6 +4,7 @@ import java.io.IOException;
 import org.iq80.leveldb.DB;
 import org.springframework.stereotype.Service;
 
+import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
 import com.bean_core.Models.*;
 import com.bean_core.TXs.*;
@@ -22,7 +23,7 @@ import static org.iq80.leveldb.impl.Iq80DBFactory.*;
 
 @Service
 public class WalletService {
-    private static DB db = DBManager.getDB("stateDB");
+    private static DB db = DBManager.getDB(ConfigLoader.stateDB);
     
 
     //dev testing

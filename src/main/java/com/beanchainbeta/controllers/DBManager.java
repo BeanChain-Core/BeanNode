@@ -22,7 +22,7 @@ public class DBManager {
             try {
                 Options options = new Options();
                 options.createIfMissing(true);
-                DB db = factory.open(new File(dbName), options);
+                DB db = factory.open(new File("./data/" + dbName), options);
                 databases.put(dbName, db);
             } catch (IOException e) {
                 throw new RuntimeException("Failed to open LevelDB for " + dbName + ": " + e.getMessage(), e);

@@ -3,6 +3,7 @@ package com.beanchainbeta.services;
 import org.iq80.leveldb.*;
 
 import com.bean_core.Block.*;
+import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
 import com.beanchainbeta.genesis.GenesisTX;
 import com.bean_core.TXs.*;
@@ -23,8 +24,9 @@ public class blockchainDB {
     ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 
+
     public blockchainDB() {
-        blockchainDB.db = DBManager.getDB("BeanChainDBTest"); 
+        blockchainDB.db = DBManager.getDB(ConfigLoader.chainDB); 
 
         try {
             if (!checkGenBlock()) {

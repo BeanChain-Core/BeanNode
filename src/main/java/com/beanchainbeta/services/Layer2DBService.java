@@ -4,8 +4,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
 import com.bean_core.Models.*;
+
 import com.bean_core.TXs.TX;
 import com.bean_core.Utils.MetaHelper;
 import com.bean_core.Utils.beantoshinomics;
@@ -19,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class Layer2DBService {
-    private static final DB db = DBManager.getDB("tokenDB");
+    private static final DB db = DBManager.getDB(ConfigLoader.layer2DB);
     private static final ObjectMapper mapper = new ObjectMapper();
 
     // Check if wallet exists

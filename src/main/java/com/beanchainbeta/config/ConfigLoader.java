@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import com.bean_core.Wizard.wizard;
 import com.bean_core.crypto.WalletGenerator;
+import com.beanchainbeta.services.blockchainDB;
 
 public class ConfigLoader {
     public static String privateKeyPath;
@@ -14,6 +15,13 @@ public class ConfigLoader {
     public static boolean isBootstrapNode;
     public static String bootstrapIp;
     public static boolean isPublicNode;
+    public static String chainDB;
+    public static String stateDB;
+    public static String mempoolDB;
+    public static String rejectedDB;
+    public static String layer2DB;
+
+
 
     public static void loadConfig() {
         Properties props = new Properties();
@@ -27,20 +35,18 @@ public class ConfigLoader {
             isPublicNode = Boolean.parseBoolean(props.getProperty("isPublicNode", "false"));
             bootstrapIp = props.getProperty("bootstrapIp", "65.38.97.169");
 
+            //not for RN or CEN
+            //for setting up the DB files inside ./data
+            chainDB = props.getProperty("chainDB", "chainDB");
+            stateDB = props.getProperty("stateDB", "stateDB");
+            mempoolDB = props.getProperty("mempoolDB", "mempoolDB");
+            rejectedDB = props.getProperty("rejectedDB", "rejectedDB");
+            layer2DB = props.getProperty("layer2DB", "layer2DB");
 
         } catch (IOException e) {
             System.err.println("⚠️ Failed to load BeanChain config: " + e.getMessage());
             System.exit(1);
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        //System.out.println(wizard.wizardRead("config.docs/wizard.txt"));
-
-        String privateZac = WalletGenerator.generatePrivateKey();
-
-        wizard.saveKeyToWizard(privateZac, "D:\\wizard.txt");
     }
 }
 

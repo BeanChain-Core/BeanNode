@@ -10,7 +10,10 @@ import org.iq80.leveldb.DBIterator;
 import org.iq80.leveldb.Options;
 import org.springframework.stereotype.Service;
 
+
 import com.bean_core.TXs.*;
+import com.beanchainbeta.config.ConfigLoader;
+import com.beanchainbeta.controllers.DBManager;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -22,16 +25,13 @@ public class MempoolService {
     public static ConcurrentHashMap<String, TX> rejectedTransactions = new ConcurrentHashMap<>();
     private static DB db;
     
-    public MempoolService(){
+    public MempoolService() {
         try {
-            Options options = new Options();
-            options.createIfMissing(true);
-            db = factory.open(new File("mempool_db"), options);
+            db = DBManager.getDB(ConfigLoader.mempoolDB);
             loadMempoolFromDB();
         } catch (Exception e) {
-            throw new RuntimeException("Error initializing LevelDB", e);
+            throw new RuntimeException("Error initializing mempool DB", e);
         }
-    
     }
     
     public static boolean addTransaction(String txHash, String transactionJson) {
