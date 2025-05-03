@@ -38,8 +38,10 @@ This node loads from a configuration file and an encrypted private key file, and
 The main **Bean Cluster** is maintained by the core team and consists of:
 
 - **GPN (Genesis Public Node)** – Fully operational  
-- **RN (Reward Node)** – Fully operational, handles system-level rewards like faucets, early wallets, and node incentives  
-- **CEN (Contract Execution Node)** – In development, handles execution of off-chain contract logic and Layer 2 features  
+- **RN (Reward Node)** – Fully operational, handles system-level rewards like faucets, early wallets, and node incentives
+    - This is a programatic reward node for system level rewarding and airdrops. The team RN should be the only reward node, other projects can develop rewarding and airdrop systems through CEN nodes and contracts.
+- **CEN (Contract Execution Node)** – In development, handles execution of off-chain contract logic and Layer 2 features
+    - The team run CEN is the offical team Contract node, but CEN build repo is in development and can be utilized for thrid party custom CEN creation. Official CENs will be registered, and non registered CENs will be flagged for use at the users own risk. 
 
 This structure allows for modular expansion while keeping core chain logic clean and scalable.
 
@@ -47,11 +49,13 @@ This structure allows for modular expansion while keeping core chain logic clean
 
 ## Prerequisites
 
-- Java 17+
+- Java 21+
 - Maven (optional for building)
 - Open ports:
   - `6442` for P2P networking
-  - `8080` or `6480` for REST API endpoints
+  - `8080` for REST API endpoints
+ 
+  - `6443` and `6444` are used internally in the Bean Cluster for internal P2P connections to GPN from CEN and RN
 
 ---
 
@@ -59,7 +63,7 @@ This structure allows for modular expansion while keeping core chain logic clean
 
 This node relies on the modular `bean-core` SDK for core transaction and cryptographic logic.
 
-[BeanCore SDK Repository](https://github.com/NonFasho/BeanCore)
+[BeanCore SDK Repository](https://github.com/BeanChain-Core/BeanCore)
 
 Includes:
 - Models
