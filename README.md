@@ -74,7 +74,7 @@ Includes:
 
 To get started running a node or participating in the BeanChain network,
 
-Contact the dev team: [samfawk@limabean.xyz](mailto:samfawk@limabean.xyz)
+Contact the dev team: [team@limabean.xyz](mailto:samfawk@limabean.xyz)
 
 A full deployment guide will be added soon.
 
