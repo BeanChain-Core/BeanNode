@@ -272,55 +272,70 @@ public class MessageRouter {
     
 
     private void handleSyncResponse(JsonNode msg) {
-    try {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode confirmedTxs = msg.get("confirmedTxs");
-        JsonNode blocks = msg.get("blocks");
-        JsonNode mempool = msg.get("mempool");
-
-        // ✅ Step 1: Load all confirmed and mempool TXs into local mempool
-        System.out.println("Loading confirmed and mempool TXs into local mempool...");
-
-        for (JsonNode txNode : confirmedTxs) {
-            TX tx = mapper.treeToValue(txNode, TX.class);
-            MempoolService.addTransaction(tx.getTxHash(), tx.createJSON());
-        }
-
-        for (JsonNode txNode : mempool) {
-            TX tx = mapper.treeToValue(txNode, TX.class);
-            MempoolService.addTransaction(tx.getTxHash(), tx.createJSON());
-        }
-
-        System.out.println("Mempool now contains " + MempoolService.getTxFromPool().size() + " total TXs.");
-
-        // ✅ Step 2: Replay each block in order
-        List<Block> blocksToReplay = new ArrayList<>();
-        for (JsonNode blockNode : blocks) {
-            Block block = mapper.treeToValue(blockNode, Block.class);
-            blocksToReplay.add(block);
-        }
-
-        blocksToReplay.sort(Comparator.comparingInt(Block::getHeight)); // Just in case
-
-        for (Block block : blocksToReplay) {
-            if(block.getHeight()==0) {
-                continue;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode confirmedTxs = msg.get("confirmedTxs");
+            JsonNode blocks = msg.get("blocks");
+            JsonNode mempool = msg.get("mempool");
+    
+            // ✅ Step 1: Load TXs into mempool
+            System.out.println("Loading confirmed and mempool TXs into local mempool...");
+    
+            for (JsonNode txNode : confirmedTxs) {
+                TX tx = mapper.treeToValue(txNode, TX.class);
+                MempoolService.addTransaction(tx.getTxHash(), tx.createJSON());
             }
-            System.out.println("REPLAY HASH: " + block.getHash() + " Params: Height: " + block.getHeight()+ " PrevHash: " + block.getPreviousHash() + " MerkleRoot: " + block.getMerkleRoot());
-            System.out.println("Replaying block #" + block.getHeight());
-            BlockBuilderV2.blockReplay(block); // uses your new deterministic replay
+    
+            for (JsonNode txNode : mempool) {
+                TX tx = mapper.treeToValue(txNode, TX.class);
+                MempoolService.addTransaction(tx.getTxHash(), tx.createJSON());
+            }
+    
+            System.out.println("Mempool now contains " + MempoolService.getTxFromPool().size() + " total TXs.");
+    
+            // ✅ Step 2: Parse and sort all blocks to replay
+            List<Block> blocksToReplay = new ArrayList<>();
+            for (JsonNode blockNode : blocks) {
+                Block block = mapper.treeToValue(blockNode, Block.class);
+                blocksToReplay.add(block);
+            }
+    
+            blocksToReplay.sort(Comparator.comparingInt(Block::getHeight));
+    
+            // ✅ Step 3: Replay blocks
+            for (Block block : blocksToReplay) {
+                if (block.getHeight() == 0) continue; // Skip genesis
+                System.out.println("REPLAY HASH: " + block.getHash() + " Params: Height: " + block.getHeight() + " PrevHash: " + block.getPreviousHash() + " MerkleRoot: " + block.getMerkleRoot());
+                System.out.println("Replaying block #" + block.getHeight());
+                BlockBuilderV2.blockReplay(block);
+            }
+    
+            // ✅ Step 4: Exit sync mode
+            portal.setIsSyncing(false);
+            System.out.println("✅ Replay complete. Node is now in sync.");
+    
+            // ✅ Step 5: Now process any buffered blocks
+            List<Block> buffered = PendingBlockManager.getBufferedBlocks();
+            System.out.println("⏭ Processing " + buffered.size() + " buffered blocks...");
+    
+            for (Block b : buffered) {
+                if (b.getHeight() <= blockchainDB.getHeight()) {
+                    System.out.println("Skipping buffered block at height " + b.getHeight() + " (already processed or duplicate)");
+                    continue;
+                }
+                System.out.println("▶️ Buffered block: #" + b.getHeight());
+                BlockBuilderV2.blockReplay(b);
+            }
+    
+            // ✅ Step 6: Clean up
+            PendingBlockManager.clearBufferedBlocks();
+            System.out.println("✔️ Sync fully completed and buffer flushed.");
+    
+        } catch (Exception e) {
+            System.err.println("❌ Failed during sync_response processing:");
+            e.printStackTrace();
         }
-
-        // ✅ Final step
-        PendingBlockManager.clearBufferedBlocks();
-        portal.setIsSyncing(false);
-        System.out.println("Sync completed. Replayed " + blocksToReplay.size() + " blocks.");
-
-    } catch (Exception e) {
-        System.err.println("Failed during sync_response processing:");
-        e.printStackTrace();
     }
-}
 
     private void handleIncomingTransaction(JsonNode msg) {
         try {
