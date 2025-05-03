@@ -13,6 +13,10 @@ import com.beanchainbeta.startScripts.autoStartPublic;
 
 @SpringBootApplication
 public class portal {
+    static {
+        ConfigLoader.loadConfig(); // ✅ runs BEFORE static fields or main()
+        System.out.println("✅ Config loaded (from static block)");
+    }
     public static final String currentVersion = "(BETA)";
     public static adminCube admin;
     public static blockchainDB beanchainTest = new blockchainDB();
@@ -24,13 +28,13 @@ public class portal {
 
 
     public static void main(String[] args) throws Exception {
-        ConfigLoader.loadConfig();
+        
         System.out.println("Block class version: " + Block.class.getDeclaredFields().length);
 
-        if(ConfigLoader.isBootstrapNode) {
+        if(ConfigLoader.isBootstrapNode()) {
             autoStartGPN.nodeStart();
             setIsSyncing(false);
-        } else if(ConfigLoader.isPublicNode) {
+        } else if(ConfigLoader.isPublicNode()) {
             autoStartPublic.nodeStart();
         } else {
             autoStartPrivate.nodeStart();
@@ -45,5 +49,6 @@ public class portal {
         
         
     }
+
     
 }

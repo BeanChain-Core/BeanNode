@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class Layer2DBService {
-    private static final DB db = DBManager.getDB(ConfigLoader.layer2DB);
+    private static final DB db = DBManager.getDB(ConfigLoader.getLayer2DB());
     private static final ObjectMapper mapper = new ObjectMapper();
 
     // Check if wallet exists

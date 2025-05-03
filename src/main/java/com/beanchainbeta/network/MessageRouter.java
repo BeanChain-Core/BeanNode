@@ -303,6 +303,9 @@ public class MessageRouter {
         blocksToReplay.sort(Comparator.comparingInt(Block::getHeight)); // Just in case
 
         for (Block block : blocksToReplay) {
+            if(block.getHeight()==0) {
+                continue;
+            }
             System.out.println("REPLAY HASH: " + block.getHash() + " Params: Height: " + block.getHeight()+ " PrevHash: " + block.getPreviousHash() + " MerkleRoot: " + block.getMerkleRoot());
             System.out.println("Replaying block #" + block.getHeight());
             BlockBuilderV2.blockReplay(block); // uses your new deterministic replay

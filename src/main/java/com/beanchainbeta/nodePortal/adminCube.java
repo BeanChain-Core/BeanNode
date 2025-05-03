@@ -28,10 +28,10 @@ public class adminCube {
         node.start();
 
         // If NOT a bootstrap node, connect to bootstrap peer
-        if (!ConfigLoader.isBootstrapNode) {
+        if (!ConfigLoader.isBootstrapNode()) {
             try {
-                System.out.println("Connecting to bootstrap node at " + ConfigLoader.bootstrapIp);
-                node.connectToPeer(ConfigLoader.bootstrapIp);
+                System.out.println("Connecting to bootstrap node at " + ConfigLoader.getBootstrapIp());
+                node.connectToPeer(ConfigLoader.getBootstrapIp());
             } catch (Exception e) {
                 System.err.println("Failed to connect to bootstrap node: " + e.getMessage());
             }

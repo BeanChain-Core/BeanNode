@@ -4,24 +4,21 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import com.bean_core.Wizard.wizard;
-import com.bean_core.crypto.WalletGenerator;
-import com.beanchainbeta.services.blockchainDB;
+import org.springframework.context.annotation.Configuration;
+
 
 public class ConfigLoader {
-    public static String privateKeyPath;
-    public static String bindAddress;
-    public static int networkPort;
-    public static boolean isBootstrapNode;
-    public static String bootstrapIp;
-    public static boolean isPublicNode;
-    public static String chainDB;
-    public static String stateDB;
-    public static String mempoolDB;
-    public static String rejectedDB;
-    public static String layer2DB;
-
-
+    private static String privateKeyPath;
+    private static String bindAddress;
+    private static int networkPort;
+    private static boolean isBootstrapNode;
+    private static String bootstrapIp;
+    private static boolean isPublicNode;
+    private static String chainDB;
+    private static String stateDB;
+    private static String mempoolDB;
+    private static String rejectedDB;
+    private static String layer2DB;
 
     public static void loadConfig() {
         Properties props = new Properties();
@@ -35,10 +32,9 @@ public class ConfigLoader {
             isPublicNode = Boolean.parseBoolean(props.getProperty("isPublicNode", "false"));
             bootstrapIp = props.getProperty("bootstrapIp", "65.38.97.169");
 
-            //not for RN or CEN
-            //for setting up the DB files inside ./data
             chainDB = props.getProperty("chainDB", "chainDB");
             stateDB = props.getProperty("stateDB", "stateDB");
+            System.out.println("STATEDB from config " +  stateDB);
             mempoolDB = props.getProperty("mempoolDB", "mempoolDB");
             rejectedDB = props.getProperty("rejectedDB", "rejectedDB");
             layer2DB = props.getProperty("layer2DB", "layer2DB");
@@ -48,6 +44,20 @@ public class ConfigLoader {
             System.exit(1);
         }
     }
+
+    
+    public static String getPrivateKeyPath() { return privateKeyPath; }
+    public static String getBindAddress() { return bindAddress; }
+    public static int getNetworkPort() { return networkPort; }
+    public static boolean isBootstrapNode() { return isBootstrapNode; }
+    public static boolean isPublicNode() { return isPublicNode; }
+    public static String getBootstrapIp() { return bootstrapIp; }
+
+    public static String getChainDB() { return chainDB; }
+    public static String getStateDB() { return stateDB; }
+    public static String getMempoolDB() { return mempoolDB; }
+    public static String getRejectedDB() { return rejectedDB; }
+    public static String getLayer2DB() { return layer2DB; }
 }
 
 

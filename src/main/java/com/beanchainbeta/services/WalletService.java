@@ -23,7 +23,15 @@ import static org.iq80.leveldb.impl.Iq80DBFactory.*;
 
 @Service
 public class WalletService {
-    private static DB db = DBManager.getDB(ConfigLoader.stateDB);
+    
+    private static DB db;
+
+    public WalletService() {
+        if (db == null) {
+            db = DBManager.getDB(ConfigLoader.getStateDB());
+        }
+    }
+    
     
 
     //dev testing

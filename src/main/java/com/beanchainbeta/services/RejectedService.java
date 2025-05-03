@@ -16,7 +16,7 @@ public class RejectedService {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private static DB getRejectedDB() {
-        return DBManager.getDB(ConfigLoader.rejectedDB);
+        return DBManager.getDB(ConfigLoader.getRejectedDB());
     }
 
     public static void saveRejectedTransaction(TX tx) {

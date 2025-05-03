@@ -23,4 +23,4 @@ Thumbs.db
 .idea/
 
 # Local config files (do NOT commit private keys!)
-/config.docs/wizard.txt
+/config.docs/wiz.txt

@@ -26,7 +26,7 @@ public class blockchainDB {
 
 
     public blockchainDB() {
-        blockchainDB.db = DBManager.getDB(ConfigLoader.chainDB); 
+        blockchainDB.db = DBManager.getDB(ConfigLoader.getChainDB()); 
 
         try {
             if (!checkGenBlock()) {
@@ -65,11 +65,13 @@ public class blockchainDB {
     }
 
 
-    private Boolean checkGenBlock() {
-        byte[] data = db.get(bytes("genesis-created"));
-        return data != null && asString(data).equals("true");
-
+    private boolean checkGenBlock() {
+        byte[] flag = db.get(bytes("genesis-created"));
+        byte[] genBlock = db.get(bytes("block-0"));
+    
+        return flag != null && asString(flag).equals("true") && genBlock != null;
     }
+
     public static Boolean checkBlock() {
         byte[] data = db.get(bytes("block-1"));
         return data != null;
@@ -124,6 +126,7 @@ public class blockchainDB {
         GenesisTX genTX5 = new GenesisTX("BEANX:0x1c8496175b3f4802e395db5fab4dd66e09c431b2", 2500000); // needs to be sent to wallet in chunks over time to avoid rug pull
         GenesisTX genTX6 = new GenesisTX("BEANX:0xLIQUIDITY", 12500000); // held by the team promised to be used for liquidity or aborted and transfered to rewards based on future vote
 
+        WalletService walletService = new WalletService();
         WalletService.genBlock();
         
         List<String> genesisTransactions = Arrays.asList(

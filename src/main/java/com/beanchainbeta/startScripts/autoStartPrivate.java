@@ -18,13 +18,13 @@ public class autoStartPrivate {
         
         
         System.out.println("🫘 BeanChain Node Initializing...");
-        System.out.println("▶ IP : " + ConfigLoader.bindAddress);
+        System.out.println("▶ IP : " + ConfigLoader.getBindAddress());
         
 
         boolean signedIn = false;
         while (!signedIn) {
             try {
-                adminCube admin = new adminCube(wizard.wizardRead(ConfigLoader.privateKeyPath), ConfigLoader.bindAddress);
+                adminCube admin = new adminCube(wizard.wizardRead(ConfigLoader.getPrivateKeyPath()), ConfigLoader.getBindAddress());
                 admin.signedIn = true;
                 portal.admin = admin;
                 signInSuccess();

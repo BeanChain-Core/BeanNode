@@ -14,7 +14,7 @@ public class autoStartPublic {
     public static void nodeStart() throws Exception {
         
         System.out.println("🫘 BeanChain Node Initializing...");
-        System.out.println("▶ IP : " + ConfigLoader.bindAddress);
+        System.out.println("▶ IP : " + ConfigLoader.getBindAddress());
         Thread springThread = new Thread(() -> {
                     SpringApplication.run(BeanChainApi.class);
                 }, "SpringThread");
@@ -32,7 +32,7 @@ public class autoStartPublic {
         boolean signedIn = false;
         while (!signedIn) {
             try {
-                adminCube admin = new adminCube(wizard.wizardRead(ConfigLoader.privateKeyPath), ConfigLoader.bindAddress);
+                adminCube admin = new adminCube(wizard.wizardRead(ConfigLoader.getPrivateKeyPath()), ConfigLoader.getBindAddress());
                 admin.signedIn = true;
                 portal.admin = admin;
                 signInSuccess();

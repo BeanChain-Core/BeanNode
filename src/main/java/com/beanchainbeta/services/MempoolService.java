@@ -27,7 +27,7 @@ public class MempoolService {
     
     public MempoolService() {
         try {
-            db = DBManager.getDB(ConfigLoader.mempoolDB);
+            db = DBManager.getDB(ConfigLoader.getMempoolDB());
             loadMempoolFromDB();
         } catch (Exception e) {
             throw new RuntimeException("Error initializing mempool DB", e);
