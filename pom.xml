@@ -50,7 +50,7 @@
      <repositories>
          <repository>
             <id>github</id>
-            <url>https://maven.pkg.github.com/NonFasho/BeanCore</url>
+            <url>https://maven.pkg.BeanChain-Core/BeanCore/BeanCore</url>
         </repository>
     </repositories>
 
