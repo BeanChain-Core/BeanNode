@@ -72,15 +72,13 @@ public class MessageRouter {
 
     private void handleHandshake(JsonNode msg, Socket peer) {
         try {
-            // Debug print to verify handshake format
-            //System.out.println("Raw handshake payload: " + msg.toPrettyString());
     
             String peerAddress = msg.has("address") ? msg.get("address").asText() : "UNKNOWN";
             int peerHeight = msg.has("blockHeight") ? msg.get("blockHeight").asInt() : 0;
             boolean requestSync = msg.has("requestSync") && msg.get("requestSync").asBoolean();
             String syncMode = msg.has("syncMode") ? msg.get("syncMode").asText() : "FULL";
             boolean isValidator = msg.has("isValidator") && msg.get("isValidator").asBoolean();
-            boolean isPublicNode = msg.has("isPublicNode") && msg.get("isPublicNode").asBoolean(); // in case you're also tracking this
+            boolean isPublicNode = msg.has("isPublicNode") && msg.get("isPublicNode").asBoolean(); 
             boolean isReply = msg.has("reply") && msg.get("reply").asBoolean();
     
             System.out.println("Received handshake from " + peerAddress +
