@@ -108,8 +108,8 @@ BeanNode is one of several interconnected systems powering BeanChain.
 
 Other key components:
 
-- **LimaBean Wallet** (wallet frontend) – [(https://github.com/NonFasho/LimaBeanWallet)]
-- **beanchain.io** (network explorer/visualizer) – [(https://github.com/NonFasho/BeanChain.io)]
+- **LimaBean Wallet** (wallet frontend) – [(https://github.com/BeanChain-core/LimaBeanWallet)]
+- **beanchain.io** (network explorer/visualizer) – [(https://github.com/BeanChain-core/BeanChain.io)]
 - **Reward Node (RN)** – [link to repo coming soon]
 - **Contract Execution Node (CEN)** – [link to repo coming soon]
 
