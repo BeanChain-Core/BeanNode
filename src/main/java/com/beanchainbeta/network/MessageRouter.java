@@ -5,24 +5,18 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.iq80.leveldb.DBIterator;
 
 import com.bean_core.Block.Block;
-import com.bean_core.Block.BlockHeader;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.MempoolService;
-import com.beanchainbeta.services.RejectedService;
-import com.beanchainbeta.services.WalletService;
 import com.beanchainbeta.services.blockchainDB;
 import com.beanchainbeta.validation.BlockBuilderV2;
-import com.beanchainbeta.validation.TXVerifier;
 import com.bean_core.TXs.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
