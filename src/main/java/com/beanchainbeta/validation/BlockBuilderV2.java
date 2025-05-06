@@ -40,12 +40,14 @@ public class BlockBuilderV2 {
         List<TX> txTokenCENTXs = sorter.getTokenCENTX();
         List<TX> txStakeTXs = sorter.getStakeTX();
         List<TX> txMintTXs = sorter.getMintTX();
+        List<TX> txFundedCallTXs = sorter.getFundedCallTX();
     
         blockSize = processTXs(txTransfer, false, simulatedL1, accepted, blockSize, maxSize);
         blockSize = processTXs(txMintTXs, false, simulatedL1, accepted, blockSize, maxSize);
         blockSize = processTXs(txStakeTXs, false, simulatedL1, accepted, blockSize, maxSize);
         blockSize = processTXs(txTokenTXs, true, simulatedL2, accepted, blockSize, maxSize);
         blockSize = processTXs(txTokenCENTXs, true, simulatedL2, accepted, blockSize, maxSize);
+        blockSize = processTXs(txFundedCallTXs, false, simulatedL1, accepted, blockSize, maxSize);
     
         List<String> acceptedHashs = new ArrayList<>();
         long gasReward = 0;
@@ -125,6 +127,7 @@ public class BlockBuilderV2 {
                 case "transfer":
                 case "stake":
                 case "airdrop":
+                case "cen":
                     isValid = TXVerifier.verifyTransaction(tx);
                     break;
 
@@ -208,12 +211,14 @@ public class BlockBuilderV2 {
         List<TX> txTokenCENTXs = sorter.getTokenCENTX();
         List<TX> txStakeTXs = sorter.getStakeTX();
         List<TX> txMintTXs = sorter.getMintTX();
+        List<TX> txFundedCallTXs = sorter.getFundedCallTX();
     
         blockSize = processTXs(txTransfer, false, simulatedL1, accepted, blockSize, maxSize);
         blockSize = processTXs(txMintTXs, false, simulatedL1, accepted, blockSize, maxSize);
         blockSize = processTXs(txStakeTXs, false, simulatedL1, accepted, blockSize, maxSize);
         blockSize = processTXs(txTokenTXs, true, simulatedL2, accepted, blockSize, maxSize);
         blockSize = processTXs(txTokenCENTXs, true, simulatedL2, accepted, blockSize, maxSize);
+        blockSize = processTXs(txFundedCallTXs, false, simulatedL1, accepted, blockSize, maxSize);
     
         List<String> acceptedHashs = new ArrayList<>();
         long gasReward = 0;
@@ -227,7 +232,6 @@ public class BlockBuilderV2 {
             newBlock.initHeader(gasReward);
         }
 
-        
 
         if (!newBlock.validateBlock(blockchainDB.getLatestBlock().getHash())) {
             System.err.println("❌ Replayed block #" + newBlock.getHeight() + " failed validation.");
@@ -237,17 +241,8 @@ public class BlockBuilderV2 {
         System.out.println("NEW BLOCK: " + newBlock.getHash() + "Params: Height: " + newBlock.getHeight()+ " PrevHash: " + newBlock.getPreviousHash() + "MerkleRoot: " + newBlock.getMerkleRoot());
 
         blockchainDB.storeNewBlock(newBlock);
-        //Node.broadcastBlock(block);
     
         System.out.println("Block #" + newBlock.getHeight() + " rebuilt with " + accepted.size() + " TXs, size = " + blockSize + " bytes");
     }
-
-
-    public static void main(String[] args) {
-
-        
-    }
-
-
-    
+ 
 }

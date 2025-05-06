@@ -24,3 +24,4 @@ Thumbs.db
 
 # Local config files (do NOT commit private keys!)
 /config.docs/wiz.txt
+/src/main/java/com/beanchainbeta/devTests
