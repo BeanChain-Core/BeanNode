@@ -1,13 +1,12 @@
 package com.beanchainbeta.services;
 
-import java.io.File;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBIterator;
-import org.iq80.leveldb.Options;
 import org.springframework.stereotype.Service;
 
 
