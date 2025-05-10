@@ -57,7 +57,7 @@ public class TokenCENTXVerifier {
             if(addyMatch && validOwner && senderHasEnoughGas) {
                 CENSignatureValid = true;
             } else {
-                System.out.println("** TX FAILED: " + tx.getTxHash() + "CEN VERIFICATION FAILURE **");
+                System.out.println("** TX FAILED: " + tx.getTxHash() + "CEN CONTRACT VERIFICATION FAILURE **");
                 tx.setStatus("rejected");
                 RejectedService.saveRejectedTransaction(tx);
                 Node.broadcastRejection(tx.getTxHash());
@@ -65,7 +65,7 @@ public class TokenCENTXVerifier {
             }
 
         } else {
-            System.out.println("** TX FAILED: " + tx.getTxHash() + " CEN INFO MISMATCH **");
+            System.out.println("** TX FAILED: " + tx.getTxHash() + " CEN CONTRACT INFO MISMATCH **");
             tx.setStatus("rejected");
             RejectedService.saveRejectedTransaction(tx);
             Node.broadcastRejection(tx.getTxHash());

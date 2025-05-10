@@ -99,12 +99,12 @@ public class TXExecutor {
             return false;
         }
 
-        if(metaNode.has("execute")) {
+        if(metaNode.has("execute") && metaNode.get("execute").asText().equals("burn") && !metaNode.has("isCen")) {
             boolean check = Layer2DBService.burnToken(tx.getFrom(), metaNode.get("tokenHash").asText(), tx.getAmount());
             if(check){
                 WalletService.payGasOnly(tx.getFrom(), tx.getGasFee());
             }
-            return check;
+            return check; 
         }
 
         try {
@@ -116,6 +116,14 @@ public class TXExecutor {
                 if (!metaNode.has("caller") || metaNode.get("caller") == null) {
                     System.err.println("❌ Missing caller field in CEN token TX meta.");
                     return false;
+                }
+
+                if (metaNode.has("execute") && metaNode.get("execute").asText().equals("burn")){
+                    boolean check = Layer2DBService.burnToken(metaNode.get("caller").asText(), metaNode.get("tokenHash").asText(), tx.getAmount());
+                    if(check){
+                        WalletService.payGasOnly(tx.getFrom(), tx.getGasFee());
+                    }
+                    return check; 
                 }
     
                 return Layer2DBService.transferToken(
@@ -144,6 +152,8 @@ public class TXExecutor {
             e.printStackTrace();
             return false;
         }
+
+        
     }
 
     private static boolean executeMint(TX tx) {

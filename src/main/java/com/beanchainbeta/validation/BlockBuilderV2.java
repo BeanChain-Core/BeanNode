@@ -111,7 +111,7 @@ public class BlockBuilderV2 {
                 );
 
                 if (actualNonce != expectedNonce) {
-                    System.out.println("⛔ Nonce mismatch: " + tx.getTxHash() + " actual=" + actualNonce + " expected=" + expectedNonce + " sender=" + sender);
+                    System.out.println("Nonce mismatch: " + tx.getTxHash() + " actual=" + actualNonce + " expected=" + expectedNonce + " sender=" + sender);
                     tx.setStatus("rejected");
                     System.out.print("TX REJECTED NOT VALID: " + tx.getTxHash());
                     Node.broadcastRejection(tx.getTxHash());
