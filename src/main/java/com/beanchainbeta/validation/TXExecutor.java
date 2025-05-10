@@ -7,6 +7,7 @@ import com.beanchainbeta.factories.CallFactory;
 import com.beanchainbeta.services.Layer2DBService;
 import com.beanchainbeta.services.WalletService;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TXExecutor {
 
@@ -23,7 +24,8 @@ public class TXExecutor {
                     return executeTokenTX(tx);
                 case "mint":
                     return executeMint(tx);
-
+                case "cen":
+                    return executeFundedCallTX(tx);
                 default:
                     System.out.println("**UNKNOWN TYPE ERROR**");
                     return false;
@@ -51,6 +53,25 @@ public class TXExecutor {
             return true;
         } catch (Exception e) {
             System.out.println("STAKE TX EXECUTION FAILED");
+            return false;
+        }
+    }
+
+    private static boolean executeFundedCallTX(TX tx){
+        try {
+            JsonNode metaNode = MetaHelper.getMetaNode(tx);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode paramsNode = mapper.readTree(metaNode.get("params").asText());
+            if (!paramsNode.has("cenIP")) {
+                System.err.println("MISSING CENIP IN PARAMS FOR CALL TX");
+                return false;
+            }
+            String cenIP = paramsNode.get("cenIP").asText();
+            WalletService.transfer(tx);
+            CallFactory.FundedCall(tx);
+            return true;
+        } catch (Exception e) {
+            System.out.println("FUNDEDCALL TX EXECUTION FAILED");
             return false;
         }
     }

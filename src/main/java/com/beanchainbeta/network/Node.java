@@ -234,18 +234,12 @@ public class Node {
             instance.broadcastCENCALLInternal(cenIP, call);
         }
     }
-    
+
+
+    //TODO:need to add a mempool or DB fallback for failed CENCALLs to retry then dropoff when timeout (should probably also record failed cencalls)
     private void broadcastCENCALLInternal(String cenIP, CENCALL call) {
         try {
-            Socket socket = null;
-    
-            //Search for connected peer with matching IP
-            for (Map.Entry<Socket, PeerInfo> entry : peers.entrySet()) {
-                if (entry.getValue().getAddress().equals(cenIP)) {
-                    socket = entry.getKey();
-                    break;
-                }
-            }
+            Socket socket = new Socket(cenIP, 6444);
     
             if (socket == null || socket.isClosed()) {
                 System.err.println("No open connection to peer at " + cenIP);

@@ -37,7 +37,7 @@
         <dependency>
             <groupId>com.beanchain</groupId>
             <artifactId>bean-core</artifactId>
-            <version>0.2.3</version>
+            <version>0.2.8</version>
         </dependency>
         
     </dependencies>

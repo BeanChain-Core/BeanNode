@@ -76,30 +76,6 @@ public class TXVerifier {
         }
     }
 
-    public static boolean lightSyncVerify(TX tx) throws Exception {
-        if (tx.getSignature() != null && tx.getSignature().equals("GENESIS-SIGNATURE")) {
-            //System.out.println("GENESIS TX accepted without signature verification: " + txHash);
-            return true;
-        }
-        boolean hasAddy = (tx.getFrom() != null);
-        boolean hasSignature = (tx.getSignature() != null);
-        boolean correctHash = (tx.getTxHash().equals(tx.generateHash()));
     
-        if (hasAddy && hasSignature && correctHash) {
-            boolean addyMatch = TransactionVerifier.walletMatch(tx.getPublicKeyHex(), tx.getFrom());
-            boolean validOwner = TransactionVerifier.verifySHA256Transaction(tx.getPublicKeyHex(), hex.hexToBytes(tx.getTxHash()), tx.getSignature());
-            boolean senderHasEnough = WalletService.hasCorrectAmount(tx.getFrom(), tx.getAmount(), tx.getGasFee());
-    
-            if (addyMatch && validOwner && senderHasEnough) {
-                return true; 
-            } else {
-                System.err.println("lightSyncVerify failed: " + tx.getTxHash());
-                return false;
-            }
-        } else {
-            System.err.println("lightSyncVerify failed basic fields: " + tx.getTxHash());
-            return false;
-        }
-    }
 
 }
