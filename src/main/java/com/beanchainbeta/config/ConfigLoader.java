@@ -12,6 +12,7 @@ public class ConfigLoader {
     private static String privateKeyPath;
     private static String bindAddress;
     private static int networkPort;
+    private static int peerPort;
     private static boolean isBootstrapNode;
     private static String bootstrapIp;
     private static boolean isPublicNode;
@@ -29,6 +30,7 @@ public class ConfigLoader {
             privateKeyPath = props.getProperty("privateKeyPath", "config.docs/wizard.txt");
             bindAddress = props.getProperty("bindAddress", "0.0.0.0");
             networkPort = Integer.parseInt(props.getProperty("networkPort", "6442"));
+            peerPort = Integer.parseInt(props.getProperty("peerPort", "6442"));
             isBootstrapNode = Boolean.parseBoolean(props.getProperty("isBootstrapNode", "false"));
             isPublicNode = Boolean.parseBoolean(props.getProperty("isPublicNode", "false"));
             bootstrapIp = props.getProperty("bootstrapIp", "65.38.97.169");
@@ -51,6 +53,7 @@ public class ConfigLoader {
     public static String getPrivateKeyPath() { return privateKeyPath; }
     public static String getBindAddress() { return bindAddress; }
     public static int getNetworkPort() { return networkPort; }
+    public static int getPeerPort() { return peerPort; }
     public static boolean isBootstrapNode() { return isBootstrapNode; }
     public static boolean isPublicNode() { return isPublicNode; }
     public static String getBootstrapIp() { return bootstrapIp; }

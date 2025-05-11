@@ -246,7 +246,7 @@ public class DBController {
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {
-            Logger.error(e,"Error in /layer2/tokens")
+            Logger.error(e,"Error in /layer2/tokens");
             //System.err.println("Error in /layer2/tokens: " + e.getMessage());
             return ResponseEntity.status(500).body("Internal server error");
         }
@@ -262,7 +262,7 @@ public class DBController {
             int layer2Nonce = Layer2DBService.getLayer2Nonce(address);
             return ResponseEntity.ok(layer2Nonce);
         } catch (Exception e) {
-            Logger.error(e,"Error fetching Layer2 nonce")
+            Logger.error(e,"Error fetching Layer2 nonce");
             //System.err.println("❌ Error fetching Layer2 nonce.");
             //e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(-1);
