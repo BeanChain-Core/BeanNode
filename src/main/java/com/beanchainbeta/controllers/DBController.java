@@ -24,7 +24,7 @@ import com.bean_core.TXs.*;
 import com.bean_core.Utils.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.tinylog.Logger;
 
 
 //@CrossOrigin(origins = "*")
@@ -60,7 +60,8 @@ public class DBController {
             ObjectMapper objectMapper = new ObjectMapper();
             tx = objectMapper.readValue(transactionJson, TX.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error(e);
+            //e.printStackTrace();
             return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\": \"Invalid transaction JSON\"}");
         }
 
@@ -148,7 +149,8 @@ public class DBController {
         } catch (IllegalArgumentException ie) {
             return ResponseEntity.badRequest().body("Invalid label format.");
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error(e);
+            //e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update label.");
         }
     }
@@ -244,7 +246,8 @@ public class DBController {
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {
-            System.err.println("Error in /layer2/tokens: " + e.getMessage());
+            Logger.error(e,"Error in /layer2/tokens")
+            //System.err.println("Error in /layer2/tokens: " + e.getMessage());
             return ResponseEntity.status(500).body("Internal server error");
         }
     }
@@ -259,8 +262,9 @@ public class DBController {
             int layer2Nonce = Layer2DBService.getLayer2Nonce(address);
             return ResponseEntity.ok(layer2Nonce);
         } catch (Exception e) {
-            System.err.println("❌ Error fetching Layer2 nonce.");
-            e.printStackTrace();
+            Logger.error(e,"Error fetching Layer2 nonce")
+            //System.err.println("❌ Error fetching Layer2 nonce.");
+            //e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(-1);
         }
     }

@@ -10,11 +10,8 @@ import org.iq80.leveldb.DBIterator;
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
 import com.bean_core.TXs.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RejectedService {
-    private static final ObjectMapper mapper = new ObjectMapper();
-
     private static DB getRejectedDB() {
         return DBManager.getDB(ConfigLoader.getRejectedDB());
     }

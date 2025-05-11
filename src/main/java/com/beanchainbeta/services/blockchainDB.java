@@ -308,8 +308,8 @@ public class blockchainDB {
 
     // Helper class to return both previousHash and blockHeight
     public static class BlockInfo {
-        private static String previousHash;
-        private static int blockHeight;
+        private String previousHash;
+        private int blockHeight;
 
         public BlockInfo(String previousHash, int blockHeight) {
             this.previousHash = previousHash;

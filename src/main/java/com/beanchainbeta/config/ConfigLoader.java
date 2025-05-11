@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.tinylog.Logger;
 
 
 
@@ -34,13 +35,14 @@ public class ConfigLoader {
 
             chainDB = props.getProperty("chainDB", "chainDB");
             stateDB = props.getProperty("stateDB", "stateDB");
-            System.out.println("STATEDB from config " +  stateDB);
+            //System.out.println("STATEDB from config " +  stateDB);
             mempoolDB = props.getProperty("mempoolDB", "mempoolDB");
             rejectedDB = props.getProperty("rejectedDB", "rejectedDB");
             layer2DB = props.getProperty("layer2DB", "layer2DB");
 
         } catch (IOException e) {
-            System.err.println("⚠️ Failed to load BeanChain config: " + e.getMessage());
+            Logger.error("Failed to load BeanChain config: " + e.getMessage());
+            //System.err.println("Failed to load BeanChain config: " + e.getMessage());
             System.exit(1);
         }
     }
