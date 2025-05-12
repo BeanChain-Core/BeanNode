@@ -25,6 +25,8 @@ Thumbs.db
 # Local config files (do NOT commit private keys!)
 /config.docs/wiz.txt
 /src/main/java/com/beanchainbeta/devTests
+/docker/bootstrap/config.docs/wizard.txt
+/docker/peer/config.docs/wizard.txt
 
 # data
 data/

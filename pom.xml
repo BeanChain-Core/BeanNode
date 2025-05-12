@@ -60,7 +60,7 @@
      <repositories>
          <repository>
             <id>github</id>
-            <url>https://maven.pkg.BeanChain-Core/BeanCore/BeanCore</url>
+            <url>https://maven.pkg.github.com/BeanChain-Core/BeanCore</url>
         </repository>
     </repositories>
 
