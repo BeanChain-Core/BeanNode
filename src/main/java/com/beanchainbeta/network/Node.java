@@ -7,6 +7,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import com.bean_core.Block.*;
+import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.blockchainDB;
 import com.bean_core.TXs.*;
@@ -14,7 +15,12 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;
 
 public class Node {
-    private final int port = 6442;
+    static {
+        ConfigLoader.loadConfig(); // ✅ runs BEFORE static fields or main()
+        System.out.println("✅ Config loaded (from static block)");
+    }
+    private final int port = ConfigLoader.getNetworkPort();
+    private final int peerPort = ConfigLoader.getPeerPort();
     private String ip;
     private final ServerSocket serverSocket;
     private final Set<Socket> connectedPeers = ConcurrentHashMap.newKeySet();
@@ -161,14 +167,14 @@ public class Node {
 
     public void connectToPeer(String host) {
         try {
-            Socket socket = new Socket(host, port);
+            Socket socket = new Socket(host, peerPort);
             connectedPeers.add(socket);
-            knownAddresses.add(host + ":" + port);
-            System.out.println("Connected to peer: " + host + ":" + port);
+            knownAddresses.add(host + ":" + peerPort);
+            System.out.println("Connected to peer: " + host + ":" + peerPort);
             sendHandshake(socket);
             new Thread(() -> handleIncomingMessages(socket)).start();
         } catch (IOException e) {
-            System.err.println("Failed to connect to peer at " + host + ":" + port);
+            System.err.println("Failed to connect to peer at " + host + ":" + peerPort);
         }
     }
 

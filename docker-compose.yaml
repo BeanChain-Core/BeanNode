@@ -1,0 +1,10 @@
+version: '3'
+services:
+  peer:
+    build: ./docker/peer
+    ports:
+      - "6443:6443"
+  bootstrap:
+    build: ./docker/bootstrap
+    ports:
+      - "6442:6442"
