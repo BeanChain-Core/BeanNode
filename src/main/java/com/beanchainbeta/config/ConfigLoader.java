@@ -21,6 +21,8 @@ public class ConfigLoader {
     private static String mempoolDB;
     private static String rejectedDB;
     private static String layer2DB;
+    private static String syncMode;
+    private static String nodeType;
 
     public static void loadConfig() {
         Properties props = new Properties();
@@ -34,6 +36,8 @@ public class ConfigLoader {
             isBootstrapNode = Boolean.parseBoolean(props.getProperty("isBootstrapNode", "false"));
             isPublicNode = Boolean.parseBoolean(props.getProperty("isPublicNode", "false"));
             bootstrapIp = props.getProperty("bootstrapIp", "65.38.97.169");
+            syncMode = props.getProperty("syncMode", "FULL");
+            nodeType = props.getProperty("nodeType", "BEANNODE");
 
             chainDB = props.getProperty("chainDB", "chainDB");
             stateDB = props.getProperty("stateDB", "stateDB");
@@ -57,6 +61,8 @@ public class ConfigLoader {
     public static boolean isBootstrapNode() { return isBootstrapNode; }
     public static boolean isPublicNode() { return isPublicNode; }
     public static String getBootstrapIp() { return bootstrapIp; }
+    public static String getSyncMode() { return syncMode; }
+    public static String getNodeType() { return nodeType; }
 
     public static String getChainDB() { return chainDB; }
     public static String getStateDB() { return stateDB; }

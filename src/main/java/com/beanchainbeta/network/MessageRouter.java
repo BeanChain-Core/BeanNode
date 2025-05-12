@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.iq80.leveldb.DBIterator;
 
 import com.bean_core.Block.Block;
+import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.MempoolService;
 import com.beanchainbeta.services.blockchainDB;
@@ -80,12 +81,13 @@ public class MessageRouter {
             boolean isValidator = msg.has("isValidator") && msg.get("isValidator").asBoolean();
             boolean isPublicNode = msg.has("isPublicNode") && msg.get("isPublicNode").asBoolean(); 
             boolean isReply = msg.has("reply") && msg.get("reply").asBoolean();
+            String nodeType = msg.has("nodeType") ? msg.get("nodeType").asText() : "BEANNODE";
     
             System.out.println("Received handshake from " + peerAddress +
                 " (height=" + peerHeight + ", wantsSync=" + requestSync +
                 ", mode=" + syncMode + ", validator=" + isValidator + ", public=" + isPublicNode + ")");
     
-            PeerInfo info = new PeerInfo(peer, peerAddress, syncMode, isValidator);
+            PeerInfo info = new PeerInfo(peer, peerAddress, syncMode, nodeType, isValidator);
             Node.registerPeer(peer, info);
     
             int myHeight = blockchainDB.getHeight();
@@ -514,7 +516,13 @@ public class MessageRouter {
             handshake.put("blockHeight", blockchainDB.getHeight());
             handshake.put("requestSync", false); // already syncing the other way
             handshake.put("syncMode", "FULL");
-            handshake.put("isValidator", true); // or false if this node isn't a validator
+            String nodeType = ConfigLoader.getNodeType();
+            handshake.put("nodeType", nodeType);
+            if(nodeType.equals("BEANNODE")){
+                handshake.put("isValidator", true); 
+            } else {
+                handshake.put("isValidator", false);
+            }
             handshake.put("isPublicNode", true); // optional if you're tracking this
             handshake.put("reply", true);
     

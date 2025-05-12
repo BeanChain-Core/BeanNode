@@ -26,8 +26,10 @@ public class Node {
     private final Set<Socket> connectedPeers = ConcurrentHashMap.newKeySet();
     private final List<String> knownAddresses = new CopyOnWriteArrayList<>();
     private static Node instance;
-    private static String syncMode = "FULL";
+    private static String syncMode = ConfigLoader.getSyncMode();
+    private static String nodeType = ConfigLoader.getNodeType();
     private static ConcurrentHashMap<Socket, PeerInfo> peers = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<Socket, PeerInfo> cenRegistry = new ConcurrentHashMap<>();
 
     public static void initialize(String ip) throws IOException {
         if (instance == null) {
@@ -140,13 +142,6 @@ public class Node {
                 Socket socket = entry.getKey();
                 PeerInfo info = entry.getValue();
     
-                //TODO: removed for now because RN needs blocks... will reconfigure config settings later
-                // Only send to FULL peers
-                // if (!"FULL".equalsIgnoreCase(info.getSyncMode())) {
-                //     // Optionally: System.out.println("Skipping TX_ONLY peer: " + info.getAddress());
-                //     continue;
-                // }
-    
                 if (!socket.isClosed() && socket.isConnected()) {
                     PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                     out.println(blockMessage);
@@ -188,7 +183,12 @@ public class Node {
             handshake.put("requestSync", true);
             handshake.put("address", portal.admin.address);
             handshake.put("syncMode", syncMode);
-            handshake.put("isValidator", true);
+            handshake.put("nodeType", nodeType);
+            if(nodeType.equals("BEANNODE")){
+                handshake.put("isValidator", true);
+            } else {
+                handshake.put("isValidator", false);
+            }
             out.println(mapper.writeValueAsString(handshake));
         } catch (IOException e) {
             System.err.println("Failed to send handshake");
