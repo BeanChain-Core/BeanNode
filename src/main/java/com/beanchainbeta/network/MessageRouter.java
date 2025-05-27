@@ -85,7 +85,7 @@ public class MessageRouter {
     
             System.out.println("Received handshake from " + peerAddress +
                 " (height=" + peerHeight + ", wantsSync=" + requestSync +
-                ", mode=" + syncMode + ", validator=" + isValidator + ", public=" + isPublicNode + ")");
+                ", mode=" + syncMode + ", validator=" + isValidator + ", public=" + isPublicNode + "nodeType=" + nodeType  + ")");
     
             PeerInfo info = new PeerInfo(peer, peerAddress, syncMode, nodeType, isValidator);
             Node.registerPeer(peer, info);
@@ -179,12 +179,18 @@ public class MessageRouter {
             ObjectMapper mapper = new ObjectMapper();
     
             String syncMode = message.has("syncMode") ? message.get("syncMode").asText() : "FULL";
+            int peerHeight = message.has("latestHeight") ? message.get("latestHeight").asInt() : -1;
+            int myHeight = blockchainDB.getHeight();
+
+            
+            if (peerHeight >= myHeight) {
+                System.out.println("Peer " + peer.getInetAddress().getHostAddress() + " already in sync. No sync_response sent.");
+                return;
+            }
     
             ArrayNode blocksArray = mapper.createArrayNode();
             ArrayNode confirmedTxArray = mapper.createArrayNode();
             ArrayNode mempoolArray = mapper.createArrayNode();
-    
-            int myHeight = blockchainDB.getHeight();
     
             // 🔹 Step 1: Always load confirmed TXs
             Set<String> blockTxHashes = new HashSet<>();
@@ -266,6 +272,7 @@ public class MessageRouter {
     
 
     private void handleSyncResponse(JsonNode msg) {
+        portal.setIsSyncing(true);
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode confirmedTxs = msg.get("confirmedTxs");
@@ -286,16 +293,26 @@ public class MessageRouter {
             }
     
             System.out.println("Mempool now contains " + MempoolService.getTxFromPool().size() + " total TXs.");
+
+            
     
             // ✅ Step 2: Parse and sort all blocks to replay
             List<Block> blocksToReplay = new ArrayList<>();
+
+            
+
             for (JsonNode blockNode : blocks) {
                 Block block = mapper.treeToValue(blockNode, Block.class);
                 blocksToReplay.add(block);
             }
     
             blocksToReplay.sort(Comparator.comparingInt(Block::getHeight));
-    
+
+            if (blocksToReplay.isEmpty() || blocksToReplay.get(blocksToReplay.size() - 1).getHeight() <= blockchainDB.getHeight()) {
+                        System.out.println("Node is already at latest block height. Skipping sync replay.");
+                        portal.setIsSyncing(false);
+                        return;
+                    }
             // ✅ Step 3: Replay blocks
             for (Block block : blocksToReplay) {
                 if (block.getHeight() == 0) continue; // Skip genesis
@@ -335,11 +352,20 @@ public class MessageRouter {
         try {
             ObjectMapper mapper = new ObjectMapper();
             TX tx = mapper.treeToValue(msg.get("payload"), TX.class);
+            if(tx==null){
+                System.out.println("INCOMING TX NULL");
+                return;
+            }
             String txHash = tx.getTxHash();
     
             // 🔁 Check if already in mempool
             if (MempoolService.contains(txHash)) {
-                System.out.println("🔄 Duplicate TX received, already in mempool: " + txHash);
+                System.out.println("Duplicate TX received, already in mempool: " + txHash);
+                return;
+            }
+            
+            if (blockchainDB.checkTxConfirmed(txHash)) {
+                System.out.println("Duplicate TX received, already 'COMPLETE': " + txHash);
                 return;
             }
     

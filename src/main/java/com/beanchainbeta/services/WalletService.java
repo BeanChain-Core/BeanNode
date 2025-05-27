@@ -362,11 +362,14 @@ public class WalletService {
         return true;
     }
     
-    public static void creditGaspoolFromBlock(long gasFeeReward) throws IOException {
-        String gaspool = "BEANX:0xGASPOOL";
-        InBeanTx(gaspool, beantoshinomics.toBean(gasFeeReward));
-        System.out.println("Gaspool credited with " + gasFeeReward + " beantoshi");
-    }
+    // public static void creditGaspoolFromBlock(long gasFeeReward) throws IOException {
+    //     String gaspool = "BEANX:0xGASPOOL";
+    //     if(gasFeeReward > 0){
+    //         InBeanTx(gaspool, beantoshinomics.toBean(gasFeeReward));
+    //         System.out.println("Gaspool credited with " + gasFeeReward + " beantoshi");
+    //     }
+        
+    // }
 
     public static void payGasOnly(String from, long gasFee) throws IOException {
         ObjectMapper mapper = new ObjectMapper();

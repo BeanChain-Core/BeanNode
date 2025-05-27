@@ -8,3 +8,9 @@ services:
     build: ./docker/bootstrap
     ports:
       - "6442:6442"
+      - "8080:8080"
+  rn:
+    build: ./docker/rn
+    ports:
+      - "6446:6446"
+  

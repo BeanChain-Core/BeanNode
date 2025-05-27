@@ -11,8 +11,6 @@ import com.beanchainbeta.validation.BlockTimerBeta;
 import com.bean_core.Wizard.*;
 import com.bean_core.beanify.Branding;
 
-import org.tinylog.Logger;
-
 public class autoStartGPN {
     
 

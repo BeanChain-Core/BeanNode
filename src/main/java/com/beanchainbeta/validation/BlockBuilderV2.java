@@ -56,7 +56,7 @@ public class BlockBuilderV2 {
             gasReward += tx.getGasFee();
         }
 
-        WalletService.creditGaspoolFromBlock(gasReward);
+        //WalletService.creditGaspoolFromBlock(gasReward);
 
 
         Block block = new Block(blockchainDB.getHeight() + 1, blockchainDB.getLatestBlock().getHash(), acceptedHashs, validatorKey);
@@ -227,7 +227,7 @@ public class BlockBuilderV2 {
             gasReward += tx.getGasFee();
         }
 
-        WalletService.creditGaspoolFromBlock(gasReward);
+        //WalletService.creditGaspoolFromBlock(gasReward);
         if (newBlock.getHeader() == null) {
             newBlock.initHeader(gasReward);
         }

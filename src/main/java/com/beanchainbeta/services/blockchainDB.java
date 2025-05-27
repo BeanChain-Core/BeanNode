@@ -82,6 +82,22 @@ public class blockchainDB {
         return asString(db.get(bytes(key)));
     }
 
+    public static boolean checkTxConfirmed(String txHash){
+        String key = "tran-" + txHash;
+        try {
+            byte[] data = db.get(bytes(key));
+            if (data == null) return false;
+
+            String json = asString(data);
+            if (json == null) return false;
+
+            TX tx = TX.fromJSON(json); 
+            return tx != null && "complete".equals(tx.getStatus());
+        } catch (Exception e){
+            return false;
+        }
+    }
+
     public static Block getBlockByHeight(int height) {
         try {
             String key = "block-" + height;

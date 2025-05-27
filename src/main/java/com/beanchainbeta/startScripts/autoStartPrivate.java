@@ -1,6 +1,7 @@
 package com.beanchainbeta.startScripts;
 
 import com.beanchainbeta.config.ConfigLoader;
+import com.beanchainbeta.devTests.TXTestBatcher;
 import com.beanchainbeta.nodePortal.adminCube;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.CleanupService;
@@ -36,7 +37,7 @@ public class autoStartPrivate {
         }
     }
 
-    private static void signInSuccess(){
+    private static void signInSuccess() throws Exception{
         // Thread springThread = new Thread(() -> {
         //             SpringApplication.run(BeanChainApi.class);
         //         }, "SpringThread");
@@ -65,6 +66,7 @@ public class autoStartPrivate {
                 }
             }
         }).start();
+        TXTestBatcher.loadMemPool();
     }
 }
     

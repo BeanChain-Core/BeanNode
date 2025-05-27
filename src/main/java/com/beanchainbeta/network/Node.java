@@ -23,7 +23,6 @@ public class Node {
     private final int peerPort = ConfigLoader.getPeerPort();
     private String ip;
     private final ServerSocket serverSocket;
-    private final Set<Socket> connectedPeers = ConcurrentHashMap.newKeySet();
     private final List<String> knownAddresses = new CopyOnWriteArrayList<>();
     private static Node instance;
     private static String syncMode = ConfigLoader.getSyncMode();
@@ -56,7 +55,6 @@ public class Node {
         while (true) {
             try {
                 Socket peer = serverSocket.accept();
-                connectedPeers.add(peer);
                 System.out.println("New peer connected: " + peer.getInetAddress().getHostAddress());
                 new Thread(() -> handleIncomingMessages(peer)).start();
             } catch (IOException e) {
@@ -84,22 +82,22 @@ public class Node {
             try {
                 peer.close();
             } catch (IOException ignored) {}
-            connectedPeers.remove(peer);
+            peers.remove(peer);
         }
     }
 
-    public void broadcast(String message) {
-        for (Socket peer : new ArrayList<>(connectedPeers)) {
+    public void broadcast(String message, ArrayList<Socket> peersToSendTo) {
+        for (Socket peer : peersToSendTo) {
             try {
                 if (!peer.isClosed() && peer.isConnected()) {
                     PrintWriter out = new PrintWriter(peer.getOutputStream(), true);
                     out.println(message);
                 } else {
-                    connectedPeers.remove(peer);
+                    peers.remove(peer);
                 }
             } catch (IOException e) {
                 System.err.println("Failed to broadcast message to peer: " + peer.getInetAddress());
-                connectedPeers.remove(peer);
+                peers.remove(peer);
             }
         }
     }
@@ -111,7 +109,8 @@ public class Node {
             message.put("type", "transaction");
             message.set("payload", mapper.readTree(tx.createJSON()));
             String jsonMessage = mapper.writeValueAsString(message);
-            broadcast(jsonMessage);
+            broadcast(jsonMessage, getSocketsByNodeType("BEANNODE"));
+            broadcast(jsonMessage, getSocketsByNodeType("RN"));
         } catch (Exception e) {
             System.err.println("Failed to broadcast transaction:");
             e.printStackTrace();
@@ -163,7 +162,6 @@ public class Node {
     public void connectToPeer(String host) {
         try {
             Socket socket = new Socket(host, peerPort);
-            connectedPeers.add(socket);
             knownAddresses.add(host + ":" + peerPort);
             System.out.println("Connected to peer: " + host + ":" + peerPort);
             sendHandshake(socket);
@@ -196,11 +194,23 @@ public class Node {
     }
 
     public static void registerPeer(Socket socket, PeerInfo info) {
-        peers.put(socket, info);
+        if(info.getNodeType().equals("BEANNODE")){
+            peers.put(socket, info);
+        } else if (info.getNodeType().equals("CEN")){
+            cenRegistry.put(socket, info);
+        } else if (info.getNodeType().equals("RN")){
+            System.out.println("RN IS CONNECTED AS PEER (THIS NODE SHOULD BE GPN ONLY)");
+            peers.put(socket, info);
+        }
+        
     }
 
     public static Collection<PeerInfo> getConnectedPeers() {
         return peers.values();
+    }
+
+    public static Collection<PeerInfo> getConnectedCENs(){
+        return cenRegistry.values();
     }
 
     public static List<PeerInfo> getActiveValidators() {
@@ -208,6 +218,18 @@ public class Node {
         .filter(PeerInfo::getIsValidator)
         .collect(Collectors.toList());
     }
+
+    public static ArrayList<Socket> getSocketsByNodeType(String nodeType) {
+        return new ArrayList<>(
+            peers.entrySet().stream()
+                .filter(entry -> entry.getValue().getNodeType().equalsIgnoreCase(nodeType))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList())
+        );
+    }
+
+
+    
 
     public static void broadcastRejection(String txHash) {
         if (instance != null) {
@@ -227,7 +249,7 @@ public class Node {
             message.set("payload", payload);
             String jsonMessage = mapper.writeValueAsString(message);
     
-            broadcast(jsonMessage);
+            broadcast(jsonMessage, getSocketsByNodeType("BEANNODE"));
             System.out.println("Broadcasted rejection for TX: " + txHash);
         } catch (Exception e) {
             System.err.println("Failed to broadcast rejection gossip:");
