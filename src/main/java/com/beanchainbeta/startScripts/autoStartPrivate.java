@@ -8,8 +8,8 @@ import com.beanchainbeta.services.CleanupService;
 import com.beanchainbeta.services.MempoolService;
 import com.beanchainbeta.services.WalletService;
 import com.beanchainbeta.services.blockchainDB;
-import com.bean_core.Wizard.*;
-import com.bean_core.beanify.Branding;
+import com.beanpack.Wizard.*;
+import com.beanpack.beanify.Branding;
 
 public class autoStartPrivate {
     public static void nodeStart() throws Exception {
@@ -66,7 +66,7 @@ public class autoStartPrivate {
                 }
             }
         }).start();
-        TXTestBatcher.loadMemPool();
+        //TXTestBatcher.loadMemPool();
     }
 }
     

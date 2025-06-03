@@ -2,11 +2,14 @@ package com.beanchainbeta.services;
 
 import org.iq80.leveldb.*;
 
-import com.bean_core.Block.*;
+
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
 import com.beanchainbeta.genesis.GenesisTX;
-import com.bean_core.TXs.*;
+import com.beanpack.Block.Block;
+import com.beanpack.Block.BlockHeader;
+import com.beanpack.TXs.TX;
+
 import java.nio.charset.StandardCharsets;
 import static org.iq80.leveldb.impl.Iq80DBFactory.*;
 import java.util.ArrayList;

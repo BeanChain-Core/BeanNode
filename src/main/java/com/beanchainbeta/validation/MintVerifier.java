@@ -1,13 +1,13 @@
 package com.beanchainbeta.validation;
 
-import com.bean_core.TXs.TX;
-import com.bean_core.crypto.TransactionVerifier;
+import com.beanpack.TXs.TX;
+import com.beanpack.crypto.TransactionVerifier;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.services.Layer2DBService;
 import com.beanchainbeta.services.RejectedService;
 import com.beanchainbeta.services.WalletService;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.bean_core.Utils.*;
+import com.beanpack.Utils.*;
 
 public class MintVerifier {
 

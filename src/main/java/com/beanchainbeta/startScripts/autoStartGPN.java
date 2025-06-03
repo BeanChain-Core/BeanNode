@@ -8,8 +8,8 @@ import com.beanchainbeta.nodePortal.adminCube;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.CleanupService;
 import com.beanchainbeta.validation.BlockTimerBeta;
-import com.bean_core.Wizard.*;
-import com.bean_core.beanify.Branding;
+import com.beanpack.Wizard.*;
+import com.beanpack.beanify.Branding;
 
 public class autoStartGPN {
     

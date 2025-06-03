@@ -10,9 +10,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
-import com.bean_core.TXs.*;
-import com.bean_core.crypto.*;
-import com.bean_core.Utils.*;
+import com.beanpack.TXs.*;
+import com.beanpack.crypto.*;
+import com.beanpack.Utils.*;
 
 public class TokenCENTXVerifier {
     

@@ -5,9 +5,9 @@ import com.beanchainbeta.services.Layer2DBService;
 import com.beanchainbeta.services.RejectedService;
 import com.beanchainbeta.services.WalletService;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.bean_core.TXs.*;
-import com.bean_core.crypto.*;
-import com.bean_core.Utils.*;
+import com.beanpack.TXs.*;
+import com.beanpack.crypto.*;
+import com.beanpack.Utils.*;
 
 public class TokenTXVerifier {
 

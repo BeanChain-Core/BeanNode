@@ -1,8 +1,8 @@
 package com.beanchainbeta.validation;
 
-import com.bean_core.TXs.TX;
-import com.bean_core.Utils.MetaHelper;
-import com.bean_core.Utils.beantoshinomics;
+import com.beanpack.TXs.TX;
+import com.beanpack.Utils.MetaHelper;
+import com.beanpack.Utils.beantoshinomics;
 import com.beanchainbeta.factories.CallFactory;
 import com.beanchainbeta.services.Layer2DBService;
 import com.beanchainbeta.services.WalletService;
