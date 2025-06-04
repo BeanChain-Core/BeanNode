@@ -22,6 +22,8 @@ public class CLIManager {
                     } else {
                         System.out.println("Usage: connect <ip> <port>");
                     }
+                } else if (input.equals("print peers")){
+                    Node.printPeers();
                 } else if (input.equals("exit")) {
                     System.out.println("Shutting down...");
                     System.exit(0);
