@@ -21,7 +21,7 @@ public class Node {
         ConfigLoader.loadConfig(); // ✅ runs BEFORE static fields or main()
         
     }
-    private final int port = ConfigLoader.getNetworkPort();
+    private int port = ConfigLoader.getNetworkPort();
     private final int peerPort = ConfigLoader.getPeerPort();
     private String ip;
     private final ServerSocket serverSocket;
@@ -196,6 +196,7 @@ public class Node {
             handshake.put("address", portal.admin.address);
             handshake.put("syncMode", syncMode);
             handshake.put("nodeType", nodeType);
+            handshake.put("networkPort", port);
             if(nodeType.equals("BEANNODE")){
                 handshake.put("isValidator", true);
             } else {
@@ -289,10 +290,14 @@ public class Node {
             PeerInfo info = entry.getValue();
 
             String ip = socket.getInetAddress().getHostAddress();
-            int port = socket.getPort();
+            int port = info.getListeningPort();
 
-            System.out.println("- " + ip + ":" + port + " | Info: " + info);
+            System.out.println("- " + ip + ":" + port + " | Info: " + info.stringInfo());
         }
+    }
+
+    public int getPort(){
+        return port;
     }
 
 
