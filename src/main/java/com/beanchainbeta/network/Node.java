@@ -173,6 +173,18 @@ public class Node {
         }
     }
 
+    public void connectToPeer(String host, int newPeerPort) {
+        try {
+            Socket socket = new Socket(host, newPeerPort);
+            knownAddresses.add(host + ":" + newPeerPort);
+            System.out.println("Connected to peer: " + host + ":" + newPeerPort);
+            sendHandshake(socket);
+            new Thread(() -> handleIncomingMessages(socket)).start();
+        } catch (IOException e) {
+            System.err.println("Failed to connect to peer at " + host + ":" + newPeerPort);
+        }
+    }
+
     private void sendHandshake(Socket socket) {
         try {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
