@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.node.*;
 public class Node {
     static {
         ConfigLoader.loadConfig(); // ✅ runs BEFORE static fields or main()
-        System.out.println("✅ Config loaded (from static block)");
+        
     }
     private final int port = ConfigLoader.getNetworkPort();
     private final int peerPort = ConfigLoader.getPeerPort();
@@ -274,6 +274,24 @@ public class Node {
     public static void broadcastCENCALL(String cenIP, CENCALL call) {
         if (instance != null) {
             instance.broadcastCENCALLInternal(cenIP, call);
+        }
+    }
+
+    public static void printPeers() {
+        if (peers.isEmpty()) {
+            System.out.println("No connected peers.");
+            return;
+        }
+
+        System.out.println("Connected Peers:");
+        for (Map.Entry<Socket, PeerInfo> entry : peers.entrySet()) {
+            Socket socket = entry.getKey();
+            PeerInfo info = entry.getValue();
+
+            String ip = socket.getInetAddress().getHostAddress();
+            int port = socket.getPort();
+
+            System.out.println("- " + ip + ":" + port + " | Info: " + info);
         }
     }
 
