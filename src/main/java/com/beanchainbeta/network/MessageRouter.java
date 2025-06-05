@@ -82,12 +82,14 @@ public class MessageRouter {
             boolean isPublicNode = msg.has("isPublicNode") && msg.get("isPublicNode").asBoolean(); 
             boolean isReply = msg.has("reply") && msg.get("reply").asBoolean();
             String nodeType = msg.has("nodeType") ? msg.get("nodeType").asText() : "BEANNODE";
+
+            int listeningPort = msg.has("networkPort") ? msg.get("networkPort").asInt() : 6442;
     
             System.out.println("Received handshake from " + peerAddress +
                 " (height=" + peerHeight + ", wantsSync=" + requestSync +
                 ", mode=" + syncMode + ", validator=" + isValidator + ", public=" + isPublicNode + "nodeType=" + nodeType  + ")");
     
-            PeerInfo info = new PeerInfo(peer, peerAddress, syncMode, nodeType, isValidator);
+            PeerInfo info = new PeerInfo(peer, peerAddress, syncMode, nodeType, isValidator, listeningPort);
             Node.registerPeer(peer, info);
     
             int myHeight = blockchainDB.getHeight();
@@ -534,6 +536,7 @@ public class MessageRouter {
     }
 
     private void sendHandshakeBack(Socket peer) {
+        Node node = Node.getInstance();
         try {
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode handshake = mapper.createObjectNode();
@@ -542,6 +545,7 @@ public class MessageRouter {
             handshake.put("blockHeight", blockchainDB.getHeight());
             handshake.put("requestSync", false); // already syncing the other way
             handshake.put("syncMode", "FULL");
+            handshake.put("networkPort", node.getPort());
             String nodeType = ConfigLoader.getNodeType();
             handshake.put("nodeType", nodeType);
             if(nodeType.equals("BEANNODE")){

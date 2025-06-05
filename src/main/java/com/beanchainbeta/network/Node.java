@@ -19,9 +19,9 @@ import com.fasterxml.jackson.databind.node.*;
 public class Node {
     static {
         ConfigLoader.loadConfig(); // ✅ runs BEFORE static fields or main()
-        System.out.println("✅ Config loaded (from static block)");
+        
     }
-    private final int port = ConfigLoader.getNetworkPort();
+    private int port = ConfigLoader.getNetworkPort();
     private final int peerPort = ConfigLoader.getPeerPort();
     private String ip;
     private final ServerSocket serverSocket;
@@ -173,6 +173,18 @@ public class Node {
         }
     }
 
+    public void connectToPeer(String host, int newPeerPort) {
+        try {
+            Socket socket = new Socket(host, newPeerPort);
+            knownAddresses.add(host + ":" + newPeerPort);
+            System.out.println("Connected to peer: " + host + ":" + newPeerPort);
+            sendHandshake(socket);
+            new Thread(() -> handleIncomingMessages(socket)).start();
+        } catch (IOException e) {
+            System.err.println("Failed to connect to peer at " + host + ":" + newPeerPort);
+        }
+    }
+
     private void sendHandshake(Socket socket) {
         try {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -184,6 +196,7 @@ public class Node {
             handshake.put("address", portal.admin.address);
             handshake.put("syncMode", syncMode);
             handshake.put("nodeType", nodeType);
+            handshake.put("networkPort", port);
             if(nodeType.equals("BEANNODE")){
                 handshake.put("isValidator", true);
             } else {
@@ -263,6 +276,28 @@ public class Node {
         if (instance != null) {
             instance.broadcastCENCALLInternal(cenIP, call);
         }
+    }
+
+    public static void printPeers() {
+        if (peers.isEmpty()) {
+            System.out.println("No connected peers.");
+            return;
+        }
+
+        System.out.println("Connected Peers:");
+        for (Map.Entry<Socket, PeerInfo> entry : peers.entrySet()) {
+            Socket socket = entry.getKey();
+            PeerInfo info = entry.getValue();
+
+            String ip = socket.getInetAddress().getHostAddress();
+            int port = info.getListeningPort();
+
+            System.out.println("- " + ip + ":" + port + " | Info: " + info.stringInfo());
+        }
+    }
+
+    public int getPort(){
+        return port;
     }
 
 

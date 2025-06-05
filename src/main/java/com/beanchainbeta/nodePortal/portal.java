@@ -4,6 +4,8 @@ package com.beanchainbeta.nodePortal;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.beanchainbeta.config.ConfigLoader;
+import com.beanchainbeta.controllers.CLIManager;
+//import com.beanchainbeta.devTests.TXTestBatcher;
 import com.beanchainbeta.services.MempoolSyncService;
 import com.beanchainbeta.services.blockchainDB;
 import com.beanchainbeta.startScripts.autoStartGPN;
@@ -13,8 +15,13 @@ import com.beanchainbeta.startScripts.autoStartPublic;
 @SpringBootApplication
 public class portal {
     static {
-        ConfigLoader.loadConfig(); // ✅ runs BEFORE static fields or main()
-        //System.out.println("✅ Config loaded (from static block)");
+        try{
+            ConfigLoader.loadConfig(); // runs BEFORE static fields or main()
+            System.out.println("Config-----------loaded");
+        } catch (Exception e){
+            System.out.println("Config-----------failed");
+            e.printStackTrace();
+        }
     }
     public static adminCube admin;
     public static blockchainDB beanchainTest = new blockchainDB();
@@ -35,13 +42,16 @@ public class portal {
             autoStartPrivate.nodeStart();
         }
         
+        
         Thread memGossipThread = new Thread(() -> {
                     MempoolSyncService.start();
                 }, "memGossipThread");
 
         memGossipThread.setDaemon(false);
         memGossipThread.start();
-        
+        //TXTestBatcher.loadMemPool(); // FIXME: this is a test TX for dev testing do not leave this line in production!
+
+        CLIManager.startConsole(); //starts CLIManager in new thread
     }
 
     
