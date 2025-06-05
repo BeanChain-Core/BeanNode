@@ -3,7 +3,7 @@ package com.beanchainbeta.validation;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.bean_core.beanify.Branding;
+import com.beanpack.beanify.Branding;
 import com.beanchainbeta.nodePortal.portal;
 
 

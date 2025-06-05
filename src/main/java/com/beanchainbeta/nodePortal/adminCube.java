@@ -4,7 +4,7 @@ import java.security.PrivateKey;
 
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.network.Node;
-import com.bean_core.crypto.*;
+import com.beanpack.crypto.*;
 
 public class adminCube {
     public String privateKeyHex;

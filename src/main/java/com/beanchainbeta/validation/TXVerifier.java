@@ -4,9 +4,9 @@ import com.beanchainbeta.network.Node;
 import com.beanchainbeta.services.RejectedService;
 import com.beanchainbeta.services.WalletService;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.bean_core.TXs.*;
-import com.bean_core.crypto.*;
-import com.bean_core.Utils.*;
+import com.beanpack.TXs.*;
+import com.beanpack.crypto.*;
+import com.beanpack.Utils.*;
 
 public class TXVerifier {
     private static final String RN_ADDRESS = "BEANX:0x5283d1e237b034c35e9ff8f586cedbe18abcccff";

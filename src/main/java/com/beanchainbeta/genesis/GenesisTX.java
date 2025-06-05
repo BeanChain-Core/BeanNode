@@ -3,7 +3,7 @@ package com.beanchainbeta.genesis;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
-import com.bean_core.TXs.*;
+import com.beanpack.TXs.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GenesisTX extends TX{

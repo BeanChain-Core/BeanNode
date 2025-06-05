@@ -7,8 +7,8 @@ import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.nodePortal.adminCube;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.CleanupService;
-import com.bean_core.Wizard.*;
-import com.bean_core.beanify.Branding;
+import com.beanpack.Wizard.*;
+import com.beanpack.beanify.Branding;
 
 public class autoStartPublic {
     public static void nodeStart() throws Exception {

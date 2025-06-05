@@ -1,7 +1,7 @@
 package com.beanchainbeta.helpers;
 
-import com.bean_core.Wizard.wizard;
-import com.bean_core.crypto.WalletGenerator;
+import com.beanpack.Wizard.wizard;
+import com.beanpack.crypto.WalletGenerator;
 
 public class wizHelper {
     

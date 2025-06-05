@@ -9,7 +9,7 @@ import org.iq80.leveldb.DBIterator;
 
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
-import com.bean_core.TXs.*;
+import com.beanpack.TXs.*;
 
 public class RejectedService {
     private static DB getRejectedDB() {

@@ -12,13 +12,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.iq80.leveldb.DBIterator;
 
-import com.bean_core.Block.Block;
+import com.beanpack.Block.Block;
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.MempoolService;
 import com.beanchainbeta.services.blockchainDB;
 import com.beanchainbeta.validation.BlockBuilderV2;
-import com.bean_core.TXs.*;
+import com.beanpack.TXs.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
