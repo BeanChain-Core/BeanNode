@@ -41,7 +41,6 @@ public class ConfigLoader {
 
             chainDB = props.getProperty("chainDB", "chainDB");
             stateDB = props.getProperty("stateDB", "stateDB");
-            //System.out.println("STATEDB from config " +  stateDB);
             mempoolDB = props.getProperty("mempoolDB", "mempoolDB");
             rejectedDB = props.getProperty("rejectedDB", "rejectedDB");
             layer2DB = props.getProperty("layer2DB", "layer2DB");
