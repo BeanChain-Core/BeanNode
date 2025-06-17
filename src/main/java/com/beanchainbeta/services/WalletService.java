@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
+import com.beanchainbeta.helpers.DevConfig;
 import com.beanpack.Models.*;
 import com.beanpack.TXs.*;
 import com.beanpack.crypto.*;
@@ -240,7 +241,7 @@ public class WalletService {
             //System.out.println("Credited " + tx.getGasFee() + " beantoshi to GASPOOL from " + tx.getFrom());
         }
 
-        System.out.println("Transferred " + tx.getAmount() + " BEAN from " + tx.getFrom() + " to " + tx.getTo());
+        if(DevConfig.devMode) {System.out.println("Transferred " + tx.getAmount() + " BEAN from " + tx.getFrom() + " to " + tx.getTo());}
 
         
     }
@@ -400,7 +401,7 @@ public class WalletService {
             String updatedSender = mapper.writeValueAsString(walletNode);
             db.put(fromKey.getBytes(StandardCharsets.UTF_8), updatedSender.getBytes(StandardCharsets.UTF_8));
     
-            System.out.println("✅ Gas fee of " + gasFee + " paid by: " + from);
+            if (DevConfig.devMode) {System.out.println("✅ Gas fee of " + gasFee + " paid by: " + from);}
         } else {
             System.err.println("❌ Wallet not found for gas payment: " + from);
             throw new IOException("Wallet not found.");
