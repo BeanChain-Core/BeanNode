@@ -1,7 +1,7 @@
 package com.beanchainbeta.startScripts;
 
 import com.beanchainbeta.config.ConfigLoader;
-import com.beanchainbeta.devTests.TXTestBatcher;
+//import com.beanchainbeta.devTests.TXTestBatcher;
 import com.beanchainbeta.nodePortal.adminCube;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.CleanupService;
