@@ -10,6 +10,8 @@ import org.tinylog.Logger;
 
 public class ConfigLoader {
     private static String privateKeyPath;
+    private static boolean encryptedWiz;
+    private static String adminPass;
     private static String bindAddress;
     private static int networkPort;
     private static int peerPort;
@@ -30,12 +32,15 @@ public class ConfigLoader {
             props.load(fis);
 
             privateKeyPath = props.getProperty("privateKeyPath", "config.docs/wizard.txt");
+            encryptedWiz = Boolean.parseBoolean(props.getProperty("encryptedWiz", "false")); // defaults to a non encrypted wiz key for general safe and private use
+            adminPass = props.getProperty("adminPass", "admin"); // default encryption password is set to admin if left blank
+
             bindAddress = props.getProperty("bindAddress", "0.0.0.0");
             networkPort = Integer.parseInt(props.getProperty("networkPort", "6442"));
             peerPort = Integer.parseInt(props.getProperty("peerPort", "6442"));
             isBootstrapNode = Boolean.parseBoolean(props.getProperty("isBootstrapNode", "false"));
             isPublicNode = Boolean.parseBoolean(props.getProperty("isPublicNode", "false"));
-            bootstrapIp = props.getProperty("bootstrapIp", "65.38.97.169");
+            bootstrapIp = props.getProperty("bootstrapIp", "66.179.82.188"); //current DEVNET DEFAULT GPN
             syncMode = props.getProperty("syncMode", "FULL");
             nodeType = props.getProperty("nodeType", "BEANNODE");
 
@@ -54,6 +59,8 @@ public class ConfigLoader {
 
     
     public static String getPrivateKeyPath() { return privateKeyPath; }
+    public static boolean getEncryptedWiz() {return encryptedWiz;}
+    public static String getAdminPass() {return adminPass;}
     public static String getBindAddress() { return bindAddress; }
     public static int getNetworkPort() { return networkPort; }
     public static int getPeerPort() { return peerPort; }
