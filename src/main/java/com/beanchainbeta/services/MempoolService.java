@@ -96,7 +96,7 @@ public class MempoolService {
                 transactions.remove(txHash);
                 try {
                     db.delete(bytes(txHash));
-                    System.out.println("Removed TX from mempool DB and memory: " + txHash);
+                    if (DevConfig.devMode) {System.out.println("Removed TX from mempool DB and memory: " + txHash);}
                 } catch (Exception e) {
                     System.err.println("Error deleting TX from DB: " + txHash);
                     e.printStackTrace();
