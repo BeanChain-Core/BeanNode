@@ -6,6 +6,7 @@ import org.iq80.leveldb.*;
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
 import com.beanchainbeta.genesis.GenesisTX;
+import com.beanchainbeta.helpers.DevConfig;
 import com.beanpack.Block.Block;
 import com.beanpack.Block.BlockHeader;
 import com.beanpack.TXs.TX;
@@ -55,10 +56,12 @@ public class blockchainDB {
             try{
                 String key = "block-" + block.getHeight();
                 db.put(bytes(key), bytes(block.createJSON()));
-                String blockLog = 
-                "{NEW-BLOCK}{" + block.getHeight() + "}\n" +
-                block.createJSON(); 
-                System.out.println(blockLog);
+                if (DevConfig.devMode){
+                    String blockLog = 
+                    "{NEW-BLOCK}{" + block.getHeight() + "}\n" +
+                    block.createJSON(); 
+                    System.out.println(blockLog);
+                }
             } catch (Exception e) {
                 System.err.println(e);
             }

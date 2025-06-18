@@ -197,6 +197,7 @@ public class Node {
             handshake.put("syncMode", syncMode);
             handshake.put("nodeType", nodeType);
             handshake.put("networkPort", port);
+            handshake.put("reply", false);
             if(nodeType.equals("BEANNODE")){
                 handshake.put("isValidator", true);
             } else {

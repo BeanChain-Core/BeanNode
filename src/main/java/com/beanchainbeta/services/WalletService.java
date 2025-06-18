@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
+import com.beanchainbeta.helpers.DevConfig;
 import com.beanpack.Models.*;
 import com.beanpack.TXs.*;
 import com.beanpack.crypto.*;
@@ -115,13 +116,13 @@ public class WalletService {
             String updatedSender = mapper.writeValueAsString(walletNode);
             db.put(fromKey.getBytes(StandardCharsets.UTF_8), updatedSender.getBytes(StandardCharsets.UTF_8)); 
         } else {
-            System.out.println("No Wallet Found");
+            if (DevConfig.devMode) {System.out.println("No Wallet Found");}
         }
     }
 
     // update reciever wallet state 
     private static void InBeanTx(String to, double amount) throws IOException {
-        System.out.println("[IN_BEAN_TX] To Address: " + to + " | Length: " + to.length());
+        if (DevConfig.devMode) {System.out.println("[IN_BEAN_TX] To Address: " + to + " | Length: " + to.length());}
 
         ObjectMapper mapper = new ObjectMapper();
         String toKey = to;
@@ -147,7 +148,7 @@ public class WalletService {
                 return;
             }
         } else {
-            System.out.println("No Wallet Found for: " + to + ", creating new one.");
+            if (DevConfig.devMode) {System.out.println("No Wallet Found for: " + to + ", creating new one.");}
             walletNode = mapper.createObjectNode();
             //staging to remove early wallet logic for reward node
             // if(getBeanBalance("BEANX:0xEARLYWALLET") > 100){
@@ -169,7 +170,7 @@ public class WalletService {
             return;
         }
     
-        System.out.println("Updated Wallet JSON: " + updatedSender);
+        if (DevConfig.devMode) {System.out.println("Updated Wallet JSON: " + updatedSender);}
     
         // Ensure JSON is not empty before saving
         if (updatedSender == null || updatedSender.trim().isEmpty()) {
@@ -180,7 +181,7 @@ public class WalletService {
         // Save the updated wallet to LevelDB
         db.put(toKey.getBytes(StandardCharsets.UTF_8), updatedSender.getBytes(StandardCharsets.UTF_8));
     
-        System.out.println("Successfully updated wallet for: " + to);
+        if (DevConfig.devMode) {System.out.println("Successfully updated wallet for: " + to);}
     }
     
     //close DB
@@ -240,7 +241,7 @@ public class WalletService {
             //System.out.println("Credited " + tx.getGasFee() + " beantoshi to GASPOOL from " + tx.getFrom());
         }
 
-        System.out.println("Transferred " + tx.getAmount() + " BEAN from " + tx.getFrom() + " to " + tx.getTo());
+        if(DevConfig.devMode) {System.out.println("Transferred " + tx.getAmount() + " BEAN from " + tx.getFrom() + " to " + tx.getTo());}
 
         
     }
@@ -265,7 +266,7 @@ public class WalletService {
                 System.out.println("Error parsing JSON from DB!");
             }
         } else {
-            System.out.println("No Wallet Found for: " + addy + ".");
+            if (DevConfig.devMode) {System.out.println("No Wallet Found for: " + addy + ".");}
             
         }
         return nonce;
@@ -400,7 +401,7 @@ public class WalletService {
             String updatedSender = mapper.writeValueAsString(walletNode);
             db.put(fromKey.getBytes(StandardCharsets.UTF_8), updatedSender.getBytes(StandardCharsets.UTF_8));
     
-            System.out.println("✅ Gas fee of " + gasFee + " paid by: " + from);
+            if (DevConfig.devMode) {System.out.println("✅ Gas fee of " + gasFee + " paid by: " + from);}
         } else {
             System.err.println("❌ Wallet not found for gas payment: " + from);
             throw new IOException("Wallet not found.");

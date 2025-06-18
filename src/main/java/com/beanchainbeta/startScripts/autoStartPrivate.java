@@ -1,7 +1,7 @@
 package com.beanchainbeta.startScripts;
 
 import com.beanchainbeta.config.ConfigLoader;
-import com.beanchainbeta.devTests.TXTestBatcher;
+//import com.beanchainbeta.devTests.TXTestBatcher;
 import com.beanchainbeta.nodePortal.adminCube;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.CleanupService;
@@ -25,7 +25,9 @@ public class autoStartPrivate {
         boolean signedIn = false;
         while (!signedIn) {
             try {
-                adminCube admin = new adminCube(wizard.wizardRead(ConfigLoader.getPrivateKeyPath()), ConfigLoader.getBindAddress());
+                String wizKey = wizard.wizardRead(ConfigLoader.getPrivateKeyPath());
+                if(ConfigLoader.getEncryptedWiz()) { wizKey = wizard.decryptWizKey(wizKey, ConfigLoader.getAdminPass());}
+                adminCube admin = new adminCube(wizKey, ConfigLoader.getBindAddress());
                 admin.signedIn = true;
                 portal.admin = admin;
                 signInSuccess();

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.beanpack.TXs.*;
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
+import com.beanchainbeta.helpers.DevConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -39,7 +40,7 @@ public class MempoolService {
             JsonNode txNode = mapper.readTree(transactionJson);
 
             if (txNode.has("signature") && "GENESIS-SIGNATURE".equals(txNode.get("signature").asText())) {
-                System.out.println("Skipping Genesis TX, not adding to mempool: " + txHash);
+                if (DevConfig.devMode) {System.out.println("Skipping Genesis TX, not adding to mempool: " + txHash);}
                 return false;
             }
 
@@ -95,7 +96,7 @@ public class MempoolService {
                 transactions.remove(txHash);
                 try {
                     db.delete(bytes(txHash));
-                    System.out.println("Removed TX from mempool DB and memory: " + txHash);
+                    if (DevConfig.devMode) {System.out.println("Removed TX from mempool DB and memory: " + txHash);}
                 } catch (Exception e) {
                     System.err.println("Error deleting TX from DB: " + txHash);
                     e.printStackTrace();
