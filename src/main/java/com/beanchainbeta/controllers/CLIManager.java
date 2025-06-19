@@ -15,6 +15,10 @@ public class CLIManager {
     public static String rootUserName = portal.admin.address;
     
     public static void startConsole() {
+        if (System.console() == null) {
+            System.out.println("[BeanLog] *!* No interactive console detected. Skipping CLI manager startup.");
+            return;
+        }
         Node node = Node.getInstance();
         String fetched = getUsername();
         if (fetched != null) {
@@ -35,7 +39,7 @@ public class CLIManager {
                             try {
                                 String ip = parts[1];
                                 int port = Integer.parseInt(parts[2]);
-                                node.connectToPeer(ip, port);
+                                node.connectToPeer(ip, port, false);
                             } catch (NumberFormatException e) {
                                 System.out.println("Port must be a number.");
                             }
