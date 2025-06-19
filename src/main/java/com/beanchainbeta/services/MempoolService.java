@@ -113,6 +113,7 @@ public class MempoolService {
     }
     
     private void loadMempoolFromDB() {
+        int restoredCount = 0; 
         try (DBIterator iterator = db.iterator()) {
             iterator.seekToFirst();
             while (iterator.hasNext()) {
@@ -120,8 +121,10 @@ public class MempoolService {
                 String txHash = new String(entry.getKey(), StandardCharsets.UTF_8);
                 String transactionJson = new String(entry.getValue(), StandardCharsets.UTF_8);
                 transactions.put(txHash, transactionJson);
+                restoredCount++; // increment for each TX loaded
             }
-            System.out.println("Mempool restored from LevelDB.");
+            System.out.printf("%s  INFO --- [Bean-Load-Protocol] Mempool restored from LevelDB (%d transactions)%n",
+                java.time.LocalDateTime.now(), restoredCount);
         } catch (Exception e) {
             System.err.println("Error loading mempool from DB: " + e.getMessage());
         }
