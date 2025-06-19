@@ -1,5 +1,6 @@
 package com.beanchainbeta.services;
 
+import com.beanchainbeta.helpers.DevConfig;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.network.PeerInfo;
 import com.beanchainbeta.nodePortal.portal;
@@ -25,7 +26,7 @@ public class MempoolSyncService {
 
                 // 🔇 Skip if empty
                 if (mempoolHashes.isEmpty()) {
-                    System.out.println("⏭️ Mempool is empty, skipping sync broadcast.");
+                    if (DevConfig.devMode) {System.out.println("Mempool is empty, skipping sync broadcast.");}
                     return;
                 }
 

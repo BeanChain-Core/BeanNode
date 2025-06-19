@@ -64,7 +64,7 @@ public class MessageRouter {
                 break;
             case "tx_rejected": 
                 String txHash = message.get("payload").get("txHash").asText();
-                System.out.println("🔁 Rejection gossip received for TX: " + txHash);
+                if(DevConfig.devMode) {System.out.println("Rejection gossip received for TX: " + txHash);}
                 MempoolService.removeTxByHash(txHash);
                 break;    
             default:
@@ -439,7 +439,7 @@ public class MessageRouter {
             }
     
             // Step 3: Replay block from mempool using known-safe logic
-            System.out.println("Replaying and validating block #" + incomingBlock.getHeight());
+            if (DevConfig.devMode) {System.out.println("Replaying and validating block #" + incomingBlock.getHeight());}
             BlockBuilderV2.blockReplay(incomingBlock);
     
             //Step 4: Remove TXs from mempool
@@ -453,7 +453,7 @@ public class MessageRouter {
             }
             MempoolService.removeTXs(toRemove, new ConcurrentHashMap<>());
     
-            System.out.println("Incoming block #" + incomingBlock.getHeight() + " accepted and rebuilt.");
+            if (DevConfig.devMode) {System.out.println("Incoming block #" + incomingBlock.getHeight() + " accepted and rebuilt.");}
     
         } catch (Exception e) {
             System.err.println("Failed to process incoming block:");
@@ -485,14 +485,14 @@ public class MessageRouter {
     
                 PrintWriter out = new PrintWriter(peer.getOutputStream(), true);
                 out.println(mapper.writeValueAsString(request));
-                System.out.println("📥 Requested missing TXs: " + missingHashes.size());
+                System.out.println("Requested missing TXs: " + missingHashes.size());
             }
 
-            System.out.println("📥 Received mempool summary from peer: " + peer.getInetAddress());
+            System.out.println("Received mempool summary from peer: " + peer.getInetAddress());
 
     
         } catch (Exception e) {
-            System.err.println("❌ Failed to handle mempool_summary:");
+            System.err.println("Failed to handle mempool_summary:");
             e.printStackTrace();
         }
     }
@@ -517,7 +517,7 @@ public class MessageRouter {
     
             PrintWriter out = new PrintWriter(peer.getOutputStream(), true);
             out.println(mapper.writeValueAsString(response));
-            System.out.println("📤 Sent TX batch with " + txBatch.size() + " TXs");
+            if (DevConfig.devMode) {System.out.println("Sent TX batch with " + txBatch.size() + " TXs");}
     
         } catch (Exception e) {
             System.err.println("❌ Failed to handle txRequestBatch:");
@@ -532,7 +532,7 @@ public class MessageRouter {
                 TX tx = mapper.treeToValue(node, TX.class);
                 if (!MempoolService.contains(tx.getTxHash())) {
                     MempoolService.addTransaction(tx.getTxHash(), tx.createJSON());
-                    System.out.println("🔁 Recovered TX from peer: " + tx.getTxHash());
+                    System.out.println("Recovered TX from peer: " + tx.getTxHash());
                 }
             }
         } catch (Exception e) {
