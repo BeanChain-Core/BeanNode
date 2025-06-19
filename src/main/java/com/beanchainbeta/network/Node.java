@@ -185,6 +185,18 @@ public class Node {
         }
     }
 
+    public void connectToPeer(String host, int newPeerPort, boolean sync) {
+        try {
+            Socket socket = new Socket(host, newPeerPort);
+            knownAddresses.add(host + ":" + newPeerPort);
+            System.out.println("Connected to peer: " + host + ":" + newPeerPort);
+            sendHandshake(socket, sync);
+            new Thread(() -> handleIncomingMessages(socket)).start();
+        } catch (IOException e) {
+            System.err.println("Failed to connect to peer at " + host + ":" + newPeerPort);
+        }
+    }
+
     private void sendHandshake(Socket socket) {
         try {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -197,6 +209,31 @@ public class Node {
             handshake.put("syncMode", syncMode);
             handshake.put("nodeType", nodeType);
             handshake.put("networkPort", port);
+            handshake.put("reply", false);
+            if(nodeType.equals("BEANNODE")){
+                handshake.put("isValidator", true);
+            } else {
+                handshake.put("isValidator", false);
+            }
+            out.println(mapper.writeValueAsString(handshake));
+        } catch (IOException e) {
+            System.err.println("Failed to send handshake");
+        }
+    }
+
+    private void sendHandshake(Socket socket, boolean sync) {
+        try {
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode handshake = mapper.createObjectNode();
+            handshake.put("type", "handshake");
+            handshake.put("blockHeight", blockchainDB.getHeight());
+            handshake.put("requestSync", sync);
+            handshake.put("address", portal.admin.address);
+            handshake.put("syncMode", syncMode);
+            handshake.put("nodeType", nodeType);
+            handshake.put("networkPort", port);
+            handshake.put("reply", false);
             if(nodeType.equals("BEANNODE")){
                 handshake.put("isValidator", true);
             } else {

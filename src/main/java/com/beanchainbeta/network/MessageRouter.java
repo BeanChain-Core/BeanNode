@@ -14,6 +14,7 @@ import org.iq80.leveldb.DBIterator;
 
 import com.beanpack.Block.Block;
 import com.beanchainbeta.config.ConfigLoader;
+import com.beanchainbeta.helpers.DevConfig;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.MempoolService;
 import com.beanchainbeta.services.blockchainDB;
@@ -315,11 +316,16 @@ public class MessageRouter {
                         portal.setIsSyncing(false);
                         return;
                     }
+            if (!DevConfig.devMode) {
+                System.out.println("[SYNC] Block replay initiated... this may take some time.");
+            }
             // ✅ Step 3: Replay blocks
             for (Block block : blocksToReplay) {
                 if (block.getHeight() == 0) continue; // Skip genesis
-                System.out.println("REPLAY HASH: " + block.getHash() + " Params: Height: " + block.getHeight() + " PrevHash: " + block.getPreviousHash() + " MerkleRoot: " + block.getMerkleRoot());
-                System.out.println("Replaying block #" + block.getHeight());
+                if (DevConfig.devMode){
+                    System.out.println("REPLAY HASH: " + block.getHash() + " Params: Height: " + block.getHeight() + " PrevHash: " + block.getPreviousHash() + " MerkleRoot: " + block.getMerkleRoot());
+                    System.out.println("Replaying block #" + block.getHeight());
+                }
                 BlockBuilderV2.blockReplay(block);
             }
     

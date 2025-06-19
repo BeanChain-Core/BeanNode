@@ -48,10 +48,6 @@ public class DBController {
         String txHash = request.get("txHash");
         String transactionJson = request.get("transactionJson");
 
-        //System.out.println("IN:TX: " + txHash);
-        //System.out.println("transactionJson (string): " + transactionJson);
-        //System.out.println("[INCOMING TX JSON] " + transactionJson);
-
 
         if (txHash == null || transactionJson == null) {
             return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\": \"Missing txHash or transactionJson\"}");

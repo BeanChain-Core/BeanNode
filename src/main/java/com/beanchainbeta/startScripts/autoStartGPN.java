@@ -25,7 +25,9 @@ public class autoStartGPN {
         boolean signedIn = false;
         while (!signedIn) {
             try {
-                adminCube admin = new adminCube(wizard.wizardRead(ConfigLoader.getPrivateKeyPath()), ConfigLoader.getBindAddress());
+                String wizKey = wizard.wizardRead(ConfigLoader.getPrivateKeyPath());
+                if(ConfigLoader.getEncryptedWiz()) { wizKey = wizard.decryptWizKey(wizKey, ConfigLoader.getAdminPass());}
+                adminCube admin = new adminCube(wizKey, ConfigLoader.getBindAddress());
                 admin.signedIn = true;
                 portal.admin = admin;
                 signInSuccess();

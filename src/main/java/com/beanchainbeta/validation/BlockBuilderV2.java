@@ -12,6 +12,7 @@ import com.beanpack.TXs.TX;
 import com.beanpack.Utils.MetaHelper;
 import com.beanpack.Utils.TXSorter;
 import com.beanpack.crypto.WalletGenerator;
+import com.beanchainbeta.helpers.DevConfig;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.Layer2DBService;
@@ -161,14 +162,14 @@ public class BlockBuilderV2 {
 
             if (!TXExecutor.execute(tx)) {
                 tx.setStatus("rejected");
-                System.out.print("TX REJECTED NOT EXECUTED: " + tx.getTxHash());
+                if (DevConfig.devMode) {System.out.print("TX REJECTED NOT EXECUTED: " + tx.getTxHash());}
                 Node.broadcastRejection(tx.getTxHash());
                 RejectedService.saveRejectedTransaction(tx);
                 MempoolService.removeSingleTx(tx.getTxHash());
                 continue;
             } else {
                 tx.setStatus("complete");
-                System.out.print("COMPLETED: " + tx.getTxHash());
+                if(DevConfig.devMode) {System.out.print("COMPLETED: " + tx.getTxHash());}
                 portal.beanchainTest.storeTX(tx);
                 MempoolService.removeSingleTx(tx.getTxHash());
                 accepted.add(tx);
@@ -234,15 +235,19 @@ public class BlockBuilderV2 {
 
 
         if (!newBlock.validateBlock(blockchainDB.getLatestBlock().getHash())) {
-            System.err.println("❌ Replayed block #" + newBlock.getHeight() + " failed validation.");
+            if (DevConfig.devMode) {System.err.println("❌ Replayed block #" + newBlock.getHeight() + " failed validation.");}
             return;
         }
 
-        System.out.println("NEW BLOCK: " + newBlock.getHash() + "Params: Height: " + newBlock.getHeight()+ " PrevHash: " + newBlock.getPreviousHash() + "MerkleRoot: " + newBlock.getMerkleRoot());
+        if (newBlock.getHeight() % 500 == 0) {
+            System.out.println("Sync Progress: Current Sync Height " + newBlock.getHeight());
+        }
+
+        if (DevConfig.devMode) {System.out.println("NEW BLOCK: " + newBlock.getHash() + "Params: Height: " + newBlock.getHeight()+ " PrevHash: " + newBlock.getPreviousHash() + "MerkleRoot: " + newBlock.getMerkleRoot());}
 
         blockchainDB.storeNewBlock(newBlock);
     
-        System.out.println("Block #" + newBlock.getHeight() + " rebuilt with " + accepted.size() + " TXs, size = " + blockSize + " bytes");
+        if (DevConfig.devMode) {System.out.println("Block #" + newBlock.getHeight() + " rebuilt with " + accepted.size() + " TXs, size = " + blockSize + " bytes");}
     }
  
 }

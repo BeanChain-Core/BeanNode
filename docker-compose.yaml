@@ -13,4 +13,5 @@ services:
     build: ./docker/rn
     ports:
       - "6446:6446"
+      - "6480:6480"
   
