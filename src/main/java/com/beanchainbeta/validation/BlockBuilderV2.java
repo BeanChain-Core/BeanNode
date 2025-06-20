@@ -194,6 +194,10 @@ public class BlockBuilderV2 {
 
         for(String txHash : txHashList) {
             TX tx = MempoolService.getTransaction(txHash);
+            if (tx == null) {
+                System.out.println("[TXSorter] Null TX found in list!");
+                continue;
+            }
             mempoolReplay.add(tx);
         }
 
