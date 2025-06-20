@@ -105,6 +105,35 @@ public class Node {
         }
     }
 
+    public void broadcastGossip(String message, ArrayList<Socket> peersToSendTo, Socket senderPeer) {
+        if (senderPeer == null) {
+            broadcast(message, peersToSendTo);
+            return;
+        }
+        
+        String senderIP = senderPeer.getInetAddress().getHostAddress();
+        for (Socket peer : peersToSendTo) {
+            String peerIP = peer.getInetAddress().getHostAddress();
+
+            if(peerIP.equals(senderIP)){
+                BeanLoggerManager.BeanLogger("Skipped Gossiping to sender at: " + senderIP);
+                continue;
+            }
+            
+            try {
+                if (!peer.isClosed() && peer.isConnected()) {
+                    PrintWriter out = new PrintWriter(peer.getOutputStream(), true);
+                    out.println(message);
+                } else {
+                    peers.remove(peer);
+                }
+            } catch (IOException e) {
+                System.err.println("Failed to broadcast message to peer: " + peer.getInetAddress());
+                peers.remove(peer);
+            }
+        }
+    }
+
     public void broadcastTransaction(TX tx) {
         try {
             ObjectMapper mapper = new ObjectMapper();
