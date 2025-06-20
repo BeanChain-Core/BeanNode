@@ -540,7 +540,7 @@ public class MessageRouter {
             ObjectMapper mapper = new ObjectMapper();
             for (JsonNode node : payload) {
                 TX tx = mapper.treeToValue(node, TX.class);
-                if (!MempoolService.contains(tx.getTxHash())) {
+                if (!MempoolService.contains(tx.getTxHash()) && !blockchainDB.checkTxConfirmed(tx.getTxHash())) {
                     MempoolService.addTransaction(tx.getTxHash(), tx.createJSON());
                     BeanLoggerManager.BeanLogger("Recovered TX from peer: " + tx.getTxHash());
                 }
