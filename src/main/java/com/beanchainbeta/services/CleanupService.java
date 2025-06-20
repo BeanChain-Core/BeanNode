@@ -1,6 +1,7 @@
 package com.beanchainbeta.services;
 
 import com.beanchainbeta.controllers.DBManager;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanpack.TXs.*;
 import org.iq80.leveldb.DB;
@@ -42,7 +43,7 @@ public class CleanupService {
 
         for (String key : keysToDelete) {
             rejectedDB.delete(key.getBytes(StandardCharsets.UTF_8));
-            System.out.println("Deleted old rejected TX: " + key);
+            BeanLoggerManager.BeanLogger("Deleted old rejected TX: " + key);
         }
     }
 
@@ -57,16 +58,16 @@ public class CleanupService {
             long age = now - tx.getTimeStamp();
             if (tx.getTimeStamp() > portal.BOOT_TIME && age > MAX_AGE_MS) {
                 MempoolService.removeSingleTx(tx.getTxHash());
-                System.out.println("Removed timed-out mempool TX: " + tx.getTxHash());
+                BeanLoggerManager.BeanLogger("Removed timed-out mempool TX: " + tx.getTxHash());
             }
         }
     }
 
     // Run both
     public static void runFullCleanup() {
-        System.out.println("Running full cleanup...");
+        BeanLoggerManager.BeanLoggerFPrint("Running full cleanup...");
         cleanRejectedDB();
         cleanMempoolTimeouts();
-        System.out.println("Cleanup complete");
+        BeanLoggerManager.BeanLoggerFPrint("Cleanup complete");
     }
 }

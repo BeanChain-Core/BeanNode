@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
 import com.beanchainbeta.helpers.DevConfig;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanpack.Models.*;
 import com.beanpack.TXs.*;
 import com.beanpack.crypto.*;
@@ -93,10 +94,10 @@ public class WalletService {
     private static void outBeanTx(String from, double amount, long gasFee) throws IOException{
         ObjectMapper mapper = new ObjectMapper();
         String fromKey = from;
-        //System.out.println("Gas from frontend: " + gasFee);
+        //BeanLoggerManager.BeanLogger("Gas from frontend: " + gasFee);
 
         if (!beantoshinomics.isValidAmount(String.valueOf(amount))) {
-            System.out.println("Invalid amount in outBeanTx: " + amount);
+            BeanLoggerManager.BeanLogger("Invalid amount in outBeanTx: " + amount);
             return;
         }
 
@@ -116,19 +117,19 @@ public class WalletService {
             String updatedSender = mapper.writeValueAsString(walletNode);
             db.put(fromKey.getBytes(StandardCharsets.UTF_8), updatedSender.getBytes(StandardCharsets.UTF_8)); 
         } else {
-            if (DevConfig.devMode) {System.out.println("No Wallet Found");}
+            BeanLoggerManager.BeanLoggerError("No Wallet Found For: " + from);
         }
     }
 
     // update reciever wallet state 
     private static void InBeanTx(String to, double amount) throws IOException {
-        if (DevConfig.devMode) {System.out.println("[IN_BEAN_TX] To Address: " + to + " | Length: " + to.length());}
+        BeanLoggerManager.BeanLogger("[IN_BEAN_TX] To Address: " + to + " | Length: " + to.length());
 
         ObjectMapper mapper = new ObjectMapper();
         String toKey = to;
 
         if (!beantoshinomics.isValidAmount(String.valueOf(amount))) {
-            System.out.println("Invalid amount in InBeanTx: " + amount);
+            BeanLoggerManager.BeanLogger("Invalid amount in InBeanTx: " + amount);
             return;
         }
 
@@ -144,11 +145,11 @@ public class WalletService {
                 walletNode.put("beantoshi", currentBeantoshi + beantoshi);
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Error parsing JSON from DB!");
+                BeanLoggerManager.BeanLogger("Error parsing JSON from DB!");
                 return;
             }
         } else {
-            if (DevConfig.devMode) {System.out.println("No Wallet Found for: " + to + ", creating new one.");}
+            BeanLoggerManager.BeanLoggerError("No Wallet Found for: " + to + ", creating new one.");
             walletNode = mapper.createObjectNode();
             //staging to remove early wallet logic for reward node
             // if(getBeanBalance("BEANX:0xEARLYWALLET") > 100){
@@ -166,22 +167,22 @@ public class WalletService {
             updatedSender = mapper.writeValueAsString(walletNode);
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error serializing JSON!");
+            BeanLoggerManager.BeanLoggerError("Error serializing JSON!");
             return;
         }
     
-        if (DevConfig.devMode) {System.out.println("Updated Wallet JSON: " + updatedSender);}
+        BeanLoggerManager.BeanLogger("Updated Wallet JSON: " + updatedSender);
     
         // Ensure JSON is not empty before saving
         if (updatedSender == null || updatedSender.trim().isEmpty()) {
-            System.out.println("ERROR: Updated wallet JSON is empty, NOT writing to DB!");
+            BeanLoggerManager.BeanLoggerError("ERROR: Updated wallet JSON is empty, NOT writing to DB!");
             return;
         }
     
         // Save the updated wallet to LevelDB
         db.put(toKey.getBytes(StandardCharsets.UTF_8), updatedSender.getBytes(StandardCharsets.UTF_8));
     
-        if (DevConfig.devMode) {System.out.println("Successfully updated wallet for: " + to);}
+        BeanLoggerManager.BeanLogger("Successfully updated wallet for: " + to);
     }
     
     //close DB
@@ -223,25 +224,25 @@ public class WalletService {
         double totalRequired = amount + beantoshinomics.toBean(gasFee);
         double balance = getBeanBalance(addy);
     
-        //System.out.println("Checking balance: " + balance + " BEAN vs required: " + totalRequired + " BEAN");
+        //BeanLoggerManager.BeanLogger("Checking balance: " + balance + " BEAN vs required: " + totalRequired + " BEAN");
     
         return balance >= totalRequired;
     }
 
     public static void transfer(TX tx) throws IOException {
-        //System.out.println("[TRANSFER] To Address: " + tx.getTo() + " | Length: " + tx.getTo().length());
+        //BeanLoggerManager.BeanLogger("[TRANSFER] To Address: " + tx.getTo() + " | Length: " + tx.getTo().length());
 
         outBeanTx(tx.getFrom(), tx.getAmount(), tx.getGasFee());
         
-        //System.out.println("TX TO: " + tx.getTo());
+        //BeanLoggerManager.BeanLogger("TX TO: " + tx.getTo());
         InBeanTx(tx.getTo(), tx.getAmount());
 
         if (tx.getGasFee() > 0) {
             InBeanTx("BEANX:0xGASPOOL", beantoshinomics.toBean(tx.getGasFee()));
-            //System.out.println("Credited " + tx.getGasFee() + " beantoshi to GASPOOL from " + tx.getFrom());
+            //BeanLoggerManager.BeanLogger("Credited " + tx.getGasFee() + " beantoshi to GASPOOL from " + tx.getFrom());
         }
 
-        if(DevConfig.devMode) {System.out.println("Transferred " + tx.getAmount() + " BEAN from " + tx.getFrom() + " to " + tx.getTo());}
+        BeanLoggerManager.BeanLogger("Transferred " + tx.getAmount() + " BEAN from " + tx.getFrom() + " to " + tx.getTo());
 
         
     }
@@ -254,8 +255,8 @@ public class WalletService {
         ObjectNode walletNode;
     
         if (toJsonWallet != null) {
-            //System.out.println("Existing wallet data found for: " + addy);
-            //System.out.println("Raw JSON from DB: " + new String(toJsonWallet, StandardCharsets.UTF_8));
+            //BeanLoggerManager.BeanLogger("Existing wallet data found for: " + addy);
+            //BeanLoggerManager.BeanLogger("Raw JSON from DB: " + new String(toJsonWallet, StandardCharsets.UTF_8));
     
             try {
                 walletNode = (ObjectNode) mapper.readTree(new String(toJsonWallet, StandardCharsets.UTF_8));
@@ -263,10 +264,10 @@ public class WalletService {
                 nonce = currentNonce;
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Error parsing JSON from DB!");
+                BeanLoggerManager.BeanLoggerError("Error parsing JSON from DB!");
             }
         } else {
-            if (DevConfig.devMode) {System.out.println("No Wallet Found for: " + addy + ".");}
+            BeanLoggerManager.BeanLoggerError("No Wallet Found for: " + addy + ".");
             
         }
         return nonce;
@@ -288,14 +289,14 @@ public class WalletService {
                 String updatedJson = mapper.writeValueAsString(walletNode);
                 db.put(addy.getBytes(StandardCharsets.UTF_8), updatedJson.getBytes(StandardCharsets.UTF_8));
     
-                //System.out.println("Nonce updated to: " + newNonce);
+                //BeanLoggerManager.BeanLogger("Nonce updated to: " + newNonce);
     
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Error parsing or updating wallet JSON!");
+                BeanLoggerManager.BeanLoggerError("Error parsing or updating wallet JSON!");
             }
         } else {
-            System.out.println("ERROR: Tried to increment nonce for non-existent wallet: " + addy);
+            BeanLoggerManager.BeanLoggerError("ERROR: Tried to increment nonce for non-existent wallet: " + addy);
             // Optional: throw exception or return -1
         }
     
@@ -313,7 +314,7 @@ public class WalletService {
 
                 if (key.startsWith("BEANX:0x")) {
                     String json = asString(entry.getValue());
-                    //System.out.println(key + " " + json);
+                    //BeanLoggerManager.BeanLogger(key + " " + json);
                 }
             }
         } catch (Exception e) {
@@ -359,7 +360,7 @@ public class WalletService {
         walletNode.put("label", label);
     
         db.put(address.getBytes(StandardCharsets.UTF_8), mapper.writeValueAsBytes(walletNode));
-        System.out.println("Label set for " + address + ": " + label);
+        BeanLoggerManager.BeanLogger("Label set for " + address + ": " + label);
         return true;
     }
     
@@ -367,7 +368,7 @@ public class WalletService {
     //     String gaspool = "BEANX:0xGASPOOL";
     //     if(gasFeeReward > 0){
     //         InBeanTx(gaspool, beantoshinomics.toBean(gasFeeReward));
-    //         System.out.println("Gaspool credited with " + gasFeeReward + " beantoshi");
+    //         BeanLoggerManager.BeanLogger("Gaspool credited with " + gasFeeReward + " beantoshi");
     //     }
         
     // }
@@ -377,7 +378,7 @@ public class WalletService {
         String fromKey = from;
     
         if (gasFee <= 0) {
-            System.out.println("Invalid gas fee in payGasOnly: " + gasFee);
+            BeanLoggerManager.BeanLoggerError("Invalid gas fee in payGasOnly: " + gasFee);
             return;
         }
     
@@ -388,7 +389,7 @@ public class WalletService {
             long currentBeantoshi = walletNode.get("beantoshi").asLong();
     
             if (currentBeantoshi < gasFee) {
-                System.err.println("❌ Insufficient balance for gas payment by: " + from);
+                BeanLoggerManager.BeanLoggerError("Insufficient balance for gas payment by: " + from);
                 throw new IOException("Insufficient gas funds."); // force the TX to fail
             }
     
@@ -401,9 +402,9 @@ public class WalletService {
             String updatedSender = mapper.writeValueAsString(walletNode);
             db.put(fromKey.getBytes(StandardCharsets.UTF_8), updatedSender.getBytes(StandardCharsets.UTF_8));
     
-            if (DevConfig.devMode) {System.out.println("✅ Gas fee of " + gasFee + " paid by: " + from);}
+            BeanLoggerManager.BeanLogger("Gas fee of " + gasFee + " paid by: " + from);
         } else {
-            System.err.println("❌ Wallet not found for gas payment: " + from);
+            BeanLoggerManager.BeanLoggerError("Wallet not found for gas payment: " + from);
             throw new IOException("Wallet not found.");
         }
     }

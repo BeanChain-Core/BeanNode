@@ -15,6 +15,7 @@ import org.iq80.leveldb.DBIterator;
 import com.beanpack.Block.Block;
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.helpers.DevConfig;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.MempoolService;
 import com.beanchainbeta.services.blockchainDB;
@@ -24,6 +25,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.tinylog.Logger;
+
 
 public class MessageRouter {
 
@@ -31,7 +34,7 @@ public class MessageRouter {
 
     public void route(JsonNode message, Socket peer) {
         if (!message.has("type")) {
-            System.out.println("Invalid message (missing 'type')");
+            BeanLoggerManager.BeanLoggerError("Invalid message (missing 'type')");
             return;
         }
 
@@ -64,11 +67,11 @@ public class MessageRouter {
                 break;
             case "tx_rejected": 
                 String txHash = message.get("payload").get("txHash").asText();
-                if(DevConfig.devMode) {System.out.println("Rejection gossip received for TX: " + txHash);}
+                BeanLoggerManager.BeanLogger("Rejection gossip received for TX: " + txHash);
                 MempoolService.removeTxByHash(txHash);
                 break;    
             default:
-                System.out.println("Unknown message type: " + type);
+                BeanLoggerManager.BeanLoggerError("Unknown message type: " + type);
         }
     }
 
@@ -86,10 +89,10 @@ public class MessageRouter {
 
             int listeningPort = msg.has("networkPort") ? msg.get("networkPort").asInt() : 6442;
     
-            System.out.println("Received handshake from " + peerAddress +
+            BeanLoggerManager.BeanLoggerFPrint("Rceived handshake from " + peerAddress +
                 " (height=" + peerHeight + ", wantsSync=" + requestSync +
                 ", mode=" + syncMode + ", validator=" + isValidator + ", public=" + isPublicNode + "nodeType=" + nodeType  + ")");
-    
+            
             PeerInfo info = new PeerInfo(peer, peerAddress, syncMode, nodeType, isValidator, listeningPort);
             Node.registerPeer(peer, info);
     
@@ -104,7 +107,7 @@ public class MessageRouter {
 
     
         } catch (Exception e) {
-            System.out.println("Failed to parse handshake request.");
+            BeanLoggerManager.BeanLoggerError("Failed to parse handshake request.");
             e.printStackTrace();
         }
     }
@@ -163,7 +166,7 @@ public class MessageRouter {
     
             out.println(mapper.writeValueAsString(response));
     
-            System.out.println("📤 Sent " + (syncMode.equalsIgnoreCase("TX_ONLY") ? "TX_ONLY" : "FULL") +
+            BeanLoggerManager.BeanLogger("Sent " + (syncMode.equalsIgnoreCase("TX_ONLY") ? "TX_ONLY" : "FULL") +
                 " sync_response to " + peer.getInetAddress().getHostAddress() +
                 " | Confirmed TXs: " + txArray.size() +
                 (syncMode.equalsIgnoreCase("TX_ONLY") ? "" :
@@ -171,7 +174,7 @@ public class MessageRouter {
                     " | Mempool TXs: " + mempoolArray.size()));
     
         } catch (Exception e) {
-            System.out.println("❌ Failed to send sync_response.");
+            BeanLoggerManager.BeanLoggerError("Failed to send sync_response.");
             e.printStackTrace();
         }
     }
@@ -187,7 +190,7 @@ public class MessageRouter {
 
             
             if (peerHeight >= myHeight) {
-                System.out.println("Peer " + peer.getInetAddress().getHostAddress() + " already in sync. No sync_response sent.");
+                BeanLoggerManager.BeanLogger("Peer " + peer.getInetAddress().getHostAddress() + " already in sync. No sync_response sent.");
                 return;
             }
     
@@ -217,7 +220,7 @@ public class MessageRouter {
                 if (txBytes != null) {
                     JsonNode txJson = mapper.readTree(new String(txBytes, StandardCharsets.UTF_8));
                     if (txJson.has("signature") && txJson.get("signature").asText().equals("GENESIS-SIGNATURE")) {
-                        System.out.println("Skipping genesis TX from sync: " + txHash);
+                        BeanLoggerManager.BeanLogger("Skipping genesis TX from sync: " + txHash);
                         continue;
                     }
                     confirmedTxArray.add(txJson);
@@ -234,7 +237,7 @@ public class MessageRouter {
                 response.set("confirmedTxs", confirmedTxArray);
     
                 out.println(mapper.writeValueAsString(response));
-                System.out.println("Sent TX_ONLY sync_response to: " + peer.getInetAddress());
+                BeanLoggerManager.BeanLogger("Sent TX_ONLY sync_response to: " + peer.getInetAddress());
     
                 return;
             }
@@ -262,7 +265,7 @@ public class MessageRouter {
     
             out.println(mapper.writeValueAsString(response));
     
-            System.out.println("Sent FULL sync_response to " + peer.getInetAddress().getHostAddress() +
+            BeanLoggerManager.BeanLogger("Sent FULL sync_response to " + peer.getInetAddress().getHostAddress() +
                 " | Blocks: " + blocksArray.size() +
                 " | Confirmed TXs: " + confirmedTxArray.size() +
                 " | Mempool TXs: " + mempoolArray.size());
@@ -281,21 +284,30 @@ public class MessageRouter {
             JsonNode confirmedTxs = msg.get("confirmedTxs");
             JsonNode blocks = msg.get("blocks");
             JsonNode mempool = msg.get("mempool");
+            
     
             // ✅ Step 1: Load TXs into mempool
-            System.out.println("Loading confirmed and mempool TXs into local mempool...");
+            BeanLoggerManager.BeanLoggerFPrint("Loading confirmed and mempool TXs into local mempool...");
     
             for (JsonNode txNode : confirmedTxs) {
                 TX tx = mapper.treeToValue(txNode, TX.class);
+                if(blockchainDB.checkTxConfirmed(tx.getTxHash())){
+                    Logger.info("Old Confirmed TX Pruned From Pool : " + tx.getTxHash());
+                    continue;
+                }
                 MempoolService.addTransaction(tx.getTxHash(), tx.createJSON());
             }
     
             for (JsonNode txNode : mempool) {
                 TX tx = mapper.treeToValue(txNode, TX.class);
+                if(blockchainDB.checkTxConfirmed(tx.getTxHash())){
+                    BeanLoggerManager.BeanLoggerFPrint("Old Confirmed TX Pruned From Pool : " + tx.getTxHash());
+                    continue;
+                }
                 MempoolService.addTransaction(tx.getTxHash(), tx.createJSON());
             }
     
-            System.out.println("Mempool now contains " + MempoolService.getTxFromPool().size() + " total TXs.");
+            BeanLoggerManager.BeanLoggerFPrint("Mempool now contains " + MempoolService.getTxFromPool().size() + " total TXs.");
 
             
     
@@ -312,7 +324,7 @@ public class MessageRouter {
             blocksToReplay.sort(Comparator.comparingInt(Block::getHeight));
 
             if (blocksToReplay.isEmpty() || blocksToReplay.get(blocksToReplay.size() - 1).getHeight() <= blockchainDB.getHeight()) {
-                        System.out.println("Node is already at latest block height. Skipping sync replay.");
+                        BeanLoggerManager.BeanLoggerFPrint("Node is already at latest block height. Skipping sync replay.");
                         portal.setIsSyncing(false);
                         return;
                     }
@@ -322,36 +334,34 @@ public class MessageRouter {
             // ✅ Step 3: Replay blocks
             for (Block block : blocksToReplay) {
                 if (block.getHeight() == 0) continue; // Skip genesis
-                if (DevConfig.devMode){
-                    System.out.println("REPLAY HASH: " + block.getHash() + " Params: Height: " + block.getHeight() + " PrevHash: " + block.getPreviousHash() + " MerkleRoot: " + block.getMerkleRoot());
-                    System.out.println("Replaying block #" + block.getHeight());
-                }
+                BeanLoggerManager.BeanPrinter("REPLAY HASH: " + block.getHash() + " Params: Height: " + block.getHeight() + " PrevHash: " + block.getPreviousHash() + " MerkleRoot: " + block.getMerkleRoot());
+                BeanLoggerManager.BeanLogger("Replaying block #" + block.getHeight());
                 BlockBuilderV2.blockReplay(block);
             }
     
             // ✅ Step 4: Exit sync mode
             portal.setIsSyncing(false);
-            System.out.println("✅ Replay complete. Node is now in sync.");
+            BeanLoggerManager.BeanLogger("Replay complete. Node is now in sync.");
     
             // ✅ Step 5: Now process any buffered blocks
             List<Block> buffered = PendingBlockManager.getBufferedBlocks();
-            System.out.println("⏭ Processing " + buffered.size() + " buffered blocks...");
+            BeanLoggerManager.BeanLogger("Processing " + buffered.size() + " buffered blocks...");
     
             for (Block b : buffered) {
                 if (b.getHeight() <= blockchainDB.getHeight()) {
-                    System.out.println("Skipping buffered block at height " + b.getHeight() + " (already processed or duplicate)");
+                    BeanLoggerManager.BeanLogger("Skipping buffered block at height " + b.getHeight() + " (already processed or duplicate)");
                     continue;
                 }
-                System.out.println("▶️ Buffered block: #" + b.getHeight());
+                BeanLoggerManager.BeanLogger("Buffered block: #" + b.getHeight());
                 BlockBuilderV2.blockReplay(b);
             }
     
             // ✅ Step 6: Clean up
             PendingBlockManager.clearBufferedBlocks();
-            System.out.println("✔️ Sync fully completed and buffer flushed.");
+            BeanLoggerManager.BeanLoggerFPrint("Sync fully completed and buffer flushed.");
     
         } catch (Exception e) {
-            System.err.println("❌ Failed during sync_response processing:");
+            BeanLoggerManager.BeanLoggerError("Failed during sync_response processing:");
             e.printStackTrace();
         }
     }
@@ -361,44 +371,44 @@ public class MessageRouter {
             ObjectMapper mapper = new ObjectMapper();
             TX tx = mapper.treeToValue(msg.get("payload"), TX.class);
             if(tx==null){
-                System.out.println("INCOMING TX NULL");
+                BeanLoggerManager.BeanLoggerError("INCOMING TX NULL");
                 return;
             }
             String txHash = tx.getTxHash();
     
             // 🔁 Check if already in mempool
             if (MempoolService.contains(txHash)) {
-                System.out.println("Duplicate TX received, already in mempool: " + txHash);
+                BeanLoggerManager.BeanLoggerError("Duplicate TX received, already in mempool: " + txHash);
                 return;
             }
             
             if (blockchainDB.checkTxConfirmed(txHash)) {
-                System.out.println("Duplicate TX received, already 'COMPLETE': " + txHash);
+                BeanLoggerManager.BeanLoggerError("Duplicate TX received, already 'COMPLETE': " + txHash);
                 return;
             }
     
             // ✅ Add and broadcast
             MempoolService.addTransaction(txHash, tx.createJSON());
-            System.out.println("New TX added to mempool: " + txHash);
+            BeanLoggerManager.BeanLogger("New TX added to mempool: " + txHash);
     
             // 🌐 Gossip to other peers
             Node.broadcastTransactionStatic(tx);
 
-            System.out.println("➡️ Raw incoming TX: " + tx.createJSON());
-            //System.out.println("➡️ From: " + tx.getFrom() + " | Nonce: " + tx.getNonce());
-            //System.out.println("➡️ Hash: " + tx.getTxHash());
-            //System.out.println("➡️ Valid JSON: " + tx.createJSON().contains(tx.getTxHash())); // sanity
+            BeanLoggerManager.BeanLogger("Raw incoming TX: " + tx.createJSON());
+            //BeanLoggerManager.BeanLogger("➡️ From: " + tx.getFrom() + " | Nonce: " + tx.getNonce());
+            //BeanLoggerManager.BeanLogger("➡️ Hash: " + tx.getTxHash());
+            //BeanLoggerManager.BeanLogger("➡️ Valid JSON: " + tx.createJSON().contains(tx.getTxHash())); // sanity
 
             TX pulled = MempoolService.getTransaction(tx.getTxHash());
             if (pulled == null) {
-                System.err.println("🛑 TX was not saved in memory map.");
+                BeanLoggerManager.BeanLoggerError("TX was not saved in memory map.");
             } else {
-                System.out.println("✅ TX saved in mempool memory.");
+                BeanLoggerManager.BeanLogger("TX saved in mempool memory.");
             }
 
     
         } catch (Exception e) {
-            System.err.println("❌ Error handling incoming TX");
+            BeanLoggerManager.BeanLoggerError("Error handling incoming TX");
             e.printStackTrace();
         }
     }
@@ -412,20 +422,20 @@ public class MessageRouter {
     
             if (portal.isSyncing) {
                 PendingBlockManager.bufferDuringSync(incomingBlock);
-                System.out.println("Held block #" + incomingBlock.getHeight() + " during sync.");
+                BeanLoggerManager.BeanLoggerFPrint("Held block #" + incomingBlock.getHeight() + " during sync.");
                 return;
             }
     
             // Step 1: Validate block signature
             if (!incomingBlock.signatureValid()) {
-                System.err.println("Invalid block signature for block #" + incomingBlock.getHeight());
+                BeanLoggerManager.BeanLoggerError("Invalid block signature for block #" + incomingBlock.getHeight());
                 return;
             }
     
             // Step 2: Check height and previous hash
             int localHeight = blockchainDB.getHeight();
             if (incomingBlock.getHeight() != localHeight + 1) {
-                System.err.println("Block height mismatch. Expected: " + (localHeight + 1) +
+                BeanLoggerManager.BeanLoggerError("Block height mismatch. Expected: " + (localHeight + 1) +
                                    " but got: " + incomingBlock.getHeight());
                 return;
             }
@@ -434,12 +444,12 @@ public class MessageRouter {
             String expectedPrevHash = latestBlock != null ? latestBlock.getHash() : "00000000000000000000";
     
             if (!incomingBlock.getPreviousHash().equals(expectedPrevHash)) {
-                System.err.println("Previous hash mismatch for block #" + incomingBlock.getHeight());
+                BeanLoggerManager.BeanLoggerError("Previous hash mismatch for block #" + incomingBlock.getHeight());
                 return;
             }
     
             // Step 3: Replay block from mempool using known-safe logic
-            if (DevConfig.devMode) {System.out.println("Replaying and validating block #" + incomingBlock.getHeight());}
+            BeanLoggerManager.BeanPrinter("Replaying and validating block #" + incomingBlock.getHeight());
             BlockBuilderV2.blockReplay(incomingBlock);
     
             //Step 4: Remove TXs from mempool
@@ -452,8 +462,8 @@ public class MessageRouter {
                 }
             }
             MempoolService.removeTXs(toRemove, new ConcurrentHashMap<>());
-    
-            if (DevConfig.devMode) {System.out.println("Incoming block #" + incomingBlock.getHeight() + " accepted and rebuilt.");}
+
+            BeanLoggerManager.BeanLogger("Incoming block #" + incomingBlock.getHeight() + " accepted and rebuilt.");
     
         } catch (Exception e) {
             System.err.println("Failed to process incoming block:");
@@ -485,14 +495,14 @@ public class MessageRouter {
     
                 PrintWriter out = new PrintWriter(peer.getOutputStream(), true);
                 out.println(mapper.writeValueAsString(request));
-                System.out.println("Requested missing TXs: " + missingHashes.size());
+                BeanLoggerManager.BeanLogger("Requested missing TXs: " + missingHashes.size());
             }
 
-            System.out.println("Received mempool summary from peer: " + peer.getInetAddress());
+            BeanLoggerManager.BeanLogger("Received mempool summary from peer: " + peer.getInetAddress());
 
     
         } catch (Exception e) {
-            System.err.println("Failed to handle mempool_summary:");
+            BeanLoggerManager.BeanLoggerError("Failed to handle mempool_summary:");
             e.printStackTrace();
         }
     }
@@ -517,10 +527,10 @@ public class MessageRouter {
     
             PrintWriter out = new PrintWriter(peer.getOutputStream(), true);
             out.println(mapper.writeValueAsString(response));
-            if (DevConfig.devMode) {System.out.println("Sent TX batch with " + txBatch.size() + " TXs");}
+            BeanLoggerManager.BeanLogger("Sent TX batch with " + txBatch.size() + " TXs");
     
         } catch (Exception e) {
-            System.err.println("❌ Failed to handle txRequestBatch:");
+            BeanLoggerManager.BeanLoggerError("Failed to handle txRequestBatch:");
             e.printStackTrace();
         }
     }
@@ -532,11 +542,11 @@ public class MessageRouter {
                 TX tx = mapper.treeToValue(node, TX.class);
                 if (!MempoolService.contains(tx.getTxHash())) {
                     MempoolService.addTransaction(tx.getTxHash(), tx.createJSON());
-                    System.out.println("Recovered TX from peer: " + tx.getTxHash());
+                    BeanLoggerManager.BeanLogger("Recovered TX from peer: " + tx.getTxHash());
                 }
             }
         } catch (Exception e) {
-            System.err.println("❌ Failed to handle txBatch:");
+            BeanLoggerManager.BeanLoggerError("Failed to handle txBatch:");
             e.printStackTrace();
         }
     }
@@ -565,10 +575,10 @@ public class MessageRouter {
             PrintWriter out = new PrintWriter(peer.getOutputStream(), true);
             out.println(mapper.writeValueAsString(handshake));
     
-            System.out.println("↩️ Sent handshake back to peer: " + peer.getInetAddress());
+            BeanLoggerManager.BeanLoggerFPrint("Sent handshake back to peer: " + peer.getInetAddress());
     
         } catch (Exception e) {
-            System.err.println("❌ Failed to send handshake back to peer");
+            BeanLoggerManager.BeanLoggerError("Failed to send handshake back to peer");
             e.printStackTrace();
         }
     }

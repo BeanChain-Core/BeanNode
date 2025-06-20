@@ -4,6 +4,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.beanpack.beanify.Branding;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.nodePortal.portal;
 
 
@@ -28,7 +29,7 @@ public class BlockTimerBeta {
             }
         };
         scheduler.scheduleAtFixedRate(task, 1, 1, TimeUnit.MINUTES);
-        System.out.println("[nodeFleccer] Block timer started.");
+        BeanLoggerManager.BeanLoggerFPrint("[nodeFleccer] Block timer started.");
     }
 
     

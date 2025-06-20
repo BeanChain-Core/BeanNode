@@ -1,6 +1,7 @@
 package com.beanchainbeta.services;
 
 import com.beanchainbeta.helpers.DevConfig;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.network.PeerInfo;
 import com.beanchainbeta.nodePortal.portal;
@@ -26,7 +27,7 @@ public class MempoolSyncService {
 
                 // 🔇 Skip if empty
                 if (mempoolHashes.isEmpty()) {
-                    if (DevConfig.devMode) {System.out.println("Mempool is empty, skipping sync broadcast.");}
+                    BeanLoggerManager.BeanLogger("Mempool is empty, skipping sync broadcast.");
                     return;
                 }
 
@@ -49,14 +50,14 @@ public class MempoolSyncService {
                         PrintWriter out = new PrintWriter(peer.getSocket().getOutputStream(), true);
                         out.println(message);
                     } catch (Exception e) {
-                        System.err.println("❌ Failed to send mempool summary to " + peer.getAddress());
+                        System.err.println("Failed to send mempool summary to " + peer.getAddress());
                     }
                 }
 
-                System.out.println("🔄 Mempool summary broadcasted to peers. TX count: " + mempoolHashes.size());
+                BeanLoggerManager.BeanLogger("Mempool summary broadcasted to peers. TX count: " + mempoolHashes.size());
 
             } catch (Exception e) {
-                System.err.println("❌ Error in MempoolSyncService loop:");
+                System.err.println("Error in MempoolSyncService loop:");
                 e.printStackTrace();
             }
 

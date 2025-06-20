@@ -9,6 +9,7 @@ import org.iq80.leveldb.DBIterator;
 
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanpack.TXs.*;
 
 public class RejectedService {
@@ -20,9 +21,9 @@ public class RejectedService {
         try {
             String json = tx.createJSON();
             getRejectedDB().put(tx.getTxHash().getBytes(StandardCharsets.UTF_8), json.getBytes(StandardCharsets.UTF_8));
-            System.out.println("Rejected TX saved: " + tx.getTxHash());
+            BeanLoggerManager.BeanLogger("Rejected TX saved: " + tx.getTxHash());
         } catch (Exception e) {
-            System.out.println("Failed to save rejected TX: " + tx.getTxHash());
+            BeanLoggerManager.BeanLoggerError("Failed to save rejected TX: " + tx.getTxHash());
             e.printStackTrace();
         }
     }

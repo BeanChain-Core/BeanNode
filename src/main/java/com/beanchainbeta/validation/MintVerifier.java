@@ -2,6 +2,7 @@ package com.beanchainbeta.validation;
 
 import com.beanpack.TXs.TX;
 import com.beanpack.crypto.TransactionVerifier;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.services.Layer2DBService;
 import com.beanchainbeta.services.RejectedService;
@@ -56,7 +57,7 @@ public class MintVerifier {
             if(addyMatch && validOwner && senderHasEnoughGas) {
                 return true;
             } else {
-                System.out.println("** MINT FAILED: " + tx.getTxHash() + " VERIFICATION FAILURE **");
+                BeanLoggerManager.BeanLoggerError("** MINT FAILED: " + tx.getTxHash() + " VERIFICATION FAILURE **");
                 tx.setStatus("rejected");
                 RejectedService.saveRejectedTransaction(tx);
                 Node.broadcastRejection(tx.getTxHash());
@@ -64,7 +65,7 @@ public class MintVerifier {
             }
 
         } else {
-            System.out.println("** MINT FAILED: " + tx.getTxHash() + " INFO MISMATCH **");
+            BeanLoggerManager.BeanLoggerError("** MINT FAILED: " + tx.getTxHash() + " INFO MISMATCH **");
             tx.setStatus("rejected");
             RejectedService.saveRejectedTransaction(tx);
             Node.broadcastRejection(tx.getTxHash());

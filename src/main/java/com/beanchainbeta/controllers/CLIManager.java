@@ -85,6 +85,7 @@ public class CLIManager {
                         System.out.println("  devmode               - Toggle DevMode on/off (reduces console output during sync).");
                         System.out.println("  username              - Change Node portal username.");
                         System.out.println("  exit                  - Shut down the node.");
+                        //System.out.println("  send bean <address> <amount> <gas fee> - Send BEAN to a wallet with specified gas fee.");
                         System.out.println("  help                  - Show this list of commands.");
                         break;
 

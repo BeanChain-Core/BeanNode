@@ -3,6 +3,7 @@ package com.beanchainbeta.nodePortal;
 import java.security.PrivateKey;
 
 import com.beanchainbeta.config.ConfigLoader;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanpack.crypto.*;
 
@@ -30,13 +31,13 @@ public class adminCube {
         // If NOT a bootstrap node, connect to bootstrap peer
         if (!ConfigLoader.isBootstrapNode()) {
             try {
-                System.out.println("Connecting to bootstrap node at " + ConfigLoader.getBootstrapIp());
+                BeanLoggerManager.BeanLoggerFPrint("Connecting to bootstrap node at " + ConfigLoader.getBootstrapIp());
                 node.connectToPeer(ConfigLoader.getBootstrapIp());
             } catch (Exception e) {
                 System.err.println("Failed to connect to bootstrap node: " + e.getMessage());
             }
         } else {
-            System.out.println("Bootstrap node ready — listening for peers...");
+            BeanLoggerManager.BeanLoggerFPrint("Bootstrap node ready — listening for peers...");
         }
 
     }, "NodeThread");

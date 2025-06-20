@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.services.Layer2DBService;
 import com.beanchainbeta.services.MempoolService;
@@ -313,7 +314,7 @@ public class DBController {
                 .contentType(APPLICATION_JSON)
                 .body(rejected);
         } catch (Exception e) {
-            System.err.println("ERROR FETCHING REJECTED TXs: " + e.getMessage());
+            BeanLoggerManager.BeanLoggerError("ERROR FETCHING REJECTED TXs: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                 .body("Failed to fetch rejected transactions.");
         }

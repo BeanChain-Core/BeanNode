@@ -13,6 +13,7 @@ import com.beanpack.Utils.MetaHelper;
 import com.beanpack.Utils.TXSorter;
 import com.beanpack.crypto.WalletGenerator;
 import com.beanchainbeta.helpers.DevConfig;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.Layer2DBService;
@@ -67,12 +68,12 @@ public class BlockBuilderV2 {
         block.initHeader(gasReward);
         block.sign(privateKey);
 
-        System.out.println("NEW BLOCK: " + block.getHash() + "Params: Height: " + block.getHeight()+ " PrevHash: " + block.getPreviousHash() + "MerkleRoot: " + block.getMerkleRoot());
+        BeanLoggerManager.BeanPrinter("NEW BLOCK: " + block.getHash() + "Params: Height: " + block.getHeight()+ " PrevHash: " + block.getPreviousHash() + "MerkleRoot: " + block.getMerkleRoot());
     
         blockchainDB.storeNewBlock(block);
         Node.broadcastBlock(block);
     
-        System.out.println("Block #" + block.getHeight() + " built with " + accepted.size() + " TXs, size = " + blockSize + " bytes");
+        BeanLoggerManager.BeanLogger("Block #" + block.getHeight() + " built with " + accepted.size() + " TXs, size = " + blockSize + " bytes");
     }
 
     private static int processTXs(List<TX> txList, boolean isLayer2,
@@ -112,9 +113,9 @@ public class BlockBuilderV2 {
                 );
 
                 if (actualNonce != expectedNonce) {
-                    System.out.println("Nonce mismatch: " + tx.getTxHash() + " actual=" + actualNonce + " expected=" + expectedNonce + " sender=" + sender);
+                    BeanLoggerManager.BeanLoggerError("Nonce mismatch: " + tx.getTxHash() + " actual=" + actualNonce + " expected=" + expectedNonce + " sender=" + sender);
                     tx.setStatus("rejected");
-                    System.out.print("TX REJECTED NOT VALID: " + tx.getTxHash());
+                    BeanLoggerManager.BeanLoggerError("TX REJECTED NOT VALID: " + tx.getTxHash());
                     Node.broadcastRejection(tx.getTxHash());
                     RejectedService.saveRejectedTransaction(tx);
                     MempoolService.removeSingleTx(tx.getTxHash());
@@ -162,14 +163,14 @@ public class BlockBuilderV2 {
 
             if (!TXExecutor.execute(tx)) {
                 tx.setStatus("rejected");
-                if (DevConfig.devMode) {System.out.print("TX REJECTED NOT EXECUTED: " + tx.getTxHash());}
+                BeanLoggerManager.BeanLoggerError("TX REJECTED NOT EXECUTED: " + tx.getTxHash());
                 Node.broadcastRejection(tx.getTxHash());
                 RejectedService.saveRejectedTransaction(tx);
                 MempoolService.removeSingleTx(tx.getTxHash());
                 continue;
             } else {
                 tx.setStatus("complete");
-                if(DevConfig.devMode) {System.out.print("COMPLETED: " + tx.getTxHash());}
+                BeanLoggerManager.BeanLogger("COMPLETED: " + tx.getTxHash());
                 portal.beanchainTest.storeTX(tx);
                 MempoolService.removeSingleTx(tx.getTxHash());
                 accepted.add(tx);
@@ -195,7 +196,7 @@ public class BlockBuilderV2 {
         for(String txHash : txHashList) {
             TX tx = MempoolService.getTransaction(txHash);
             if (tx == null) {
-                System.out.println("[TXSorter] Null TX found in list!");
+                BeanLoggerManager.BeanLoggerError("[TXSorter] Null TX found in list!");
                 continue;
             }
             mempoolReplay.add(tx);
@@ -239,19 +240,20 @@ public class BlockBuilderV2 {
 
 
         if (!newBlock.validateBlock(blockchainDB.getLatestBlock().getHash())) {
-            if (DevConfig.devMode) {System.err.println("❌ Replayed block #" + newBlock.getHeight() + " failed validation.");}
+            BeanLoggerManager.BeanLoggerError("Replayed block #" + newBlock.getHeight() + " failed validation.");
             return;
         }
 
         if (newBlock.getHeight() % 500 == 0) {
-            System.out.println("Sync Progress: Current Sync Height " + newBlock.getHeight());
+            BeanLoggerManager.BeanLoggerFPrint("Sync Progress: Current Sync Height " + newBlock.getHeight());
         }
 
-        if (DevConfig.devMode) {System.out.println("NEW BLOCK: " + newBlock.getHash() + "Params: Height: " + newBlock.getHeight()+ " PrevHash: " + newBlock.getPreviousHash() + "MerkleRoot: " + newBlock.getMerkleRoot());}
+        BeanLoggerManager.BeanPrinter("NEW BLOCK: " + newBlock.getHash() + "Params: Height: " + newBlock.getHeight()+ " PrevHash: " + newBlock.getPreviousHash() + "MerkleRoot: " + newBlock.getMerkleRoot());
 
         blockchainDB.storeNewBlock(newBlock);
     
-        if (DevConfig.devMode) {System.out.println("Block #" + newBlock.getHeight() + " rebuilt with " + accepted.size() + " TXs, size = " + blockSize + " bytes");}
+        BeanLoggerManager.BeanLogger("Block #" + newBlock.getHeight() + " rebuilt with " + accepted.size() + " TXs, size = " + blockSize + " bytes");
+        
     }
  
 }

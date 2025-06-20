@@ -4,6 +4,7 @@ import com.beanpack.TXs.TX;
 import com.beanpack.Utils.MetaHelper;
 import com.beanpack.Utils.beantoshinomics;
 import com.beanchainbeta.factories.CallFactory;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.services.Layer2DBService;
 import com.beanchainbeta.services.WalletService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,11 +28,11 @@ public class TXExecutor {
                 case "cen":
                     return executeFundedCallTX(tx);
                 default:
-                    System.out.println("**UNKNOWN TYPE ERROR**");
+                    BeanLoggerManager.BeanLoggerError("**UNKNOWN TYPE ERROR**");
                     return false;
             }
         } catch (Exception e) {
-            System.out.println("**EXECUTION ERROR**");
+            BeanLoggerManager.BeanLoggerError("**EXECUTION ERROR**");
             return false;
         }
     }
@@ -41,7 +42,7 @@ public class TXExecutor {
             WalletService.transfer(tx);
             return true;
         } catch (Exception e) {
-            System.out.println("TX EXECUTION FAILED");
+            BeanLoggerManager.BeanLoggerError("TX EXECUTION FAILED");
             return false;
         }
     }
@@ -52,7 +53,7 @@ public class TXExecutor {
             CallFactory.StakeCall(tx); 
             return true;
         } catch (Exception e) {
-            System.out.println("STAKE TX EXECUTION FAILED");
+            BeanLoggerManager.BeanLoggerError("STAKE TX EXECUTION FAILED");
             return false;
         }
     }
@@ -71,7 +72,7 @@ public class TXExecutor {
             CallFactory.FundedCall(tx);
             return true;
         } catch (Exception e) {
-            System.out.println("FUNDEDCALL TX EXECUTION FAILED");
+            BeanLoggerManager.BeanLoggerError("FUNDEDCALL TX EXECUTION FAILED");
             return false;
         }
     }
@@ -84,7 +85,7 @@ public class TXExecutor {
             WalletService.transfer(quickBuild);     
             return true;
         } catch (Exception e) {
-            System.out.println("TX EXECUTION FAILED");
+            BeanLoggerManager.BeanLoggerError("TX EXECUTION FAILED");
             return false;
         }
     }
@@ -95,7 +96,7 @@ public class TXExecutor {
         
     
         if (!metaNode.has("tokenHash")) {
-            System.err.println("❌ Missing tokenHash in meta.");
+            System.err.println("Missing tokenHash in meta.");
             return false;
         }
 
@@ -111,10 +112,10 @@ public class TXExecutor {
             boolean isCenTx = metaNode.has("isCen") && metaNode.get("isCen") != null && metaNode.get("isCen").asBoolean();
     
             if (isCenTx) {
-                System.out.println("**TOKEN TX (CEN)**");
+                BeanLoggerManager.BeanLogger("**TOKEN TX (CEN)**");
     
                 if (!metaNode.has("caller") || metaNode.get("caller") == null) {
-                    System.err.println("❌ Missing caller field in CEN token TX meta.");
+                    System.err.println("Missing caller field in CEN token TX meta.");
                     return false;
                 }
 
@@ -133,7 +134,7 @@ public class TXExecutor {
                     tx.getAmount()
                 );
             } else {
-                System.out.println("**TOKEN TX (USER)**");
+                BeanLoggerManager.BeanLogger("**TOKEN TX (USER)**");
                 boolean yes = Layer2DBService.transferToken(
                     tx.getFrom(),
                     tx.getTo(),
@@ -148,7 +149,7 @@ public class TXExecutor {
                 return yes;
             }
         } catch (Exception e) {
-            System.out.println("❌ TOKEN TX EXECUTION FAILED");
+            BeanLoggerManager.BeanLoggerError("TOKEN TX EXECUTION FAILED");
             e.printStackTrace();
             return false;
         }
@@ -180,7 +181,7 @@ public class TXExecutor {
                 long formattedAmount = beantoshinomics.toBeantoshi(tx.getAmount());
                 check = Layer2DBService.mintToTokenSupply(tokenHash, tx.getFrom(), formattedAmount);
             } else {
-                System.out.println("Can't find mint mode: " + mode);
+                BeanLoggerManager.BeanLoggerError("Can't find mint mode: " + mode);
                 return false;
             }
 

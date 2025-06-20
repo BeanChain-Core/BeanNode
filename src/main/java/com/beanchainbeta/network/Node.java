@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 
 import com.beanchainbeta.config.ConfigLoader;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.blockchainDB;
 import com.beanpack.Block.Block;
@@ -49,7 +50,7 @@ public class Node {
     }
 
     public void start() {
-        System.out.println("NodeBeta listening on: " + ip + ":" + port);
+        BeanLoggerManager.BeanLoggerFPrint("NodeBeta listening on: " + ip + ":" + port);
         new Thread(this::listenForPeers).start();
     }
 
@@ -57,7 +58,7 @@ public class Node {
         while (true) {
             try {
                 Socket peer = serverSocket.accept();
-                System.out.println("New peer connected: " + peer.getInetAddress().getHostAddress());
+                BeanLoggerManager.BeanLoggerFPrint("New peer connected: " + peer.getInetAddress().getHostAddress());
                 new Thread(() -> handleIncomingMessages(peer)).start();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -79,7 +80,7 @@ public class Node {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Connection lost with peer: " + peer.getInetAddress());
+            BeanLoggerManager.BeanLoggerFPrint("Connection lost with peer: " + peer.getInetAddress());
         } finally {
             try {
                 peer.close();
@@ -165,11 +166,11 @@ public class Node {
         try {
             Socket socket = new Socket(host, peerPort);
             knownAddresses.add(host + ":" + peerPort);
-            System.out.println("Connected to peer: " + host + ":" + peerPort);
+            BeanLoggerManager.BeanLoggerFPrint("Connected to peer: " + host + ":" + peerPort);
             sendHandshake(socket);
             new Thread(() -> handleIncomingMessages(socket)).start();
         } catch (IOException e) {
-            System.err.println("Failed to connect to peer at " + host + ":" + peerPort);
+            BeanLoggerManager.BeanLoggerFPrint("Failed to connect to peer at " + host + ":" + peerPort);
         }
     }
 
@@ -177,11 +178,11 @@ public class Node {
         try {
             Socket socket = new Socket(host, newPeerPort);
             knownAddresses.add(host + ":" + newPeerPort);
-            System.out.println("Connected to peer: " + host + ":" + newPeerPort);
+            BeanLoggerManager.BeanLoggerFPrint("Connected to peer: " + host + ":" + newPeerPort);
             sendHandshake(socket);
             new Thread(() -> handleIncomingMessages(socket)).start();
         } catch (IOException e) {
-            System.err.println("Failed to connect to peer at " + host + ":" + newPeerPort);
+            BeanLoggerManager.BeanLoggerFPrint("Failed to connect to peer at " + host + ":" + newPeerPort);
         }
     }
 
@@ -189,11 +190,11 @@ public class Node {
         try {
             Socket socket = new Socket(host, newPeerPort);
             knownAddresses.add(host + ":" + newPeerPort);
-            System.out.println("Connected to peer: " + host + ":" + newPeerPort);
+            BeanLoggerManager.BeanLoggerFPrint("Connected to peer: " + host + ":" + newPeerPort);
             sendHandshake(socket, sync);
             new Thread(() -> handleIncomingMessages(socket)).start();
         } catch (IOException e) {
-            System.err.println("Failed to connect to peer at " + host + ":" + newPeerPort);
+            BeanLoggerManager.BeanLoggerFPrint("Failed to connect to peer at " + host + ":" + newPeerPort);
         }
     }
 
@@ -217,7 +218,7 @@ public class Node {
             }
             out.println(mapper.writeValueAsString(handshake));
         } catch (IOException e) {
-            System.err.println("Failed to send handshake");
+            BeanLoggerManager.BeanLoggerFPrint("Failed to send handshake");
         }
     }
 
@@ -241,7 +242,7 @@ public class Node {
             }
             out.println(mapper.writeValueAsString(handshake));
         } catch (IOException e) {
-            System.err.println("Failed to send handshake");
+            BeanLoggerManager.BeanLoggerFPrint("Failed to send handshake");
         }
     }
 
@@ -251,7 +252,7 @@ public class Node {
         } else if (info.getNodeType().equals("CEN")){
             cenRegistry.put(socket, info);
         } else if (info.getNodeType().equals("RN")){
-            System.out.println("RN IS CONNECTED AS PEER (THIS NODE SHOULD BE GPN ONLY)");
+            BeanLoggerManager.BeanLoggerError("RN IS CONNECTED AS PEER (THIS NODE SHOULD BE GPN ONLY)");
             peers.put(socket, info);
         }
         
@@ -302,9 +303,9 @@ public class Node {
             String jsonMessage = mapper.writeValueAsString(message);
     
             broadcast(jsonMessage, getSocketsByNodeType("BEANNODE"));
-            System.out.println("Broadcasted rejection for TX: " + txHash);
+            BeanLoggerManager.BeanLogger("Broadcasted rejection for TX: " + txHash);
         } catch (Exception e) {
-            System.err.println("Failed to broadcast rejection gossip:");
+            BeanLoggerManager.BeanLoggerError("Failed to broadcast rejection gossip:");
             e.printStackTrace();
         }
     }
@@ -358,9 +359,9 @@ public class Node {
             String jsonMessage = mapper.writeValueAsString(message);
             out.println(jsonMessage);
     
-            System.out.println("Sent CENCALL to peer at " + cenIP);
+            BeanLoggerManager.BeanLogger("Sent CENCALL to peer at " + cenIP);
         } catch (Exception e) {
-            System.err.println("Failed to send CENCALL to peer at " + cenIP);
+            BeanLoggerManager.BeanLoggerFPrint("Failed to send CENCALL to peer at " + cenIP);
             e.printStackTrace();
         }
     }

@@ -1,5 +1,6 @@
 package com.beanchainbeta.validation;
 
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.services.RejectedService;
 import com.beanchainbeta.services.WalletService;
@@ -17,7 +18,7 @@ public class TXVerifier {
         //this.debugHashValues();
         //end-debug
         if (tx.getSignature() != null && tx.getSignature().equals("GENESIS-SIGNATURE")) {
-            //System.out.println(" GENESIS TX accepted without signature verification: " + txHash);
+            //BeanLoggerManager.BeanLogger(" GENESIS TX accepted without signature verification: " + txHash);
             return true;
         }
 
@@ -25,7 +26,7 @@ public class TXVerifier {
 
         if (isAirdrop) {
             if (!tx.getFrom().equals(RN_ADDRESS)) {
-                System.out.println("** TX FAILED: " + tx.getTxHash() + " INVALID RN AIRDROP **");
+                BeanLoggerManager.BeanLoggerError("** TX FAILED: " + tx.getTxHash() + " INVALID RN AIRDROP **");
                 tx.setStatus("rejected");
                 RejectedService.saveRejectedTransaction(tx);
                 Node.broadcastRejection(tx.getTxHash());
@@ -59,7 +60,7 @@ public class TXVerifier {
             if(addyMatch && validOwner && senderHasEnough) {
                 return true;
             } else {
-                System.out.println("** TX FAILED: " + tx.getTxHash() + " VERIFICATION FAILURE **");
+                BeanLoggerManager.BeanLoggerError("** TX FAILED: " + tx.getTxHash() + " VERIFICATION FAILURE **");
                 tx.setStatus("rejected");
                 RejectedService.saveRejectedTransaction(tx);
                 Node.broadcastRejection(tx.getTxHash());
@@ -67,7 +68,7 @@ public class TXVerifier {
             }
 
         } else {
-            System.out.println("** TX FAILED: " + tx.getTxHash() + " INFO MISMATCH **");
+            BeanLoggerManager.BeanLoggerError("** TX FAILED: " + tx.getTxHash() + " INFO MISMATCH **");
             tx.setStatus("rejected");
             RejectedService.saveRejectedTransaction(tx);
             Node.broadcastRejection(tx.getTxHash());

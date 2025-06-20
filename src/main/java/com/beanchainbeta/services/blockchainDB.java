@@ -7,6 +7,7 @@ import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
 import com.beanchainbeta.genesis.GenesisTX;
 import com.beanchainbeta.helpers.DevConfig;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanpack.Block.Block;
 import com.beanpack.Block.BlockHeader;
 import com.beanpack.TXs.TX;
@@ -44,14 +45,12 @@ public class blockchainDB {
     private void storeBlock(Block block) {
         try {
             db.put(bytes("block-0"), bytes(block.createJSON()));
-            //System.out.println("Genesis block persisted to DB.");
         } catch (Exception e) {
             System.err.println(e);
         }
     }
 
     public static void storeNewBlock(Block block) throws Exception {
-        //System.out.println("CHECK****");
         if(block.signatureValid()) {
             try{
                 String key = "block-" + block.getHeight();
@@ -60,13 +59,14 @@ public class blockchainDB {
                     String blockLog = 
                     "{NEW-BLOCK}{" + block.getHeight() + "}\n" +
                     block.createJSON(); 
-                    System.out.println(blockLog);
+                    BeanLoggerManager.BeanPrinter(blockLog);
                 }
+                BeanLoggerManager.BeanLogger("NEW BLOCK STORED " + block.getHeight());
             } catch (Exception e) {
                 System.err.println(e);
             }
         } else {
-            System.out.println("ERROR INVALID BLOCK");
+            BeanLoggerManager.BeanLoggerError("ERROR INVALID BLOCK");
         }
     }
 
@@ -112,10 +112,10 @@ public class blockchainDB {
                 String json = asString(data);
                 return Block.fromJSON(json);
             } else {
-                System.err.println("⚠️ No block found at height: " + height);
+                System.err.println("No block found at height: " + height);
             }
         } catch (Exception e) {
-            System.err.println("❌ Failed to load block at height " + height);
+            System.err.println("Failed to load block at height " + height);
             e.printStackTrace();
         }
         return null;
@@ -160,13 +160,13 @@ public class blockchainDB {
 
         Block genesisBlock = new Block(0, "00000000000000000000", genesisTransactions, genPrivateKey);
         genesisBlock.initHeader(0L);
-        //System.out.println("📦 Bootstrap Genesis Hash: " + genesisBlock.getHash());
+    
 
         
 
 
         storeBlock(genesisBlock);
-        System.out.println("GEN BLOCK HASH: " + genesisBlock.getHash() + "Params: Height: " + genesisBlock.getHeight()+ " PrevHash: " + genesisBlock.getPreviousHash() + "MerkleRoot: " + genesisBlock.getMerkleRoot());
+        BeanLoggerManager.BeanLoggerFPrint("GEN BLOCK HASH: " + genesisBlock.getHash() + "Params: Height: " + genesisBlock.getHeight()+ " PrevHash: " + genesisBlock.getPreviousHash() + "MerkleRoot: " + genesisBlock.getMerkleRoot());
         genPrivateKey = "";
         List<TX> confirmed = Arrays.asList(genTX1, genTX2, genTX3, genTX4, genTX5, genTX6);
 
@@ -211,7 +211,6 @@ public class blockchainDB {
 
                 if (key.startsWith("tran-")) {
                     String json = asString(entry.getValue());
-                    //System.out.println(json);
                     txs.add(TX.fromJSON(json)); 
                 }
             }
@@ -233,7 +232,6 @@ public class blockchainDB {
 
                 if (key.startsWith("tran-")) {
                     String json = asString(entry.getValue());
-                    //System.out.println(json);
                     TX tx = TX.fromJSON(json); 
                     if(tx.getFrom().equals(addy)) {
                         txs.add(tx);
@@ -259,7 +257,6 @@ public class blockchainDB {
 
                 if (key.startsWith("tran-")) {
                     String json = asString(entry.getValue());
-                    //System.out.println(json);
                     TX tx = TX.fromJSON(json); 
                     if(tx.getTo().equals(addy)) {
                         txs.add(tx);
@@ -303,7 +300,7 @@ public class blockchainDB {
     
                     if (block != null) { // << ADDED SAFEGUARD
                         if (block.getHeader() == null) { // << ADDED: missing header fix
-                            System.err.println("⚠️ WARNING: Missing header detected on block height " + block.getHeight() + ", injecting default header...");
+                            System.err.println("WARNING: Missing header detected on block height " + block.getHeight() + ", injecting default header...");
                             BlockHeader safeHeader = new BlockHeader();
                             safeHeader.setValidator(block.getValidatorPubKey());
                             safeHeader.setHeight(block.getHeight());
@@ -317,7 +314,7 @@ public class blockchainDB {
                             latestBlock = block;
                         }
                     } else {
-                        System.err.println("❌ Failed to parse block JSON at key: " + key);
+                        System.err.println("Failed to parse block JSON at key: " + key);
                     }
                 }
             }
@@ -382,10 +379,10 @@ public class blockchainDB {
                 if (data != null) {
                     result.add(asString(data)); // JSON string from DB
                 } else {
-                    System.err.println("⚠️ TX not found in DB for hash: " + hash);
+                    System.err.println("TX not found in DB for hash: " + hash);
                 }
             } catch (Exception e) {
-                System.err.println("❌ Error fetching TX from DB: " + hash);
+                System.err.println("Error fetching TX from DB: " + hash);
                 e.printStackTrace();
             }
         }
@@ -399,7 +396,7 @@ public class blockchainDB {
         try {
             return blockchainDB.db.get(key.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
-            System.err.println("❌ Failed to get raw key from DB: " + key);
+            System.err.println("Failed to get raw key from DB: " + key);
             return null;
         }
     }

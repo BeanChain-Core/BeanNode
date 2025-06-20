@@ -14,6 +14,7 @@ import com.beanpack.TXs.*;
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
 import com.beanchainbeta.helpers.DevConfig;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -40,7 +41,7 @@ public class MempoolService {
             JsonNode txNode = mapper.readTree(transactionJson);
 
             if (txNode.has("signature") && "GENESIS-SIGNATURE".equals(txNode.get("signature").asText())) {
-                if (DevConfig.devMode) {System.out.println("Skipping Genesis TX, not adding to mempool: " + txHash);}
+                BeanLoggerManager.BeanLoggerFPrint("Skipping Genesis TX, not adding to mempool: " + txHash);
                 return false;
             }
 
@@ -73,7 +74,7 @@ public class MempoolService {
                         System.err.println("Error deleting accepted TX from DB: " + e.getMessage());
                     }
                 } else {
-                    //System.out.println(txHash + ": not found in mempool");
+                    //BeanLoggerManager.BeanLogger(txHash + ": not found in mempool");
                 }
             }
         
@@ -86,7 +87,7 @@ public class MempoolService {
                         System.err.println("Error deleting rejected TX from DB: " + e.getMessage());
                     }
                 } else {
-                    System.out.println(txHash + ": not found in mempool");
+                    BeanLoggerManager.BeanLoggerError(txHash + ": not found in mempool");
                 }
             }
         }
@@ -96,13 +97,13 @@ public class MempoolService {
                 transactions.remove(txHash);
                 try {
                     db.delete(bytes(txHash));
-                    if (DevConfig.devMode) {System.out.println("Removed TX from mempool DB and memory: " + txHash);}
+                    BeanLoggerManager.BeanLogger("Removed TX from mempool DB and memory: " + txHash);
                 } catch (Exception e) {
                     System.err.println("Error deleting TX from DB: " + txHash);
                     e.printStackTrace();
                 }
             } else {
-                System.out.println("TX not found in mempool: " + txHash);
+                BeanLoggerManager.BeanLoggerError("TX not found in mempool: " + txHash);
             }
         }
         
@@ -134,7 +135,7 @@ public class MempoolService {
         ArrayList<TX> txList = new ArrayList<>();
         for( String d: transactions.values()) {
         txList.add(TX.fromJSON(d));
-        //System.out.println(TX.fromJSON(d));
+        //BeanLoggerManager.BeanLogger(TX.fromJSON(d));
     }
     return txList; 
     }
@@ -163,7 +164,7 @@ public class MempoolService {
         try {
             return TX.fromJSON(json);
         } catch (Exception e) {
-            System.err.println("❌ Failed to parse TX from mempool: " + txHash);
+            System.err.println("Failed to parse TX from mempool: " + txHash);
             e.printStackTrace();
             return null;
         }

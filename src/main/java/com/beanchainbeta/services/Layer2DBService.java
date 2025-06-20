@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanpack.Models.*;
 
 import com.beanpack.TXs.TX;
@@ -130,7 +131,7 @@ public class Layer2DBService {
             }
 
             if (amount <=0) {
-                System.out.println("INVALID AMOUNT of burn! rejected");
+                BeanLoggerManager.BeanLoggerError("INVALID AMOUNT of burn! rejected");
                 return false;
             }
 
@@ -260,12 +261,12 @@ public class Layer2DBService {
             to.adjustBalance(tokenHash, amount);
             saveWallet(to);
     
-            System.out.println("Sucessfully minted " + amount + " of " + tokenHash + " to : " + toAddress);
-            System.out.println("Wallet after mint: " + to.getTokenBalances());
+            BeanLoggerManager.BeanLogger("Sucessfully minted " + amount + " of " + tokenHash + " to : " + toAddress);
+            BeanLoggerManager.BeanLogger("Wallet after mint: " + to.getTokenBalances());
 
             return true;
         } catch (Exception e) {
-            System.err.println("Minting failed to " + toAddress + " for token: " + tokenHash);
+            BeanLoggerManager.BeanLoggerError("Minting failed to " + toAddress + " for token: " + tokenHash);
             e.printStackTrace();
             return false;
         }
@@ -276,7 +277,7 @@ public class Layer2DBService {
         String mode = metaNode.get("mode").asText();
         String tokenHash = metaNode.get("tokenHash").asText();
         if(tokenExists(tokenHash)){
-            System.out.println("Token already exists for hash: " + tokenHash);
+            BeanLoggerManager.BeanLoggerError("Token already exists for hash: " + tokenHash);
             return false;
         }
         String token = metaNode.get("token").asText();
