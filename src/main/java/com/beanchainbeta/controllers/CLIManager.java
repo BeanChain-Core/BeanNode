@@ -7,9 +7,14 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.Scanner;
 
+import com.beanchainbeta.factories.InternalTXFactory;
 import com.beanchainbeta.helpers.DevConfig;
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.nodePortal.portal;
+import com.beanchainbeta.services.Layer2DBService;
+import com.beanchainbeta.services.WalletService;
+import com.beanchainbeta.services.blockchainDB;
 
 public class CLIManager {
     public static String rootUserName = portal.admin.address;
@@ -24,7 +29,7 @@ public class CLIManager {
         if (fetched != null) {
             rootUserName = fetched;
         }
-        new Thread(() -> {
+        Thread cliThread = new Thread(() -> {
             Scanner scanner = new Scanner(System.in);
             while (true) {
                 System.out.print(rootUserName + ">> ");
@@ -78,15 +83,58 @@ public class CLIManager {
                         }
                         break;
 
+                    case "wallet": 
+                        System.out.println(WalletService.getData(portal.admin.address));
+                        break;
+
+                    case "tokens": 
+                        System.out.println(Layer2DBService.getOrCreateWallet(portal.admin.address).getTokenBalances());
+                        break;
+
+                    case "height":
+                        System.out.println("Local Node Height: " + blockchainDB.getHeight());
+                        break;
+
+                    case "lastblock":
+                        System.out.println(blockchainDB.getLatestBlock().createJSON());
+
+                    case "send":
+                        if (parts.length == 5 && parts[1].equalsIgnoreCase("bean")) {
+                            String to = parts[2];
+                            try {
+                                double amount = Double.parseDouble(parts[3]);
+                                double gas = Double.parseDouble(parts[4]);
+
+                                // Example: you might already have some TX sender logic
+                                boolean success = InternalTXFactory.sendAndSignTxInternal(to, amount, gas);
+                                if (success) {
+                                    System.out.println("TX submitted successfully.");
+                                } else {
+                                    System.out.println("TX submission failed.");
+                                }
+                            } catch (Exception e) {
+                                System.out.println("Amount and gas fee must be valid numbers.");
+                                e.printStackTrace();
+                            }
+                        } else {
+                            System.out.println("Usage: send bean <address> <amount> <gas-fee>");
+                        }
+                        break;
+
                     case "help":
-                        System.out.println("Available commands:");
-                        System.out.println("  connect <ip> <port>   - Connect to a peer at the given IP and port.");
-                        System.out.println("  print peers           - Print all currently connected peers.");
-                        System.out.println("  devmode               - Toggle DevMode on/off (reduces console output during sync).");
-                        System.out.println("  username              - Change Node portal username.");
-                        System.out.println("  exit                  - Shut down the node.");
-                        //System.out.println("  send bean <address> <amount> <gas fee> - Send BEAN to a wallet with specified gas fee.");
-                        System.out.println("  help                  - Show this list of commands.");
+                        System.out.println("\n=== Available CLI Commands ===");
+                        System.out.println(String.format("  %-40s %s", "connect <ip> <port>", "Connect to a peer at the given IP and port."));
+                        System.out.println(String.format("  %-40s %s", "print peers", "Print all currently connected peers."));
+                        System.out.println(String.format("  %-40s %s", "devmode", "Toggle DevMode on/off (less logging during sync)."));
+                        System.out.println(String.format("  %-40s %s", "username", "Change Node portal username."));
+                        System.out.println(String.format("  %-40s %s", "send bean <address> <amount> <gas-fee>", "Send BEAN to a wallet with specified gas fee."));
+                        System.out.println(String.format("  %-40s %s", "wallet", "View your this node's Bean balance (in beantoshi)"));
+                        System.out.println(String.format("  %-40s %s", "tokens", "View your this node's Token Balances (by hash, in Beantoshi)"));
+                        System.out.println(String.format("  %-40s %s", "height", "View your local Node chain height."));
+                        System.out.println(String.format("  %-40s %s", "lastblock", "View the last block stored in local chain."));
+                        System.out.println(String.format("  %-40s %s", "exit", "Shut down the node."));
+                        System.out.println(String.format("  %-40s %s", "help", "Show this list of commands."));
+                        System.out.println(); // newline for clean output
                         break;
 
                     default:
@@ -94,7 +142,8 @@ public class CLIManager {
                         break;
                 }
             }
-        }).start();
+        }, "CLI");
+        cliThread.start();
     }
 
     //Node Op helpers 
