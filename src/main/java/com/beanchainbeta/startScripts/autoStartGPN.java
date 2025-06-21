@@ -58,7 +58,7 @@ public class autoStartGPN {
         System.out.flush();
         System.out.println("\u001B[32m" + Branding.logo + "\u001B[0m"); 
         BlockTimerBeta.nodeFleccer();
-        new Thread(() -> {
+        Thread cleanUp = new Thread(() -> {
             while (true) {
                 try {
                     CleanupService.runFullCleanup();
@@ -67,6 +67,7 @@ public class autoStartGPN {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        }, "CleanUp");
+        cleanUp.start();
     }
 }

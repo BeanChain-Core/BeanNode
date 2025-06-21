@@ -58,16 +58,17 @@ public class autoStartPublic {
         System.out.print("\033[H\033[2J");  
         System.out.flush();
         System.out.println("\u001B[32m" + Branding.logo + "\u001B[0m"); 
-        new Thread(() -> {
+        Thread cleanUp = new Thread(() -> {
             while (true) {
                 try {
                     CleanupService.runFullCleanup();
-                    Thread.sleep(6 * 60 * 60 * 1000); // Sleep 6 hours
+                    Thread.sleep(6 * 60 * 60 * 1000); // Sleep 6 hours***** test and possibly adjust 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        }, "CleanUp");
+        cleanUp.start();
     }
 }
     
