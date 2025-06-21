@@ -5,6 +5,7 @@
 target/
 *.class
 *.jar
+!wiz-suite-v0.jar
 
 # OS junk
 Thumbs.db
