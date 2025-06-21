@@ -32,6 +32,7 @@ public class Node {
     private static String nodeType = ConfigLoader.getNodeType();
     private static ConcurrentHashMap<Socket, PeerInfo> peers = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<Socket, PeerInfo> cenRegistry = new ConcurrentHashMap<>();
+    private static final String SAVED_PEERS_FILE = "config.docs/saved_peers.json";
 
     public static void initialize(String ip) throws IOException {
         if (instance == null) {
@@ -81,6 +82,7 @@ public class Node {
             }
         } catch (IOException e) {
             BeanLoggerManager.BeanLoggerFPrint("Connection lost with peer: " + peer.getInetAddress());
+            peers.remove(peer);
         } finally {
             try {
                 peer.close();
@@ -110,7 +112,7 @@ public class Node {
             broadcast(message, peersToSendTo);
             return;
         }
-        
+
         String senderIP = senderPeer.getInetAddress().getHostAddress();
         for (Socket peer : peersToSendTo) {
             String peerIP = peer.getInetAddress().getHostAddress();
@@ -276,6 +278,9 @@ public class Node {
     }
 
     public static void registerPeer(Socket socket, PeerInfo info) {
+        String ip = socket.getInetAddress().getHostAddress();
+        int listeningPort = info.getListeningPort();
+        appendPeer(ip, listeningPort);
         if(info.getNodeType().equals("BEANNODE")){
             peers.put(socket, info);
         } else if (info.getNodeType().equals("CEN")){
@@ -362,6 +367,103 @@ public class Node {
             System.out.println("- " + ip + ":" + port + " | Info: " + info.stringInfo());
         }
     }
+
+    public static void savePeers() {
+        List<SerializedPeer> savablePeers = new ArrayList<>();
+
+        //checks if empty or only connected to bootstrap
+        if (peers.isEmpty() || peers.size() == 1) {
+            System.out.println("No connected peers.");
+            return;
+        }
+
+        try{
+            System.out.println("[PEERLIST] Saving Peers...");
+            for (Map.Entry<Socket, PeerInfo> entry : peers.entrySet()) {
+                Socket socket = entry.getKey();
+                PeerInfo info = entry.getValue();
+
+                String ip = socket.getInetAddress().getHostAddress();
+                int port = info.getListeningPort();
+                if(ip.equals(ConfigLoader.getBootstrapIp())){
+                    continue;
+                }
+
+                SerializedPeer serializedPeer = new SerializedPeer(ip, port);
+                savablePeers.add(serializedPeer);
+            }
+            new ObjectMapper().writeValue(new File(SAVED_PEERS_FILE), savablePeers);
+            BeanLoggerManager.BeanLoggerFPrint("[PEERLIST] Saved " + savablePeers.size() + " peers.");
+
+        } catch (Exception e) {
+            BeanLoggerManager.BeanLoggerFPrint("[PEERLIST] Failed to Save Peers");
+            e.printStackTrace();
+        }
+
+    }
+
+    public  void loadPeers() {
+        try {
+            File file = new File(SAVED_PEERS_FILE);
+
+            if (!file.exists()) {
+                BeanLoggerManager.BeanLogger("[PEERLIST] No saved peers found.");
+                return;
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            List<SerializedPeer> savedPeers = Arrays.asList(mapper.readValue(file, SerializedPeer[].class));
+
+            if (savedPeers.isEmpty()) {
+                BeanLoggerManager.BeanLogger("[PEERLIST] Saved peer list is empty.");
+                return;
+            }
+
+            System.out.println("[PEERLIST] Attempting to reconnect to " + savedPeers.size() + " saved peers...");
+            for (SerializedPeer peer : savedPeers) {
+                try {
+                    connectToPeer(peer.ip, peer.listeningPort, false);
+                } catch (Exception e) {
+                    System.err.println("[PEERLIST] Failed to connect to: " + peer.ip + ":" + peer.listeningPort);
+                }
+            }
+
+        } catch (Exception e) {
+            BeanLoggerManager.BeanLoggerFPrint("[PEERLIST] Failed to load saved peers.");
+            e.printStackTrace();
+        }
+    }
+
+    public static void appendPeer(String ip, int port) {
+        if(ip.equals(ConfigLoader.getBootstrapIp())){
+            System.out.println("Peer is Bootstrap, not saved in peer list.");
+            return;
+        }
+        try {
+            File file = new File(SAVED_PEERS_FILE);
+            ObjectMapper mapper = new ObjectMapper();
+            List<SerializedPeer> savedPeers = new ArrayList<>();
+
+            if (file.exists()) {
+                savedPeers = new ArrayList<>(Arrays.asList(mapper.readValue(file, SerializedPeer[].class)));
+                for (SerializedPeer peer : savedPeers) {
+                    if (peer.ip.equals(ip) && peer.listeningPort == port) {
+                        BeanLoggerManager.BeanLogger("[PEERLIST] Peer already in list: " + ip + ":" + port);
+                        return;
+                    }
+                }
+            }
+
+            savedPeers.add(new SerializedPeer(ip, port));
+            mapper.writeValue(file, savedPeers);
+            BeanLoggerManager.BeanLogger("[PEERLIST] Appended new peer: " + ip + ":" + port);
+
+        } catch (Exception e) {
+            BeanLoggerManager.BeanLoggerFPrint("[PEERLIST] Failed to append peer.");
+            e.printStackTrace();
+        }
+    }
+
 
     public int getPort(){
         return port;

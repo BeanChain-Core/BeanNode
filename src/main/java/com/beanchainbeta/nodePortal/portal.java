@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.CLIManager;
 import com.beanchainbeta.logger.BeanLoggerManager;
+import com.beanchainbeta.network.Node;
 //import com.beanchainbeta.devTests.TXTestBatcher;
 import com.beanchainbeta.services.MempoolSyncService;
 import com.beanchainbeta.services.blockchainDB;
@@ -56,7 +57,14 @@ public class portal {
         memGossipThread.start();
         //TXTestBatcher.loadMemPool(); // FIXME: this is a test TX for dev testing do not leave this line in production!
 
+        Node node = Node.getInstance();
+        node.loadPeers();
         CLIManager.startConsole(); //starts CLIManager in new thread
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Shutting down... saving peers.");
+            Node.savePeers(); // or node.savePeers() if not static
+        }));
     }
 
     
