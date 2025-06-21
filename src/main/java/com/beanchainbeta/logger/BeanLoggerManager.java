@@ -54,4 +54,30 @@ public class BeanLoggerManager {
         }
         Logger.info(log);
     }
+
+    /**
+     * takes 'log' message and adds [TX] flag for easy log reading
+     * prints to console in DevMode 
+     * logs as 'INFO' in log file
+     * @param log
+     */
+    public static void BeanLogTX(String log) {
+        if (DevConfig.devMode) {
+            System.out.println("[TX]" + log);
+        }
+        Logger.info("[TX]" + log);
+    }
+
+    /**
+     * takes 'log' message and adds [BLOCK] flag for easy log reading
+     * prints to console in DevMode 
+     * logs as 'INFO' in log file
+     * @param log
+     */
+    public static void BeanLogBlock(String log) {
+        if (DevConfig.devMode) {
+            System.out.println("[BLOCK]" + log);
+        }
+        Logger.info("[BLOCK]" + log);
+    }
 }

@@ -335,7 +335,7 @@ public class MessageRouter {
             for (Block block : blocksToReplay) {
                 if (block.getHeight() == 0) continue; // Skip genesis
                 BeanLoggerManager.BeanPrinter("REPLAY HASH: " + block.getHash() + " Params: Height: " + block.getHeight() + " PrevHash: " + block.getPreviousHash() + " MerkleRoot: " + block.getMerkleRoot());
-                BeanLoggerManager.BeanLogger("Replaying block #" + block.getHeight());
+                BeanLoggerManager.BeanLogBlock("Replaying block #" + block.getHeight());
                 BlockBuilderV2.blockReplay(block);
             }
     
@@ -349,10 +349,10 @@ public class MessageRouter {
     
             for (Block b : buffered) {
                 if (b.getHeight() <= blockchainDB.getHeight()) {
-                    BeanLoggerManager.BeanLogger("Skipping buffered block at height " + b.getHeight() + " (already processed or duplicate)");
+                    BeanLoggerManager.BeanLogBlock("Skipping buffered block at height " + b.getHeight() + " (already processed or duplicate)");
                     continue;
                 }
-                BeanLoggerManager.BeanLogger("Buffered block: #" + b.getHeight());
+                BeanLoggerManager.BeanLogBlock("Buffered block: #" + b.getHeight());
                 BlockBuilderV2.blockReplay(b);
             }
     
@@ -394,7 +394,7 @@ public class MessageRouter {
             // 🌐 Gossip to other peers
             Node.broadcastTransactionStatic(tx);
 
-            BeanLoggerManager.BeanLogger("Raw incoming TX: " + tx.createJSON());
+            BeanLoggerManager.BeanLogTX("Raw incoming TX: " + tx.createJSON());
             //BeanLoggerManager.BeanLogger("➡️ From: " + tx.getFrom() + " | Nonce: " + tx.getNonce());
             //BeanLoggerManager.BeanLogger("➡️ Hash: " + tx.getTxHash());
             //BeanLoggerManager.BeanLogger("➡️ Valid JSON: " + tx.createJSON().contains(tx.getTxHash())); // sanity
@@ -463,7 +463,7 @@ public class MessageRouter {
             }
             MempoolService.removeTXs(toRemove, new ConcurrentHashMap<>());
 
-            BeanLoggerManager.BeanLogger("Incoming block #" + incomingBlock.getHeight() + " accepted and rebuilt.");
+            BeanLoggerManager.BeanLogBlock("Incoming block #" + incomingBlock.getHeight() + " accepted and rebuilt.");
     
         } catch (Exception e) {
             System.err.println("Failed to process incoming block:");

@@ -58,6 +58,7 @@ public class DBController {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             tx = objectMapper.readValue(transactionJson, TX.class);
+            
         } catch (Exception e) {
             Logger.error(e);
             //e.printStackTrace();
@@ -70,8 +71,10 @@ public class DBController {
 
         if (mempoolService.addTransaction(txHash, transactionJson)) {
             Node.broadcastTransactionStatic(tx);
+            BeanLoggerManager.BeanLogTX("Raw incoming TX: " + tx.createJSON());
             return ResponseEntity.ok("{\"status\": \"success\", \"txHash\": \"" + txHash + "\"}");
         } else {
+            BeanLoggerManager.BeanLoggerError("Raw incoming TX FAILED** To enter pool: " + tx.createJSON());
             return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\": \"Transaction rejected or already exists\"}");
         }
     }
