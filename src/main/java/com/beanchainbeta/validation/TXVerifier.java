@@ -43,6 +43,7 @@ public class TXVerifier {
         boolean addyMatch = false;
         boolean validOwner = false;
         boolean senderHasEnough = false;
+        //TODO:FIX (ADD) NONCE CHECK AND TEST. 
 
         if(hasAddy && hasSignature && correctHash) {
             addyMatch = TransactionVerifier.walletMatch(tx.getPublicKeyHex(), tx.getFrom());
