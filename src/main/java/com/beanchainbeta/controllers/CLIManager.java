@@ -4,17 +4,21 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputFilter.Config;
 import java.util.Properties;
 import java.util.Scanner;
 
+import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.factories.InternalTXFactory;
 import com.beanchainbeta.helpers.DevConfig;
+import com.beanchainbeta.helpers.wizHelper;
 import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.Layer2DBService;
 import com.beanchainbeta.services.WalletService;
 import com.beanchainbeta.services.blockchainDB;
+import com.beanpack.Wizard.wizard;
 
 public class CLIManager {
     public static String rootUserName = portal.admin.address;
@@ -32,7 +36,9 @@ public class CLIManager {
         Thread cliThread = new Thread(() -> {
             Scanner scanner = new Scanner(System.in);
             while (true) {
-                System.out.print(rootUserName + ">> ");
+                System.out.println("\u001B[32m");
+                System.out.print(rootUserName + ">> \u001B[0m");
+
                 String input = scanner.nextLine().trim();
 
                 String[] parts = input.split(" ");
@@ -120,6 +126,39 @@ public class CLIManager {
                             System.out.println("Usage: send bean <address> <amount> <gas-fee>");
                         }
                         break;
+                    case "display-key":
+                        if(ConfigLoader.getEncryptedWiz()){
+                            if(ConfigLoader.getRequirePass()){
+                                try {
+                                    System.out.println("Enter Admin Pass");
+                                    String adminPass = scanner.nextLine().trim();
+                                    String encrypted = wizard.wizardRead(ConfigLoader.getPrivateKeyPath());
+                                    String unEncrypted = wizard.decryptWizKey(encrypted, adminPass);
+                                    System.out.println("Private Key Hex: " +  unEncrypted);
+                                } catch (Exception e) {
+                                    System.out.println("ERROR* Failed to display encrypted key");
+                                    e.printStackTrace();
+                                }  
+                            } else {
+                                try {
+                                    String encrypted = wizard.wizardRead(ConfigLoader.getPrivateKeyPath());
+                                    String unEncrypted = wizard.decryptWizKey(encrypted, ConfigLoader.getAdminPass());
+                                    System.out.println("Private Key Hex: " +  unEncrypted);
+                                } catch (Exception e) {
+                                    System.out.println("ERROR* Failed to display encrypted key");
+                                    e.printStackTrace();
+                                }  
+                            }
+
+                        } else {
+                            try {
+                                System.out.println("Private Key Hex: " +  wizard.wizardRead(ConfigLoader.getPrivateKeyPath()));
+                            } catch (IOException e) {
+                                System.out.println("ERROR* Failed to display key");
+                                e.printStackTrace();
+                            }
+                        }
+                        break;
 
                     case "help":
                         System.out.println("\n=== Available CLI Commands ===");
@@ -129,6 +168,7 @@ public class CLIManager {
                         System.out.println(String.format("  %-40s %s", "username", "Change Node portal username."));
                         System.out.println(String.format("  %-40s %s", "send bean <address> <amount> <gas-fee>", "Send BEAN to a wallet with specified gas fee."));
                         System.out.println(String.format("  %-40s %s", "wallet", "View your this node's Bean balance (in beantoshi)"));
+                        System.out.println(String.format("  %-40s %s", "display-key", "Display your private key"));
                         System.out.println(String.format("  %-40s %s", "tokens", "View your this node's Token Balances (by hash, in Beantoshi)"));
                         System.out.println(String.format("  %-40s %s", "height", "View your local Node chain height."));
                         System.out.println(String.format("  %-40s %s", "lastblock", "View the last block stored in local chain."));
