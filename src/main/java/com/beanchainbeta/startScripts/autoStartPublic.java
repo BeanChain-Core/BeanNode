@@ -1,9 +1,12 @@
 package com.beanchainbeta.startScripts;
 
+import java.util.Scanner;
+
 import org.springframework.boot.SpringApplication;
 
 import com.beanchainbeta.BeanChainApi;
 import com.beanchainbeta.config.ConfigLoader;
+import com.beanchainbeta.helpers.wizHelper;
 import com.beanchainbeta.nodePortal.adminCube;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.CleanupService;
@@ -41,6 +44,12 @@ public class autoStartPublic {
                 signedIn = true;
             } catch (Exception e) {
                 System.out.println("SIGN IN FAILED: " + e.getMessage());
+                Scanner scanner = new Scanner(System.in);
+                System.out.println("Type 'wiz' to launch the WizKey helper. (anything else to retry sign in)");
+                String input = scanner.nextLine().trim();
+                if(input.equals("wiz")){
+                    wizHelper.main(null);
+                }
                 Thread.sleep(3000); // pause before retrying
             }
         }
