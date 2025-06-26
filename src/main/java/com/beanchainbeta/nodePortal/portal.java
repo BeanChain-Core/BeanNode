@@ -2,6 +2,7 @@ package com.beanchainbeta.nodePortal;
 
 
 import java.time.LocalDateTime;
+import java.util.Scanner;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -9,7 +10,6 @@ import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.CLIManager;
 import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
-//import com.beanchainbeta.devTests.TXTestBatcher;
 import com.beanchainbeta.services.MempoolSyncService;
 import com.beanchainbeta.services.blockchainDB;
 import com.beanchainbeta.startScripts.autoStartGPN;
@@ -29,6 +29,7 @@ public class portal {
             e.printStackTrace();
         }
     }
+
     public static adminCube admin;
     public static blockchainDB beanchainTest = new blockchainDB();
     public static volatile boolean isSyncing = false;
@@ -39,6 +40,13 @@ public class portal {
 
 
     public static void main(String[] args) throws Exception {
+
+        if(ConfigLoader.getRequirePass()){
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("ENTER ADMIN PASS");
+            String adminPass = scanner.nextLine().trim(); 
+            ConfigLoader.setAdminPass(adminPass);
+        }
 
         if(ConfigLoader.isBootstrapNode()) {
             autoStartGPN.nodeStart();
@@ -55,7 +63,6 @@ public class portal {
 
         memGossipThread.setDaemon(false);
         memGossipThread.start();
-        //TXTestBatcher.loadMemPool(); // FIXME: this is a test TX for dev testing do not leave this line in production!
 
         Node node = Node.getInstance();
         node.loadPeers();

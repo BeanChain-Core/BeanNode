@@ -1,7 +1,9 @@
 package com.beanchainbeta.startScripts;
 
+import java.util.Scanner;
+
 import com.beanchainbeta.config.ConfigLoader;
-//import com.beanchainbeta.devTests.TXTestBatcher;
+import com.beanchainbeta.helpers.wizHelper;
 import com.beanchainbeta.nodePortal.adminCube;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.CleanupService;
@@ -34,18 +36,18 @@ public class autoStartPrivate {
                 signedIn = true;
             } catch (Exception e) {
                 System.out.println("SIGN IN FAILED: " + e.getMessage());
+                Scanner scanner = new Scanner(System.in);
+                System.out.println("Type 'wiz' to launch the WizKey helper. (anything else to retry sign in)");
+                String input = scanner.nextLine().trim();
+                if(input.equals("wiz")){
+                    wizHelper.main(null);
+                }
                 Thread.sleep(3000); // pause before retrying
             }
         }
     }
 
     private static void signInSuccess() throws Exception{
-        // Thread springThread = new Thread(() -> {
-        //             SpringApplication.run(BeanChainApi.class);
-        //         }, "SpringThread");
-
-        // springThread.setDaemon(false);
-        // springThread.start();
         System.out.println("SIGN IN SUCCESS");
 
         try {
@@ -54,10 +56,7 @@ public class autoStartPrivate {
             e.printStackTrace();
         }
 
-        //System.out.print("\033[H\033[2J");  
-        //System.out.flush();
         System.out.println("\u001B[32m" + Branding.logo + "\u001B[0m"); 
-        // TimerFunc.nodeFleccer();
         Thread cleanUp = new Thread(() -> {
             while (true) {
                 try {
@@ -69,7 +68,6 @@ public class autoStartPrivate {
             }
         }, "CleanUp");
         cleanUp.start();
-        //TXTestBatcher.loadMemPool();
     }
 }
     
