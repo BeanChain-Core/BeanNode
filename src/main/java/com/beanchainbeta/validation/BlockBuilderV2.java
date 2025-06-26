@@ -12,7 +12,6 @@ import com.beanpack.TXs.TX;
 import com.beanpack.Utils.MetaHelper;
 import com.beanpack.Utils.TXSorter;
 import com.beanpack.crypto.WalletGenerator;
-import com.beanchainbeta.helpers.DevConfig;
 import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.nodePortal.portal;
@@ -43,6 +42,16 @@ public class BlockBuilderV2 {
         List<TX> txStakeTXs = sorter.getStakeTX();
         List<TX> txMintTXs = sorter.getMintTX();
         List<TX> txFundedCallTXs = sorter.getFundedCallTX();
+        
+        List<TX> rejectedTXs = sorter.getRejectedTX();
+
+        for(TX tx: rejectedTXs){
+            tx.setStatus("rejected");
+            System.out.print("TX REJECTED NOT VALID (INVALID 'TYPE'): " + tx.getTxHash());
+            Node.broadcastRejection(tx.getTxHash());
+            RejectedService.saveRejectedTransaction(tx);
+            MempoolService.removeSingleTx(tx.getTxHash());
+        }
     
         blockSize = processTXs(txTransfer, false, simulatedL1, accepted, blockSize, maxSize);
         blockSize = processTXs(txMintTXs, false, simulatedL1, accepted, blockSize, maxSize);
