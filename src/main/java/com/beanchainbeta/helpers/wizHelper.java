@@ -34,6 +34,7 @@ public class wizHelper {
             if (keyCheck(key)){
                 wizard.saveKeyToWizard(key, path);
                 System.out.println("Key saved successfully.");
+                break;
             } else {
                 userWizAndSave();
             }
