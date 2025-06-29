@@ -6,7 +6,7 @@ This project is maintained by the **BeanChain Core Team** under **Outlandish Tec
 
 > Actively in development — live, synced nodes (GPN, PN, PRN) are currently operating across the testnet.
 
-[👉 Join our Discord](https://discord.gg/t64HF9B33T)
+
 
 ---
 
@@ -110,6 +110,8 @@ Includes:
 To join the team or get involved:  
 📬 [team@limabean.xyz](mailto:team@limabean.xyz)
 
+[👉 Join our Discord](https://discord.gg/t64HF9B33T)
+
 ---
 
 ## BaseNode (Developer Toolkit)
@@ -132,6 +134,8 @@ We welcome forks and pull requests!
 2. Create a new branch
 3. Submit a pull request with a clear summary of your changes
 
+   
+
 ---
 
 ## License
@@ -152,10 +156,6 @@ MIT License — See [`LICENSE`](LICENSE)
 ---
 
 Crafted with ☕ by the **BeanChain Core Team**  
-Under **Outlandish Tech**, powered by **Outlandish Creative LLC**
-
-
-Crafted by the **BeanChain Core Team**  
 Under **Outlandish Tech**, powered by **Outlandish Creative LLC**
 
 
