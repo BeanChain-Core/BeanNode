@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
+import com.beanchainbeta.helpers.HolderBalance;
 import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanpack.Models.*;
 
@@ -140,6 +141,23 @@ public class Layer2DBService {
 
             saveWallet(from);
 
+            TokenStorage token = loadToken(tokenHash);
+            JsonNode meta = token.getTokenMetaAsJson();
+            long currentSupply = meta.has("supply") ? meta.get("supply").asLong() : 0;
+            long newSupply = currentSupply - beantoshinomics.convertToBeantoshi(String.valueOf(amount));
+
+            TokenStorage updated = new TokenStorage(
+            token.getTokenHash(),
+            meta.get("token").asText(),
+            meta.get("symbol").asText(),
+            beantoshinomics.toBean(newSupply),
+            meta.has("minter") ? meta.get("minter").asText() : null,
+            meta.has("capped") && meta.get("capped").asBoolean(),
+            meta.has("openMint") && meta.get("openMint").asBoolean()
+        );
+
+        saveToken(updated);
+
             return true;
         } catch (Exception e) {
             System.err.println("Burn failed from " + fromAddress + " | " + tokenHash);
@@ -206,19 +224,19 @@ public class Layer2DBService {
         try {
             TokenStorage token = loadToken(tokenHash);
             if (token == null) {
-                System.err.println("❌ Cannot mint: token not found.");
+                System.err.println("Cannot mint: token not found.");
                 return false;
             }
 
             // Parse metadata
             JsonNode meta = token.getTokenMetaAsJson();
-            boolean mintable = false;
-            boolean open = true;
+            boolean mintable = meta.has("capped") ? meta.get("capped").asBoolean() : false;
+            boolean open = meta.has("openMint") ? meta.get("openMint").asBoolean() : false;
             String minter = meta.has("minter") ? meta.get("minter").asText() : null;
 
 
             if (!open && (minter == null || !minter.equals(callerAddress))) {
-                System.err.println("❌ Unauthorized mint attempt by: " + callerAddress + " on token: " + tokenHash);
+                System.err.println("Unauthorized mint attempt by: " + callerAddress + " on token: " + tokenHash);
                 return false;
             }
 
@@ -242,7 +260,7 @@ public class Layer2DBService {
             return mintTokenToWallet(callerAddress, tokenHash, beantoshinomics.toBean(amountToAdd));
 
         } catch (Exception e) {
-            System.err.println("❌ Error minting to token supply for: " + tokenHash);
+            System.err.println("Error minting to token supply for: " + tokenHash);
             e.printStackTrace();
             return false;
         }
@@ -307,4 +325,25 @@ public class Layer2DBService {
         }
     }
 
+    public static List<HolderBalance> getTokenHolders(String tokenHash) {
+    List<HolderBalance> holders = new ArrayList<>();
+    try (DBIterator iterator = db.iterator()) {
+        for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
+            String key = new String(iterator.peekNext().getKey(), StandardCharsets.UTF_8);
+            if (!key.startsWith("token:")) {
+                Layer2Wallet wallet = mapper.readValue(new String(iterator.peekNext().getValue(), StandardCharsets.UTF_8), Layer2Wallet.class);
+                double balance = wallet.getBalance(tokenHash);
+                if (balance > 0) {
+                    holders.add(new HolderBalance(wallet.getAddress(), balance));
+                }
+            }
+        }
+    } catch (Exception e) {
+        System.err.println("Error fetching token holders for: " + tokenHash);
+        e.printStackTrace();
+    }
+    return holders;
 }
+}
+
+
