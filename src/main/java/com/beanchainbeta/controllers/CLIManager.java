@@ -4,15 +4,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputFilter.Config;
 import java.util.Properties;
 import java.util.Scanner;
 
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.factories.InternalTXFactory;
 import com.beanchainbeta.helpers.DevConfig;
-import com.beanchainbeta.helpers.wizHelper;
-import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.Layer2DBService;
