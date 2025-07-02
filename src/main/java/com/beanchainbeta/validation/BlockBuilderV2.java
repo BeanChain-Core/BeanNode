@@ -49,7 +49,13 @@ public class BlockBuilderV2 {
             tx.setStatus("rejected");
             System.out.print("TX REJECTED NOT VALID (INVALID 'TYPE'): " + tx.getTxHash());
             Node.broadcastRejection(tx.getTxHash());
-            RejectedService.saveRejectedTransaction(tx);
+            try {
+                TX flaggedTx = RejectedService.rejectionFlagTx(tx, "Invalid TX Type Field");
+                RejectedService.saveRejectedTransaction(flaggedTx);
+            } catch (Exception e) {
+                BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
+                e.printStackTrace();
+            }
             MempoolService.removeSingleTx(tx.getTxHash());
         }
     
@@ -126,7 +132,13 @@ public class BlockBuilderV2 {
                     tx.setStatus("rejected");
                     BeanLoggerManager.BeanLoggerError("TX REJECTED NOT VALID: " + tx.getTxHash());
                     Node.broadcastRejection(tx.getTxHash());
-                    RejectedService.saveRejectedTransaction(tx);
+                    try {
+                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "Information mixmatch or credential failure.");
+                        RejectedService.saveRejectedTransaction(flaggedTx);
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
+                        e.printStackTrace();
+                    }
                     MempoolService.removeSingleTx(tx.getTxHash());
                     continue;
                 }
@@ -162,7 +174,13 @@ public class BlockBuilderV2 {
                 tx.setStatus("rejected");
                 System.out.print("TX REJECTED NOT VALID: " + tx.getTxHash());
                 Node.broadcastRejection(tx.getTxHash());
-                RejectedService.saveRejectedTransaction(tx);
+                try {
+                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "INVALID SIGNATURE");
+                        RejectedService.saveRejectedTransaction(flaggedTx);
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
+                        e.printStackTrace();
+                    }
                 MempoolService.removeSingleTx(tx.getTxHash());
                 continue;
             }
@@ -174,7 +192,13 @@ public class BlockBuilderV2 {
                 tx.setStatus("rejected");
                 BeanLoggerManager.BeanLoggerError("TX REJECTED NOT EXECUTED: " + tx.getTxHash());
                 Node.broadcastRejection(tx.getTxHash());
-                RejectedService.saveRejectedTransaction(tx);
+                try {
+                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "TX failed during Execution");
+                        RejectedService.saveRejectedTransaction(flaggedTx);
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
+                        e.printStackTrace();
+                    }
                 MempoolService.removeSingleTx(tx.getTxHash());
                 continue;
             } else {

@@ -78,7 +78,13 @@ public class TokenTXVerifier {
                     System.err.println("❌ Exception during token TX validation: " + tx.getTxHash());
                     e.printStackTrace();
                     tx.setStatus("rejected");
-                    RejectedService.saveRejectedTransaction(tx);
+                    try {
+                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "Exception thrown during validation");
+                        RejectedService.saveRejectedTransaction(flaggedTx);
+                    } catch (Exception a) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
+                        a.printStackTrace();
+                    }
                     Node.broadcastRejection(tx.getTxHash());
                     return false;
             }
@@ -87,7 +93,13 @@ public class TokenTXVerifier {
             } else {
                 BeanLoggerManager.BeanLoggerError("** TX FAILED: " + tx.getTxHash() + " VERIFICATION FAILURE **");
                 tx.setStatus("rejected");
-                RejectedService.saveRejectedTransaction(tx);
+                try {
+                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "Not enough funds, or indavlid sender.**");
+                        RejectedService.saveRejectedTransaction(flaggedTx);
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
+                        e.printStackTrace();
+                    }
                 Node.broadcastRejection(tx.getTxHash());
                 return false;
             }

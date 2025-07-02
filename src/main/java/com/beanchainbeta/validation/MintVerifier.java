@@ -18,7 +18,13 @@ public class MintVerifier {
         if (!metaNode.has("tokenHash") || metaNode.get("tokenHash").asText().isBlank()) {
             System.err.println("MINT REJECTED: Missing or empty tokenHash");
             tx.setStatus("rejected");
-            RejectedService.saveRejectedTransaction(tx);
+            try {
+                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "MINT REJECTED: Missing or empty tokenHash");
+                        RejectedService.saveRejectedTransaction(flaggedTx);
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
+                        e.printStackTrace();
+                    }
             Node.broadcastRejection(tx.getTxHash());
             return false;
         }
@@ -33,7 +39,13 @@ public class MintVerifier {
         if(!ignoreMinted && Layer2DBService.tokenExists(metaNode.get("tokenHash").asText())){
             System.err.println("MINT REJECTED: Token already exists with hash " + metaNode.get("tokenHash").asText());
             tx.setStatus("rejected");
-            RejectedService.saveRejectedTransaction(tx);
+            try {
+                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "MINT REJECTED: Token already exists with hash");
+                        RejectedService.saveRejectedTransaction(flaggedTx);
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
+                        e.printStackTrace();
+                    }
             Node.broadcastRejection(tx.getTxHash());
             return false;
         }
@@ -59,7 +71,13 @@ public class MintVerifier {
             } else {
                 BeanLoggerManager.BeanLoggerError("** MINT FAILED: " + tx.getTxHash() + " VERIFICATION FAILURE **");
                 tx.setStatus("rejected");
-                RejectedService.saveRejectedTransaction(tx);
+                try {
+                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "Mint Failed");
+                        RejectedService.saveRejectedTransaction(flaggedTx);
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
+                        e.printStackTrace();
+                    }
                 Node.broadcastRejection(tx.getTxHash());
                 return false;
             }
@@ -67,7 +85,13 @@ public class MintVerifier {
         } else {
             BeanLoggerManager.BeanLoggerError("** MINT FAILED: " + tx.getTxHash() + " INFO MISMATCH **");
             tx.setStatus("rejected");
-            RejectedService.saveRejectedTransaction(tx);
+            try {
+                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "Information mixmatch.");
+                        RejectedService.saveRejectedTransaction(flaggedTx);
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
+                        e.printStackTrace();
+                    }
             Node.broadcastRejection(tx.getTxHash());
             return false;
 
