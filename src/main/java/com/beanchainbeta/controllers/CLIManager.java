@@ -32,6 +32,10 @@ public class CLIManager {
         }
         Thread cliThread = new Thread(() -> {
             Scanner scanner = new Scanner(System.in);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                System.out.println("\nClean UP your SCANNERS! #GBEAN");
+                scanner.close();
+            }));
             while (true) {
                 System.out.println("\u001B[32m");
                 System.out.print(rootUserName + ">> \u001B[0m");

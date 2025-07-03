@@ -3,6 +3,9 @@ package com.beanchainbeta.controllers;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 import org.springframework.stereotype.Component;
+
+import com.beanchainbeta.logger.BeanLoggerManager;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,9 +39,9 @@ public class DBManager {
             try {
                 databases.get(dbName).close();
                 databases.remove(dbName);
-                System.out.println("LevelDB closed: " + dbName);
+                BeanLoggerManager.BeanLogger("LevelDB closed: " + dbName);
             } catch (IOException e) {
-                System.err.println("Error closing LevelDB for " + dbName + ": " + e.getMessage());
+                BeanLoggerManager.BeanLoggerError("Error closing LevelDB for " + dbName + ": " + e.getMessage());
             }
         }
     }

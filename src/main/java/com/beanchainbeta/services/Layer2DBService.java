@@ -312,7 +312,7 @@ public class Layer2DBService {
                 }
                 return true;
             } catch (Exception e) {
-                System.out.println(e);
+                BeanLoggerManager.BeanLoggerError("EXCEPTION: " + e.getMessage());
                 return false;
             }  
     }

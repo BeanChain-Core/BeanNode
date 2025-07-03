@@ -9,6 +9,8 @@ import java.util.Scanner;
 
 import org.tinylog.Logger;
 
+import com.beanchainbeta.helpers.SecureInputHelper;
+
 
 
 public class ConfigLoader {
@@ -30,8 +32,10 @@ public class ConfigLoader {
     private static String layer2DB;
     private static String syncMode;
     private static String nodeType;
+    private static String keyName;
 
     public static void loadConfig() {
+        
         File configFile = new File(configPath);
         if (!configFile.exists()) {
             System.out.println("Config file not found — generating default config...");
@@ -41,7 +45,8 @@ public class ConfigLoader {
         try (FileInputStream fis = new FileInputStream(configPath)) {
             props.load(fis);
 
-            privateKeyPath = props.getProperty("privateKeyPath", "config.docs/wizard.txt");
+            privateKeyPath = props.getProperty("privateKeyPath", "config.docs/wiz.txt");
+            keyName = props.getProperty("keyName", "wiz.txt.enc");
             encryptedWiz = Boolean.parseBoolean(props.getProperty("encryptedWiz", "false")); // defaults to a non encrypted wiz key for general safe and private use
             requirePass = Boolean.parseBoolean(props.getProperty("requirePass", "false"));
             adminPass = props.getProperty("adminPass", "admin"); // default encryption password is set to admin if left blank
@@ -60,11 +65,15 @@ public class ConfigLoader {
             mempoolDB = props.getProperty("mempoolDB", "mempoolDB");
             rejectedDB = props.getProperty("rejectedDB", "rejectedDB");
             layer2DB = props.getProperty("layer2DB", "layer2DB");
+            
 
         } catch (IOException e) {
             Logger.error("Failed to load BeanChain config: " + e.getMessage());
             //System.err.println("Failed to load BeanChain config: " + e.getMessage());
             System.exit(1);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            //e.printStackTrace();
         }
     }
 
@@ -94,8 +103,7 @@ public class ConfigLoader {
             String require = scanner.nextLine().trim();
             switch(require){
                 case "config":
-                    System.out.println("Enter Your Encryption Pass"); 
-                    pass = scanner.nextLine().trim();
+                    pass = SecureInputHelper.promptHidden("Enter Your Encryption Pass");
                     break;
                 case "require":
                     requireBool = true;
@@ -130,6 +138,7 @@ public class ConfigLoader {
         Properties defaults = new Properties();
 
         defaults.setProperty("privateKeyPath", "config.docs/wiz.txt");
+        defaults.setProperty("keyName", "wiz.txt.enc");
         defaults.setProperty("encryptedWiz", String.valueOf(encryptBool));
         defaults.setProperty("requirePass", String.valueOf(requireBool));
         defaults.setProperty("adminPass", pass);
@@ -179,6 +188,7 @@ public class ConfigLoader {
     public static String getMempoolDB() { return mempoolDB; }
     public static String getRejectedDB() { return rejectedDB; }
     public static String getLayer2DB() { return layer2DB; }
+    public static String getKeyName() { return keyName; }
 
     public static void setAdminPass(String pass) {adminPass = pass;}
 }

@@ -41,7 +41,7 @@ public class MempoolService {
             JsonNode txNode = mapper.readTree(transactionJson);
 
             if (txNode.has("signature") && "GENESIS-SIGNATURE".equals(txNode.get("signature").asText())) {
-                BeanLoggerManager.BeanLoggerFPrint("Skipping Genesis TX, not adding to mempool: " + txHash);
+                BeanLoggerManager.BeanLogger("Skipping Genesis TX, not adding to mempool: " + txHash);
                 return false;
             }
 
