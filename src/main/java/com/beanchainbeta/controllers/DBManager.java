@@ -3,9 +3,7 @@ package com.beanchainbeta.controllers;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 import org.springframework.stereotype.Component;
-
 import com.beanchainbeta.logger.BeanLoggerManager;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
