@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         
+    <modelVersion>4.0.0</modelVersion>
+
+    <dependency>
+        <groupId>com.beanchainbeta</groupId>
+        <artifactId>BeanNode</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+
+    <artifactId>devsuite</artifactId>
+    <packaging>jar</packaging>
+
+    <name>BeanChain DevSuite</name>
+
+    <dependencies>
+        <!-- Dependency on BeanNode compiled classes (helper code) -->
+        <dependency>
+            <groupId>com.beanchainbeta</groupId>
+            <artifactId>BeanNode</artifactId>
+            <version>0.0.4.2</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Plugin to create a standalone CLI jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.beanchainbeta.devsuite.runWizCryptHelp</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

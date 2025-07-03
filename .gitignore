@@ -24,10 +24,13 @@ Thumbs.db
 .idea/
 
 # Local config files (do NOT commit private keys!)
-/config.docs/wiz.txt
-/config.docs/nodeOp.properties
-/src/main/java/com/beanchainbeta/devTests
+*/config.docs/wiz.txt
+*/config.docs/nodeOp.properties
+*/src/main/java/com/beanchainbeta/devTests
 
 
 # data
-data/
+*data/
+*logs/
+*NodePk/*.jar 
+*NodePK/config.docs

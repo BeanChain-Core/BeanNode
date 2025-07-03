@@ -2,15 +2,11 @@ package com.beanchainbeta.nodePortal;
 
 
 import java.io.File;
-import java.time.LocalDateTime;
-import java.util.Scanner;
-
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.CLIManager;
 import com.beanchainbeta.helpers.SecureInputHelper;
-import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.services.MempoolSyncService;
 import com.beanchainbeta.services.blockchainDB;

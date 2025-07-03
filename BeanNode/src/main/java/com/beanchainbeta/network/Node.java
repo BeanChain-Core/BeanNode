@@ -30,7 +30,11 @@ public class Node {
     private static Node instance;
     private static String syncMode = ConfigLoader.getSyncMode();
     private static String nodeType = ConfigLoader.getNodeType();
+
     private static ConcurrentHashMap<Socket, PeerInfo> peers = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, PeerInfo> peersByAddress = new ConcurrentHashMap<>();
+
+
     private static ConcurrentHashMap<Socket, PeerInfo> cenRegistry = new ConcurrentHashMap<>();
     private static final String SAVED_PEERS_FILE = "config.docs/saved_peers.json";
 
@@ -280,9 +284,21 @@ public class Node {
     public static void registerPeer(Socket socket, PeerInfo info) {
         String ip = socket.getInetAddress().getHostAddress();
         int listeningPort = info.getListeningPort();
+        
+
+        String address = info.getAddress();
+        String bootsrapIP = ConfigLoader.getBootstrapIp();
+
+        if (peersByAddress.containsKey(address) || ip.equals(bootsrapIP))  {
+            BeanLoggerManager.BeanLoggerFPrint("[PEER] Duplicate wallet already connected: " + address);
+            return;
+        }
+
         appendPeer(ip, listeningPort);
+        
         if(info.getNodeType().equals("BEANNODE")){
             peers.put(socket, info);
+            peersByAddress.put(address,info);
         } else if (info.getNodeType().equals("CEN")){
             cenRegistry.put(socket, info);
         } else if (info.getNodeType().equals("RN")){
