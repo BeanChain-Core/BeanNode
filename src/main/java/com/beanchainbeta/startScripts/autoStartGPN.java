@@ -12,28 +12,37 @@ import com.beanpack.Wizard.*;
 import com.beanpack.beanify.Branding;
 
 public class autoStartGPN {
+    public static WizCryptHandler wizCrypt;
     
 
     public static void nodeStart() throws Exception {
+        String wizKey;
         
         
-        System.out.println("🫘 BeanChain Node Initializing...");
-        System.out.println("▶ IP : " + ConfigLoader.getBindAddress());
+        System.out.println(":: BeanChain :: Node startup sequence initiated...");
+        //System.out.println("▶ IP : " + ConfigLoader.getBindAddress());
         
     
 
         boolean signedIn = false;
         while (!signedIn) {
             try {
-                String wizKey = wizard.wizardRead(ConfigLoader.getPrivateKeyPath());
-                if(ConfigLoader.getEncryptedWiz()) { wizKey = wizard.decryptWizKey(wizKey, ConfigLoader.getAdminPass());}
+                if(ConfigLoader.getEncryptedWiz()) {
+                    String adminPass = ConfigLoader.getAdminPass();
+                    WizCryptHandler.bootWizCrypt(adminPass);
+                    wizKey = WizCryptHandler.readL2EncWizKey();
+                } else {
+                    wizKey = wizard.wizardRead(ConfigLoader.getPrivateKeyPath());
+                } 
+                // if(ConfigLoader.getEncryptedWiz()) { wizKey = wizard.decryptWizKey(wizKey, ConfigLoader.getAdminPass());}
+
                 adminCube admin = new adminCube(wizKey, ConfigLoader.getBindAddress());
                 admin.signedIn = true;
                 portal.admin = admin;
                 signInSuccess();
                 signedIn = true;
             } catch (Exception e) {
-                System.out.println("SIGN IN FAILED: " + e.getMessage());
+                WizCryptHandler.wizCryptMessageFactory("FAILED TO SIGN IN", "ERROR");
                 Thread.sleep(3000); 
             }
         }
