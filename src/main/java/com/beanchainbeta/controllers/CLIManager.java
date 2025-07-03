@@ -75,7 +75,6 @@ public class CLIManager {
 
                     case "exit":
                         System.out.println("Shutting down...");
-                        scanner.close();
                         System.exit(0);
                         break;
 
