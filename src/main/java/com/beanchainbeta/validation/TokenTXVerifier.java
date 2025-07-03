@@ -6,6 +6,7 @@ import com.beanchainbeta.services.Layer2DBService;
 import com.beanchainbeta.services.RejectedService;
 import com.beanchainbeta.services.WalletService;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.beanpack.Rejection.Flagger;
 import com.beanpack.TXs.*;
 import com.beanpack.crypto.*;
 import com.beanpack.Utils.*;
@@ -79,8 +80,8 @@ public class TokenTXVerifier {
                     e.printStackTrace();
                     tx.setStatus("rejected");
                     try {
-                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "Exception thrown during validation");
-                        RejectedService.saveRejectedTransaction(flaggedTx);
+                        Flagger.repackRejection(tx, "Exception thrown during validation");
+                        RejectedService.saveRejectedTransaction(tx);
                     } catch (Exception a) {
                         BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
                         a.printStackTrace();
@@ -94,8 +95,8 @@ public class TokenTXVerifier {
                 BeanLoggerManager.BeanLoggerError("** TX FAILED: " + tx.getTxHash() + " VERIFICATION FAILURE **");
                 tx.setStatus("rejected");
                 try {
-                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "Not enough funds, or indavlid sender.**");
-                        RejectedService.saveRejectedTransaction(flaggedTx);
+                        Flagger.repackRejection(tx, "Not enough funds, or indavlid sender.**");
+                        RejectedService.saveRejectedTransaction(tx);
                     } catch (Exception e) {
                         BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
                         e.printStackTrace();

@@ -50,34 +50,6 @@ public class RejectedService {
         return result;
     }
 
-    public static TX rejectionFlagTx(TX tx, String reason) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode metaNode = (ObjectNode) mapper.readTree(tx.getMeta());
-
-        // Check if there's already a rejectionReason field
-        if (metaNode.has("rejectionReason")) {
-            JsonNode existingNode = metaNode.get("rejectionReason");
-
-            // If it's already an array, append to it
-            if (existingNode.isArray()) {
-                ((com.fasterxml.jackson.databind.node.ArrayNode) existingNode).add(reason);
-            }
-            // If it's a string, convert to array and add new reason
-            else if (existingNode.isTextual()) {
-                com.fasterxml.jackson.databind.node.ArrayNode arr = mapper.createArrayNode();
-                arr.add(existingNode.asText());
-                arr.add(reason);
-                metaNode.set("rejectionReason", arr);
-            }
-        } else {
-            // Just set the single reason
-            metaNode.put("rejectionReason", reason);
-        }
-
-        tx.setMeta(metaNode.toString());
-        return tx;
-    }
-
     public static TX getRejectedTxByHash(String hash) {
         try {
             byte[] data = getRejectedDB().get(hash.getBytes(StandardCharsets.UTF_8));

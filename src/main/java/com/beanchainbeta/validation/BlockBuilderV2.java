@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.beanpack.Block.Block;
+import com.beanpack.Rejection.Flagger;
 import com.beanpack.TXs.TX;
 import com.beanpack.Utils.MetaHelper;
 import com.beanpack.Utils.TXSorter;
@@ -50,8 +51,8 @@ public class BlockBuilderV2 {
             System.out.print("TX REJECTED NOT VALID (INVALID 'TYPE'): " + tx.getTxHash());
             Node.broadcastRejection(tx.getTxHash());
             try {
-                TX flaggedTx = RejectedService.rejectionFlagTx(tx, "Invalid TX Type Field");
-                RejectedService.saveRejectedTransaction(flaggedTx);
+                Flagger.repackRejection(tx, "Invalid TX Type Field");
+                RejectedService.saveRejectedTransaction(tx);
             } catch (Exception e) {
                 BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
                 e.printStackTrace();
@@ -133,8 +134,8 @@ public class BlockBuilderV2 {
                     BeanLoggerManager.BeanLoggerError("TX REJECTED NOT VALID: " + tx.getTxHash());
                     Node.broadcastRejection(tx.getTxHash());
                     try {
-                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "Information mixmatch or credential failure.");
-                        RejectedService.saveRejectedTransaction(flaggedTx);
+                        Flagger.repackRejection(tx, "Information mixmatch or credential failure.");
+                        RejectedService.saveRejectedTransaction(tx);
                     } catch (Exception e) {
                         BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
                         e.printStackTrace();
@@ -175,8 +176,8 @@ public class BlockBuilderV2 {
                 System.out.print("TX REJECTED NOT VALID: " + tx.getTxHash());
                 Node.broadcastRejection(tx.getTxHash());
                 try {
-                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "INVALID SIGNATURE");
-                        RejectedService.saveRejectedTransaction(flaggedTx);
+                        Flagger.repackRejection(tx, "INVALID SIGNATURE");
+                        RejectedService.saveRejectedTransaction(tx);
                     } catch (Exception e) {
                         BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
                         e.printStackTrace();
@@ -193,8 +194,8 @@ public class BlockBuilderV2 {
                 BeanLoggerManager.BeanLoggerError("TX REJECTED NOT EXECUTED: " + tx.getTxHash());
                 Node.broadcastRejection(tx.getTxHash());
                 try {
-                        TX flaggedTx = RejectedService.rejectionFlagTx(tx, "TX failed during Execution");
-                        RejectedService.saveRejectedTransaction(flaggedTx);
+                        Flagger.repackRejection(tx, "TX failed during Execution");
+                        RejectedService.saveRejectedTransaction(tx);
                     } catch (Exception e) {
                         BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
                         e.printStackTrace();
