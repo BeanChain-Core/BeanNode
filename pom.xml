@@ -4,9 +4,9 @@
          
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.beanchainbeta</groupId>
-    <artifactId>BeanNodes</artifactId>
-    <version>0.0.4.2</version>
+    <groupId>io.beanchain</groupId>
+    <artifactId>BeanNodePK</artifactId>
+    <version>v0.0.4.2</version>
     <packaging>pom</packaging>
 
     <name>BeanChain Multi-Module</name>
@@ -14,7 +14,7 @@
 
     <modules>
         <module>BeanNode</module>
-        <module>devsuite</module>
+        <module>WizCrypt</module>
     </modules>
 
 </project>
