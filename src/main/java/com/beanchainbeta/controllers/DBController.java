@@ -26,6 +26,7 @@ import com.beanpack.Models.Layer2Wallet;
 import com.beanpack.Models.TokenStorage;
 import com.beanpack.TXs.CENCALL;
 import com.beanpack.TXs.TX;
+import com.beanpack.Utils.AddressUtils;
 import com.beanpack.Utils.beantoshinomics;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,6 +66,10 @@ public class DBController {
             Logger.error(e);
             //e.printStackTrace();
             return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\": \"Invalid transaction JSON\"}");
+        }
+
+        if (!AddressUtils.isValidAddress(tx.getTo())){
+            return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\": \"Invalid recipiant address format\"}");
         }
 
         if (!beantoshinomics.isValidAmount(String.valueOf(tx.getAmount()))) {
