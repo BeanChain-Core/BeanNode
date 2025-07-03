@@ -57,11 +57,15 @@ public class portal {
             ConfigLoader.setAdminPass(adminPass);
         }
 
-        WizCryptHandler.setPassword(ConfigLoader.getAdminPass());
-        WizCryptHandler.setWizFileEnc("wiz.txt.enc");
-        WizCryptHandler.setConfigFolder(new File("config.docs/"));
-        WizCryptHandler.setKeyPath(ConfigLoader.getPrivateKeyPath());
-        WizCryptHandler.bootWizCrypt(ConfigLoader.getAdminPass());
+        if(ConfigLoader.getEncryptedWiz()){
+            WizCryptHandler.setPassword(ConfigLoader.getAdminPass());
+            WizCryptHandler.setWizFileEnc("wiz.txt.enc");
+            WizCryptHandler.setConfigFolder(new File("config.docs/"));
+            WizCryptHandler.setKeyPath(ConfigLoader.getPrivateKeyPath());
+            WizCryptHandler.bootWizCrypt(ConfigLoader.getAdminPass());
+        }
+
+        
 
 
         if(ConfigLoader.isBootstrapNode()) {
