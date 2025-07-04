@@ -8,6 +8,16 @@ This project is maintained by the **BeanChain Core Team** under **Outlandish Tec
 
 ---
 
+### ⚠️ Version Notice
+
+This build is part of the **v0.1.0 development cycle** and includes breaking changes that are **not compatible with nodes or networks running versions below v0.1.0**.
+
+The current **TestNet** is still running a pre-v0.1.0 version. Once the network is upgraded to **v0.1.0**, this build will be fully compatible.
+
+Use this version for testing, dev syncing, and preparing your node for the upcoming transition.
+
+---
+
 ## Node Types
 
 The BeanNode software supports multiple operation modes based on configuration:
@@ -93,8 +103,18 @@ Includes:
 
 > A full deployment guide is coming soon.
 
-To join the team or get involved:  
-[team@limabean.xyz](mailto:team@limabean.xyz)
+### 🔐 Encrypted WizKey Support
+
+If you choose to encrypt your private key using **WizCrypt**, you’ll need to adjust your `config.properties` file accordingly:
+
+- Set `isEncrypted=true`
+- **Headless Mode:**
+  - Set `adminPass=yourpassword` (hardcoded password used at launch)
+  - Set `requirePass=false`
+- **Interactive Prompt Mode:**
+  - Set `requirePass=true` to receive a decryption prompt at launch
+
+> A future update will allow passing the password as a CLI argument for full headless use without config edits.
 
 ---
 
@@ -138,17 +158,14 @@ BeanNode is one of several official projects within the network:
 - **beanchain.io** — Network visualizer and explorer  
   [github.com/BeanChain-Core/BeanChain.io](https://github.com/BeanChain-Core/BeanChain.io)
 
-- **Reward Node (RN)** — System reward engine 
+- **Reward Node (RN)** — System reward engine  
   [github.com/BeanChain-Core/RN](https://github.com/BeanChain-Core/RN)
 
 - **Contract Execution Node (CEN)** — Contract processor *(repo coming soon)*  
 - **Historical Node** — High-throughput query node *(repo coming soon)*  
-- **BaseNode** — Lightweight modular tool node 
-  
+- **BaseNode** — Lightweight modular tool node *(repo coming soon)*
 
 ---
 
 Crafted by the **BeanChain Core Team**  
 Under **Outlandish Tech**, powered by **Outlandish Creative LLC**
-
-
