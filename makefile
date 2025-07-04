@@ -64,16 +64,11 @@ win-help:
 	@echo.
 
 # === Commands (Linux/macOS as Default) ===
-gBean: clean depend build node load-config copy-crypt run-wiz
-pack: clean depend build node load-config copy-crypt
+gBean: clean build node load-config copy-crypt run-wiz
+pack: clean build node load-config copy-crypt
 
 build:
 	mvn clean install
-
-depend:
-	mkdir -p DevSuite/src/main/java/io/beanchain/devsuite
-	cp -f BeanNode/src/main/java/io/beanchain/devsuite/runWizCryptHelp.java DevSuite/src/main/java/io/beanchain/devsuite/
-	cp -f BeanNode/src/main/java/io/beanchain/devsuite/WizHelperLite.java DevSuite/src/main/java/io/beanchain/devsuite/
 
 node:
 	mkdir -p $(NODEPK)
@@ -111,16 +106,11 @@ reset:
 	rm -rf $(NODEPK)/data $(NODEPK)/logs
 
 # === Windows-Specific Versions ===
-win-gBean: win-clean win-depend win-build win-node win-load-config win-copy-crypt win-run-wiz
-win-pack: win-clean win-depend win-build win-node win-load-config win-copy-crypt
+win-gBean: win-clean win-build win-node win-load-config win-copy-crypt win-run-wiz
+win-pack: win-clean win-build win-node win-load-config win-copy-crypt
 
 win-build:
 	mvn clean install
-
-win-depend:
-	@if not exist "DevSuite\src\main\java\io\beanchain\devsuite" mkdir "DevSuite\src\main\java\io\beanchain\devsuite"
-	copy /Y "BeanNode\src\main\java\io\beanchain\devsuite\runWizCryptHelp.java" "DevSuite\src\main\java\io\beanchain\devsuite\"
-	copy /Y "BeanNode\src\main\java\io\beanchain\devsuite\WizHelperLite.java" "DevSuite\src\main\java\io\beanchain\devsuite\"
 
 win-node:
 	@if not exist $(NODEPK) mkdir $(NODEPK)

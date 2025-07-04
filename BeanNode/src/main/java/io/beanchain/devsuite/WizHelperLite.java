@@ -1,6 +1,8 @@
 package io.beanchain.devsuite;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 import com.beanpack.Wizard.WizCryptHandler;
@@ -72,7 +74,11 @@ public class WizHelperLite {
     }
 
     public static void displayKey() throws IOException {
-        System.out.println("WizKey: " + wizard.wizardRead(KEY_PATH));
+        if (Files.exists(Paths.get(KEY_PATH))) {
+            System.out.println("WizKey: " + wizard.wizardRead(KEY_PATH));
+        } else {
+            System.out.println("WizKey not found at: " + KEY_PATH);
+        }
     }
 
     public static boolean keyCheck(String key) {
