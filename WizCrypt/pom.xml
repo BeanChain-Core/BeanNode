@@ -1,0 +1,87 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--  This connects to the root POM -->
+    <parent>
+        <groupId>io.beanchain</groupId>
+        <artifactId>BeanNodePK</artifactId> 
+        <version>v0.0.4.2</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>WizCrypt</artifactId>
+    <version>v0.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>BeanChain WizCrypt</name>
+
+    <dependencies>
+        <!-- Dependency on Node module -->
+        <dependency>
+            <groupId>io.beanchain</groupId>
+            <artifactId>BeanNode</artifactId> 
+            <version>v0.0.4.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.beanchain</groupId>
+            <artifactId>bean-pack-java</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/BeanChain-Core/BeanPack-Java</url>
+        </repository>
+    </repositories>
+
+    
+    <build>
+        <finalName>WizCrypt</finalName> <!-- Correct location for renaming final JAR -->
+
+        <plugins>
+            <!-- Fat JAR Generator -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>io.beanchain.devsuite.runWizCryptHelp</mainClass>
+                        </manifest>
+                    </archive>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>assemble-devsuite</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Java Compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
