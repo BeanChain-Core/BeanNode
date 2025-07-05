@@ -18,10 +18,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.*;
 
 public class Node {
-    static {
-        ConfigLoader.loadConfig(); // ✅ runs BEFORE static fields or main()
-        
-    }
     private int port = ConfigLoader.getNetworkPort();
     private final int peerPort = ConfigLoader.getPeerPort();
     private String ip;
@@ -111,21 +107,20 @@ public class Node {
         }
     }
 
-    public void broadcastGossip(String message, ArrayList<Socket> peersToSendTo, Socket senderPeer) {
-        if (senderPeer == null) {
+    public void broadcastGossip(String message, ArrayList<Socket> peersToSendTo, String senderIP) {
+        if (senderIP == null) {
             broadcast(message, peersToSendTo);
             return;
         }
 
-        String senderIP = senderPeer.getInetAddress().getHostAddress();
         for (Socket peer : peersToSendTo) {
             String peerIP = peer.getInetAddress().getHostAddress();
 
-            if(peerIP.equals(senderIP)){
-                BeanLoggerManager.BeanLogger("Skipped Gossiping to sender at: " + senderIP);
+            if (peerIP.equals(senderIP)) {
+                BeanLoggerManager.BeanLogger("Skipped gossip to sender: " + senderIP);
                 continue;
             }
-            
+
             try {
                 if (!peer.isClosed() && peer.isConnected()) {
                     PrintWriter out = new PrintWriter(peer.getOutputStream(), true);
@@ -134,64 +129,56 @@ public class Node {
                     peers.remove(peer);
                 }
             } catch (IOException e) {
-                System.err.println("Failed to broadcast message to peer: " + peer.getInetAddress());
+                System.err.println("Failed to gossip to peer: " + peerIP);
                 peers.remove(peer);
             }
         }
     }
 
-    public void broadcastTransaction(TX tx) {
+    public void broadcastTransaction(TX tx, String senderIP) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode message = mapper.createObjectNode();
             message.put("type", "transaction");
             message.set("payload", mapper.readTree(tx.createJSON()));
             String jsonMessage = mapper.writeValueAsString(message);
-            broadcast(jsonMessage, getSocketsByNodeType("BEANNODE"));
-            broadcast(jsonMessage, getSocketsByNodeType("RN"));
+            broadcastGossip(jsonMessage, getSocketsByNodeType("BEANNODE"), senderIP);
+            broadcastGossip(jsonMessage, getSocketsByNodeType("RN"), senderIP);
         } catch (Exception e) {
             System.err.println("Failed to broadcast transaction:");
             e.printStackTrace();
         }
     }
 
-    public static void broadcastTransactionStatic(TX tx) {
+    public static void broadcastTransactionStatic(TX tx, String senderIP) {
         if (instance != null) {
-            instance.broadcastTransaction(tx);
+            instance.broadcastTransaction(tx, senderIP);
         }
     }
 
-    public static void broadcastBlock(Block block) {
+    public static void broadcastBlock(Block block, String senderIP) {
         if (instance != null) {
-            instance.instanceBroadcastBlock(block);
+            instance.instanceBroadcastBlock(block, senderIP);
         }
     }
 
-    private void instanceBroadcastBlock(Block block) {
+    
+    private void instanceBroadcastBlock(Block block, String senderIP) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode message = mapper.createObjectNode();
             message.put("type", "block");
             message.set("payload", mapper.readTree(block.createJSON()));
-            String blockMessage = mapper.writeValueAsString(message);
-    
-            for (Map.Entry<Socket, PeerInfo> entry : peers.entrySet()) {
-                Socket socket = entry.getKey();
-                PeerInfo info = entry.getValue();
-    
-                if (!socket.isClosed() && socket.isConnected()) {
-                    PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                    out.println(blockMessage);
-                } else {
-                    peers.remove(socket); 
-                }
-            }
-    
+            String jsonMessage = mapper.writeValueAsString(message);
+
+            broadcastGossip(jsonMessage, new ArrayList<>(peers.keySet()), senderIP);
+
         } catch (Exception e) {
             System.err.println("Failed to broadcast block:");
             e.printStackTrace();
         }
     }
+
 
     public  List<String> getKnownPeers() {
         return knownAddresses;
@@ -360,6 +347,32 @@ public class Node {
         }
     }
 
+    public static void gossipRejectionStatic(String txHash, String senderIP) {
+        if (instance != null) {
+            instance.gossipRejection(txHash, senderIP);
+        }
+    }
+
+    public void gossipRejection(String txHash, String senderIP){
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode message = mapper.createObjectNode();
+            message.put("type", "tx_rejected");
+    
+            ObjectNode payload = mapper.createObjectNode();
+            payload.put("txHash", txHash);
+    
+            message.set("payload", payload);
+            String jsonMessage = mapper.writeValueAsString(message);
+    
+            broadcastGossip(jsonMessage, getSocketsByNodeType("BEANNODE"), senderIP);
+            BeanLoggerManager.BeanLogger("Broadcasted rejection for TX: " + txHash);
+        } catch (Exception e) {
+            BeanLoggerManager.BeanLoggerError("Failed to broadcast rejection gossip:");
+            e.printStackTrace();
+        }
+    }
+
     public static void broadcastCENCALL(String cenIP, CENCALL call) {
         if (instance != null) {
             instance.broadcastCENCALLInternal(cenIP, call);
@@ -486,7 +499,7 @@ public class Node {
     }
 
 
-    //TODO:need to add a mempool or DB fallback for failed CENCALLs to retry then dropoff when timeout (should probably also record failed cencalls)
+    //TODO: UPDATE! need to add a mempool or DB fallback for failed CENCALLs to retry then dropoff when timeout (should probably also record failed cencalls)
     private void broadcastCENCALLInternal(String cenIP, CENCALL call) {
         try {
             Socket socket = new Socket(cenIP, 6444);

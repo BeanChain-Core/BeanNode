@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -20,7 +19,6 @@ import io.beanchain.services.MempoolService;
 import io.beanchain.services.RejectedService;
 import io.beanchain.services.WalletService;
 import io.beanchain.services.blockchainDB;
-import com.beanpack.*;
 import com.beanpack.CENdev.CallManager;
 import com.beanpack.Models.Layer2Wallet;
 import com.beanpack.Models.TokenStorage;
@@ -76,8 +74,8 @@ public class DBController {
             return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\": \"Invalid amount: must be a valid multiple of 0.000001 BEAN and at least 1 beantoshi\"}");
         }
 
-        if (mempoolService.addTransaction(txHash, transactionJson)) {
-            Node.broadcastTransactionStatic(tx);
+        if (MempoolService.addTransaction(txHash, transactionJson)) {
+            Node.broadcastTransactionStatic(tx, null);
             BeanLoggerManager.BeanLogTX("Raw incoming TX: " + tx.createJSON());
             return ResponseEntity.ok("{\"status\": \"success\", \"txHash\": \"" + txHash + "\"}");
         } else {

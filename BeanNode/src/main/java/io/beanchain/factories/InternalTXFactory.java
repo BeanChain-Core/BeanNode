@@ -16,7 +16,7 @@ public class InternalTXFactory {
         adminTX.sign(WalletGenerator.restorePrivateKey(portal.admin.privateKeyHex));
 
         try {
-            Node.broadcastTransactionStatic(adminTX);
+            Node.broadcastTransactionStatic(adminTX, null);
             return true;
         } catch (Exception e){
             BeanLoggerManager.BeanLoggerError("[TX] FAILED TO SEND TX FROM CLI: " + adminTX.createJSON());

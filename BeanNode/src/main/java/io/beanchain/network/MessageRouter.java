@@ -40,6 +40,8 @@ public class MessageRouter {
         }
 
         String type = message.get("type").asText();
+        String senderIP = peer.getInetAddress().getHostAddress();
+
 
         switch (type) {
             case "handshake":
@@ -52,10 +54,10 @@ public class MessageRouter {
                 handleSyncResponse(message);
                 break;
             case "transaction":
-                handleIncomingTransaction(message);
+                handleIncomingTransaction(message, senderIP);
                 break;
             case "block":
-                handleIncomingBlock(message, peer);
+                handleIncomingBlock(message, senderIP);
                 break;
             case "mempool_summary":
                 handleMempoolSummary(message.get("payload"), peer);
@@ -70,6 +72,7 @@ public class MessageRouter {
                 String txHash = message.get("payload").get("txHash").asText();
                 BeanLoggerManager.BeanLogger("Rejection gossip received for TX: " + txHash);
                 MempoolService.removeTxByHash(txHash);
+                Node.gossipRejectionStatic(txHash, senderIP);
                 break;    
             default:
                 BeanLoggerManager.BeanLoggerError("Unknown message type: " + type);
@@ -367,7 +370,7 @@ public class MessageRouter {
         }
     }
 
-    private void handleIncomingTransaction(JsonNode msg) {
+    private void handleIncomingTransaction(JsonNode msg, String senderIP) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             TX tx = mapper.treeToValue(msg.get("payload"), TX.class);
@@ -397,7 +400,7 @@ public class MessageRouter {
             BeanLoggerManager.BeanLogger("New TX added to mempool: " + txHash);
     
             // 🌐 Gossip to other peers
-            Node.broadcastTransactionStatic(tx);
+            Node.broadcastTransactionStatic(tx, senderIP);
 
             BeanLoggerManager.BeanLogTX("Raw incoming TX: " + tx.createJSON());
             //BeanLoggerManager.BeanLogger("➡️ From: " + tx.getFrom() + " | Nonce: " + tx.getNonce());
@@ -419,7 +422,7 @@ public class MessageRouter {
     }
     
 
-    private void handleIncomingBlock(JsonNode msg, Socket peer) {
+    private void handleIncomingBlock(JsonNode msg, String senderIP) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode payload = msg.get("payload");
@@ -447,6 +450,12 @@ public class MessageRouter {
     
             Block latestBlock = blockchainDB.getLatestBlock();
             String expectedPrevHash = latestBlock != null ? latestBlock.getHash() : "00000000000000000000";
+            int currentHeight = latestBlock != null ? latestBlock.getHeight() : 0;
+
+            if(incomingBlock.getHeight() == currentHeight){
+                BeanLoggerManager.BeanLoggerError("Already Have a block at this height: " + incomingBlock.getHeight());
+                return;
+            }
     
             if (!incomingBlock.getPreviousHash().equals(expectedPrevHash)) {
                 BeanLoggerManager.BeanLoggerError("Previous hash mismatch for block #" + incomingBlock.getHeight());
@@ -467,6 +476,9 @@ public class MessageRouter {
                 }
             }
             MempoolService.removeTXs(toRemove, new ConcurrentHashMap<>());
+
+            //Gossip: 
+            Node.broadcastBlock(incomingBlock, senderIP);
 
             BeanLoggerManager.BeanLogBlock("Incoming block #" + incomingBlock.getHeight() + " accepted and rebuilt.");
     

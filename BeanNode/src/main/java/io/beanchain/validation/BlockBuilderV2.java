@@ -87,7 +87,7 @@ public class BlockBuilderV2 {
         BeanLoggerManager.BeanPrinter("NEW BLOCK: " + block.getHash() + "Params: Height: " + block.getHeight()+ " PrevHash: " + block.getPreviousHash() + "MerkleRoot: " + block.getMerkleRoot());
     
         blockchainDB.storeNewBlock(block);
-        Node.broadcastBlock(block);
+        Node.broadcastBlock(block, null);
     
         BeanLoggerManager.BeanLogger("Block #" + block.getHeight() + " built with " + accepted.size() + " TXs, size = " + blockSize + " bytes");
     }
