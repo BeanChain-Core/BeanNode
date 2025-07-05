@@ -46,10 +46,14 @@ public class wizHelper {
     public static void genWizAndSaveEncrypted() throws Exception{
         System.out.println("Enter Encryption Pass");
         String encryptionPass = scanner.nextLine().trim();
-        String privateKey = WalletGenerator.generatePrivateKey();
-        WizCryptHandler.initializeWizCrypt();
-        WizCryptHandler.showLoadingBarDynamic("WORKING", 5000);
-        WizCryptHandler.encryptPrivateKeyHexRaw(privateKey);
+        if(encryptionPass.equals(ConfigLoader.getAdminPass())){
+            String privateKey = WalletGenerator.generatePrivateKey();
+            WizCryptHandler.initializeWizCrypt();
+            WizCryptHandler.showLoadingBarDynamic("WORKING", 5000);
+            WizCryptHandler.encryptPrivateKeyHexRaw(privateKey);
+        } else {
+            System.out.println("INVALID ADMIN PASS");
+        }
     }
 
     public static void userWizAndSaveEncrypted() throws Exception{
@@ -60,15 +64,18 @@ public class wizHelper {
             System.out.println("Enter Encryption Pass");
             String adminEncryptPass = scanner.nextLine().trim();
 
-            // Check if it's exactly 64 characters
-            if (keyCheck(encryptedKey)){
-                WizCryptHandler.initializeWizCrypt();
-                WizCryptHandler.encryptPrivateKeyHexRaw(encryptedKey);
-                System.out.println("Key saved successfully.");
-                return;
+            if(adminEncryptPass.equals(ConfigLoader.getAdminPass())){
+                if (keyCheck(encryptedKey)){
+                    WizCryptHandler.initializeWizCrypt();
+                    WizCryptHandler.encryptPrivateKeyHexRaw(encryptedKey);
+                    System.out.println("Key saved successfully.");
+                    return;
+                } else {
+                    System.out.println("Invalid Key Length");
+                    userWizAndSaveEncrypted();
+                }
             } else {
-                System.out.println("Invalid Key Length");
-                userWizAndSaveEncrypted();
+                System.out.println("INVALID ADMIN PASS");
             }
         }
     }
@@ -85,6 +92,12 @@ public class wizHelper {
     public static void displayUnencryptedKey() throws Exception{
         System.out.println("Enter Admin Pass");
         String pass = scanner.nextLine().trim();
+        WizCryptHandler.bootWizCrypt(pass);
+        String unEncrypted = WizCryptHandler.readL2EncWizKey();
+        System.out.println("Private Key Hex: " +  unEncrypted);
+    }
+
+    public static void displayUnencryptedKeyInternal(String pass) throws Exception{
         WizCryptHandler.bootWizCrypt(pass);
         String unEncrypted = WizCryptHandler.readL2EncWizKey();
         System.out.println("Private Key Hex: " +  unEncrypted);

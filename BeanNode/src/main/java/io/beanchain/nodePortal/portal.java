@@ -44,13 +44,50 @@ public class portal {
 
     public static void main(String[] args) throws Exception {
 
-        if(ConfigLoader.getRequirePass()){
-            //Scanner scanner = new Scanner(System.in);
-            //System.out.println("ENTER ADMIN PASS");
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            WizCryptHandler.decryptConfig();
+            System.out.println(Color.GREEN +
+"##########################################################################\n" +
+"# _____   ______  ______  ______  __  __  ______  ______                 #\n" +
+"#/\\  __-./\\  ___\\/\\  ___\\/\\  == \\/\\ \\_\\ \\/\\  == \\/\\__  _\\                #\n" +
+"#\\ \\ \\/\\ \\ \\  __\\\\ \\ \\___\\ \\  __<\\ \\____ \\ \\  _-/\\/_/\\ \\/                #\n" +
+"# \\ \\____-\\ \\_____\\ \\_____\\ \\_\\ \\_\\/\\_____\\ \\_\\     \\ \\_\\                #\n" +
+"#  \\/____/ \\/_____/\\/_____/\\/_/ /_/\\/_____/\\/_/      \\/_/                #\n" +
+"#                                                                        #\n" +
+"# ______  ______  __   __  ______  __  ______                            #\n" +
+"#/\\  ___\\/\\  __ \\/\\ \"-.\\ \\/\\  ___\\/\\ \\/\\  ___\\                           #\n" +
+"#\\ \\ \\___\\ \\ \\/\\ \\ \\ \\-.  \\ \\  __\\\\ \\ \\ \\ \\__ \\                          #\n" +
+"# \\ \\_____\\ \\_____\\ \\_\\\"\\_\\ \\_\\   \\ \\_\\ \\_____\\                         #\n" +
+"#  \\/_____/\\/_____/\\/_/ \\/_/\\/_/    \\/_/\\/_____/                         #\n" +
+"#                                                                        #\n" +
+"# ______  __  __  __  __  ______    _____   ______  __     __  __   __   #\n" +
+"#/\\  ___\\/\\ \\_\\ \\/\\ \\/\\ \\/\\__  _\\  /\\  __-./\\  __ \\/\\ \\  _ \\ \\/\\ \"-.\\ \\  #\n" +
+"#\\ \\___  \\ \\  __ \\ \\ \\_\\ \\/_/\\ \\/  \\ \\ \\/\\ \\ \\ \\/\\ \\ \\ \\/ \".\\ \\ \\ \\-.  \\ #\n" +
+"# \\/_____\\ \\_\\ \\_\\ \\_____\\ \\ \\_\\   \\ \\____-\\ \\_____\\ \\__/\".~\\_\\ \\_\\\"\\_\\ #\n" +
+"#  \\/_____/\\/_/\\/_/\\/_____/  \\/_/    \\/____/ \\/_____/\\/_/   \\/_/\\/_/ \\/_/ #\n" +
+"#                                                                        #\n" +
+"# ______  ______  ______  ______  __   __                                #\n" +
+"#/\\  ___\\/\\  == \\/\\  ___\\/\\  __ \\/\\ \"-.\\ \\                               #\n" +
+"#\\ \\ \\__ \\ \\  __<\\ \\  __\\\\ \\  __ \\ \\ \\-.  \\                              #\n" +
+"# \\ \\_____\\ \\_____\\ \\_____\\ \\_\\ \\_\\ \\_\\\"\\_\\                             #\n" +
+"#  \\/_____/\\/_____/\\/_____/\\/_/\\/_/\\/_/ \\/_/                             #\n" +
+"##########################################################################" + Color.RESET);
+            Node.savePeers(); // or node.savePeers() if not static
+        }));
 
-            //String adminPass = scanner.nextLine().trim(); 
-            String adminPass = SecureInputHelper.promptHidden("ENTER ADMIN PASS");
-            ConfigLoader.setAdminPass(adminPass);
+        String mode = ConfigLoader.getMode();
+
+        switch(mode){
+            case "headless":
+                String headlessPass = System.getenv("BEAN_ADMIN_PASS");
+                ConfigLoader.setAdminPass(headlessPass);
+                break;
+            case "portal":
+                if(ConfigLoader.getRequirePass()){
+                    String adminPass = SecureInputHelper.promptHidden("ENTER ADMIN PASS");
+                    ConfigLoader.setAdminPass(adminPass);
+                }
+                break;
         }
 
         if(ConfigLoader.getEncryptedWiz()){
@@ -60,9 +97,6 @@ public class portal {
             WizCryptHandler.setKeyPath(ConfigLoader.getPrivateKeyPath());
             WizCryptHandler.bootWizCrypt(ConfigLoader.getAdminPass());
         }
-
-        
-
 
         if(ConfigLoader.isBootstrapNode()) {
             autoStartGPN.nodeStart();
@@ -82,20 +116,9 @@ public class portal {
 
         Node node = Node.getInstance();
         node.loadPeers();
-        CLIManager.startConsole(); //starts CLIManager in new thread
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println(Color.GREEN);
-            System.out.println("╔══════════════════════════════════════╗");
-            System.out.println("║   Shutting down BeanNode...         ║");
-            System.out.println("║   Saving peers and closing threads. ║");
-            System.out.println("║   GBean!, and thank you for using   ║");
-            System.out.println("║   BeanChain.                        ║");
-            System.out.println("╚══════════════════════════════════════╝");
-            System.out.println(Color.RESET);
-            Node.savePeers(); // or node.savePeers() if not static
-        }));
-    }
-
-    
+        
+        if(ConfigLoader.getMode().equals("portal")) {
+            CLIManager.startConsole(); //starts CLIManager in new thread
+        }
+    }    
 }

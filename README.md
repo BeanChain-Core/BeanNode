@@ -18,6 +18,24 @@ Use this version for testing, dev syncing, and preparing your node for the upcom
 
 ---
 
+## 🗂 Documentation & Guides
+
+This project includes additional guides to help you get up and running quickly, whether you're a developer, node operator, or contributor.
+
+Check the `.guides/` folder for:
+
+- `DEVELOPER.md` – Makefile commands and local dev setup
+- `HEADLESSGUIDE.md` – Running your node in headless mode
+- `LOCALCLIGUIDE.md` – Using the local CLI API to control your node
+
+Check `BeanNode/config.docs/` for:
+
+- `WIZ-README.md` – Details on the WizKey system for managing encrypted private keys
+
+These files will be updated as the system evolves. If you're contributing, start with `DEVELOPER.md`.
+
+---
+
 ## Node Types
 
 The BeanNode software supports multiple operation modes based on configuration:

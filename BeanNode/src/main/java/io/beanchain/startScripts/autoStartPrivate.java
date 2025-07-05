@@ -69,6 +69,7 @@ public class autoStartPrivate {
 
     private static void signInSuccess() throws Exception{
         System.out.println("SIGN IN SUCCESS");
+        WizCryptHandler.encryptConfig();
 
         try {
             Thread.sleep(4000);
@@ -77,6 +78,7 @@ public class autoStartPrivate {
         }
 
         System.out.println("\u001B[32m" + Branding.logo + "\u001B[0m"); 
+
         Thread cleanUp = new Thread(() -> {
             while (true) {
                 try {

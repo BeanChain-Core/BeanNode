@@ -68,6 +68,7 @@ public class autoStartPublic {
 
     private static void signInSuccess(){
         System.out.println("SIGN IN SUCCESS");
+        WizCryptHandler.encryptConfig();
 
         try {
             Thread.sleep(4000);

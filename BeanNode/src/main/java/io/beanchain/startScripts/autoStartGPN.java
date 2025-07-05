@@ -49,6 +49,7 @@ public class autoStartGPN {
     }
 
     private static void signInSuccess(){
+        WizCryptHandler.encryptConfig();
         Thread springThread = new Thread(() -> {
                     SpringApplication.run(BeanChainApi.class);
                 }, "SpringThread");
