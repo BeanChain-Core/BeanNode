@@ -15,6 +15,7 @@ import io.beanchain.helpers.SecureInputHelper;
 
 public class ConfigLoader {
     private static String configPath = "config.docs/beanchain.config.properties";
+    private static String configEnc = "config.docs/beanchain.config.properties.enc";
     private static String privateKeyPath;
     private static boolean encryptedWiz;
     private static boolean requirePass;
@@ -33,8 +34,15 @@ public class ConfigLoader {
     private static String syncMode;
     private static String nodeType;
     private static String keyName;
+    private static String token;
+    private static Boolean openLocal;
+    private static String mode;
 
     public static void loadConfig() {
+        File encConfig = new File(configEnc);
+        if (encConfig.exists()){
+            System.out.println("Config stuck in runtime encryption* PLEASE REMAKE 'beanchain.config.properties.");
+        }
         
         File configFile = new File(configPath);
         if (!configFile.exists()) {
@@ -51,6 +59,9 @@ public class ConfigLoader {
             requirePass = Boolean.parseBoolean(props.getProperty("requirePass", "false"));
             adminPass = props.getProperty("adminPass", "admin"); // default encryption password is set to admin if left blank
 
+            token = props.getProperty("token.cli", "beanADMIN42"); // TOKEN FOR CLI LOCAL ACCESS
+            openLocal = Boolean.parseBoolean(props.getProperty("openLocal", "false")); // set access to allow or block local commands 
+
             bindAddress = props.getProperty("bindAddress", "0.0.0.0");
             networkPort = Integer.parseInt(props.getProperty("networkPort", "6442"));
             peerPort = Integer.parseInt(props.getProperty("peerPort", "6442"));
@@ -65,6 +76,8 @@ public class ConfigLoader {
             mempoolDB = props.getProperty("mempoolDB", "mempoolDB");
             rejectedDB = props.getProperty("rejectedDB", "rejectedDB");
             layer2DB = props.getProperty("layer2DB", "layer2DB");
+
+            mode = props.getProperty("mode", "portal");
             
 
         } catch (IOException e) {
@@ -76,6 +89,8 @@ public class ConfigLoader {
             //e.printStackTrace();
         }
     }
+
+    //TODO: CURRENT! UPDATE DEFAULT CONFIG BUILDER + SEPERATE TO JAR TOOL FOR EASY CONFIG SETUP
 
     private static void createDefaultConfig(File file) {
         Boolean encryptBool = false;
@@ -182,6 +197,10 @@ public class ConfigLoader {
     public static String getBootstrapIp() { return bootstrapIp; }
     public static String getSyncMode() { return syncMode; }
     public static String getNodeType() { return nodeType; }
+    public static String getToken() { return token; }
+    public static Boolean getOpenLocal() { return openLocal;}
+
+    public static String getMode() { return mode; }
 
     public static String getChainDB() { return chainDB; }
     public static String getStateDB() { return stateDB; }
@@ -191,6 +210,7 @@ public class ConfigLoader {
     public static String getKeyName() { return keyName; }
 
     public static void setAdminPass(String pass) {adminPass = pass;}
+    public static void setRequirePass(Boolean require) {requirePass = require; }
 }
 
 
