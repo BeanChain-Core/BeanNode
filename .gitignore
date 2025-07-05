@@ -32,8 +32,16 @@ Thumbs.db
 # data
 *data/
 *logs/
+
+#temporary build
 NodePk/
 NodePK/makefile
+
+#Team Builds and Keys
+TEAM/
+
+#copy of your build 
+FreshBeans/
 
 
 
