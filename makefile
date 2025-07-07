@@ -152,6 +152,8 @@ reset:
 win-gBean: win-pack win-run-wiz
 win-pack: win-clean win-build win-node win-load-config win-copy-crypt
 
+win-serve: win-pack win-switch win-dewiz
+
 win-build:
 	mvn clean install
 
@@ -235,7 +237,7 @@ install-deps-mac:
 
 
 
-# === devTeam Commands for quick building (secret non menu)
+# === devTeam Commands for quick building (secret non menu) ===
 
 win-swapfresh:
 	@if exist $(NODEPK)\config.docs rmdir /S /Q $(NODEPK)\config.docs
@@ -244,3 +246,33 @@ win-swapfresh:
 
 pop:
 	win-pack win-swapfresh win-launch-node
+
+win-dewiz:
+	@if exist NodePK\WizCrypt.jar del /F NodePK\WizCrypt.jar
+
+
+
+
+
+# === in testing 
+
+# ===  make ./bean replace make ===
+
+init-win:
+	@echo @echo off > bean.bat
+	@echo make %%* >> bean.bat
+	@echo Created bean.bat for Windows
+
+init-unix:
+	@echo '#!/bin/bash' > bean
+	@echo 'make "$$@"' >> bean
+	@chmod +x bean
+	@echo Created bean script for Linux/macOS
+
+
+# ===TEAM COMMANDS===
+
+win-gpn:
+	@if exist $(FRESHB) xcopy $(FRESHB) TEAM\GPNTEST /E /I /Y
+
+
