@@ -39,6 +39,7 @@ NodePK/makefile
 
 #Team Builds and Keys
 TEAM/
+devTests/
 
 #copy of your build 
 FreshBeans/
