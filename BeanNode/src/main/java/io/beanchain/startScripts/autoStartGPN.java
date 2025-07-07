@@ -31,8 +31,10 @@ public class autoStartGPN {
                     String adminPass = ConfigLoader.getAdminPass();
                     WizCryptHandler.bootWizCrypt(adminPass);
                     wizKey = WizCryptHandler.readL2EncWizKey();
+                    signedIn = true;
                 } else {
                     wizKey = wizard.wizardRead(ConfigLoader.getPrivateKeyPath());
+                    signedIn = true;
                 } 
                 // if(ConfigLoader.getEncryptedWiz()) { wizKey = wizard.decryptWizKey(wizKey, ConfigLoader.getAdminPass());}
 
@@ -40,7 +42,6 @@ public class autoStartGPN {
                 admin.signedIn = true;
                 portal.admin = admin;
                 signInSuccess();
-                signedIn = true;
             } catch (Exception e) {
                 WizCryptHandler.wizCryptMessageFactory("FAILED TO SIGN IN", "ERROR");
                 Thread.sleep(3000); 
@@ -49,7 +50,9 @@ public class autoStartGPN {
     }
 
     private static void signInSuccess(){
-        WizCryptHandler.encryptConfig();
+        if(ConfigLoader.getEncryptedWiz()){
+           WizCryptHandler.encryptConfig(); 
+        }
         Thread springThread = new Thread(() -> {
                     SpringApplication.run(BeanChainApi.class);
                 }, "SpringThread");
