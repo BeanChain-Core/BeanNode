@@ -9,6 +9,8 @@ import java.util.Scanner;
 
 import org.tinylog.Logger;
 
+import com.beanpack.Wizard.WizCryptHandler;
+
 import io.beanchain.helpers.SecureInputHelper;
 
 
@@ -41,7 +43,18 @@ public class ConfigLoader {
     public static void loadConfig() {
         File encConfig = new File(configEnc);
         if (encConfig.exists()){
-            System.out.println("Config stuck in runtime encryption* PLEASE REMAKE 'beanchain.config.properties.");
+            Scanner scan = new Scanner(System.in);
+            System.out.println("Config stuck in runtime encryption*");
+            System.out.println("ENTER DECRYPT PASS TO UNLOCK");
+            String pass = scan.nextLine().trim();
+            WizCryptHandler.bootWizCrypt(pass);
+            WizCryptHandler.decryptConfig();
+            File fi = new File("config.docs/", "beanchain.config.properties");
+            if(!fi.exists()){
+                System.out.println("CONFIG STUCK. PLEASE MAKE A NEW CONFIG OR RETRY");
+                System.exit(0);
+            }
+            
         }
         
         File configFile = new File(configPath);
