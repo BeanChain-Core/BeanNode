@@ -192,6 +192,7 @@ public class CLIManager {
                 BeanLoggerManager.BeanLoggerFPrint("EXCEPTION: " + cli.getMessage());
             }
             finally {
+                WizCryptHandler.decryptConfig();
                 System.out.println("[CLI] Cleanup triggered from finally block.");
                 scanner.close();
             }
