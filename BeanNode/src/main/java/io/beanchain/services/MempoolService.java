@@ -11,10 +11,13 @@ import org.springframework.stereotype.Service;
 
 
 import com.beanpack.TXs.*;
+import com.beanpack.Utils.AddressUtils;
+
 import io.beanchain.config.ConfigLoader;
 import io.beanchain.controllers.DBManager;
-import io.beanchain.helpers.DevConfig;
 import io.beanchain.logger.BeanLoggerManager;
+import io.beanchain.network.Node;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -45,6 +48,14 @@ public class MempoolService {
                 return false;
             }
 
+            if (txNode.has("to") && !AddressUtils.isValidAddress((txNode.get("to").asText()))) {
+                if(txNode.has("txHash")){
+                    Node.broadcastRejection(txNode.get("txHash").asText());
+                }
+                return false;
+            }
+            
+
             if (!transactions.containsKey(txHash)) {
                 transactions.put(txHash, transactionJson);
                 try {
@@ -55,7 +66,7 @@ public class MempoolService {
                 return true;
             }
         } catch (Exception e) {
-            System.err.println("Error parsing transaction JSON: " + e.getMessage());
+            BeanLoggerManager.BeanLoggerError("Error parsing transaction JSON: " + e.getMessage());
         }
 
         return false;
@@ -71,10 +82,10 @@ public class MempoolService {
                     try {
                         db.delete(bytes(txHash));
                     } catch (Exception e) {
-                        System.err.println("Error deleting accepted TX from DB: " + e.getMessage());
+                        BeanLoggerManager.BeanLoggerError("Error deleting accepted TX from DB: " + e.getMessage());
                     }
                 } else {
-                    //BeanLoggerManager.BeanLogger(txHash + ": not found in mempool");
+                    BeanLoggerManager.BeanLogger(txHash + ": not found in mempool");
                 }
             }
         
@@ -84,7 +95,7 @@ public class MempoolService {
                     try {
                         db.delete(bytes(txHash));
                     } catch (Exception e) {
-                        System.err.println("Error deleting rejected TX from DB: " + e.getMessage());
+                        BeanLoggerManager.BeanLoggerError("Error deleting rejected TX from DB: " + e.getMessage());
                     }
                 } else {
                     BeanLoggerManager.BeanLoggerError(txHash + ": not found in mempool");
@@ -127,7 +138,7 @@ public class MempoolService {
             System.out.printf("%s  INFO --- [Bean-Load-Protocol] Mempool restored from LevelDB (%d transactions)%n",
                 java.time.LocalDateTime.now(), restoredCount);
         } catch (Exception e) {
-            System.err.println("Error loading mempool from DB: " + e.getMessage());
+            BeanLoggerManager.BeanLoggerError("Error loading mempool from DB: " + e.getMessage());
         }
     }
     
