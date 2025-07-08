@@ -70,7 +70,9 @@ public class autoStartPublic {
 
     private static void signInSuccess(){
         System.out.println("SIGN IN SUCCESS");
-        WizCryptHandler.encryptConfig();
+        if(ConfigLoader.getEncryptedWiz()){
+           WizCryptHandler.encryptConfig(); 
+        }
 
         try {
             Thread.sleep(4000);
@@ -92,6 +94,7 @@ public class autoStartPublic {
             }
         }, "CleanUp");
         cleanUp.start();
+
     }
 }
     

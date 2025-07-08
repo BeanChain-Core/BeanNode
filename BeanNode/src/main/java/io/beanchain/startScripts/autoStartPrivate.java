@@ -1,6 +1,5 @@
 package io.beanchain.startScripts;
 
-import java.io.File;
 import java.util.Scanner;
 
 import io.beanchain.config.ConfigLoader;
@@ -69,7 +68,9 @@ public class autoStartPrivate {
 
     private static void signInSuccess() throws Exception{
         System.out.println("SIGN IN SUCCESS");
-        WizCryptHandler.encryptConfig();
+        if(ConfigLoader.getEncryptedWiz()){
+           WizCryptHandler.encryptConfig(); 
+        }
 
         try {
             Thread.sleep(4000);

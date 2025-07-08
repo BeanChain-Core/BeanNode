@@ -464,18 +464,13 @@ public class MessageRouter {
     
             // Step 3: Replay block from mempool using known-safe logic
             BeanLoggerManager.BeanPrinter("Replaying and validating block #" + incomingBlock.getHeight());
-            BlockBuilderV2.blockReplay(incomingBlock);
-    
-            //Step 4: Remove TXs from mempool
-            List<String> hashes = incomingBlock.getTransactions();
-            ArrayList<TX> toRemove = new ArrayList<>();
-            for (String hash : hashes) {
-                TX tx = MempoolService.getTransaction(hash);
-                if (tx != null) {
-                    toRemove.add(tx);
-                }
+            boolean success = BlockBuilderV2.blockReplay(incomingBlock);
+
+            if(!success){
+                BeanLoggerManager.BeanLoggerFPrint("Failed to process incoming block: FAILED IN BLOCK REPLAY");
+                return;
             }
-            MempoolService.removeTXs(toRemove, new ConcurrentHashMap<>());
+    
 
             //Gossip: 
             Node.broadcastBlock(incomingBlock, senderIP);

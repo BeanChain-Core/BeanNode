@@ -4,11 +4,11 @@ VERSION       = v0.0.4.2
 
 # === Launch Node JAR ===
 run:
-	cd ..\NodePK && java -jar BeanNode-$(VERSION).jar
+	java -jar BeanNode-$(VERSION).jar
 
 # === Run WizCrypt CLI ===
 wiz:
-	cd ..\NodePK && java -jar WizCrypt.jar
+	java -jar WizCrypt.jar
 
 # === Reset Data and Logs ===
 reset:

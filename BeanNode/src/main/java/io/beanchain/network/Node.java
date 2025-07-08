@@ -55,6 +55,19 @@ public class Node {
         new Thread(this::listenForPeers).start();
     }
 
+
+    public void removePeer(Socket peer){
+        PeerInfo info = peers.remove(peer); 
+
+        if (info != null) {
+            String address = info.getAddress();
+            if (address != null) {
+                peersByAddress.remove(address);
+                BeanLoggerManager.BeanLoggerFPrint("[PEER] Disconnected: " + address + "@::" + peer.getInetAddress());
+            }
+        }
+        
+    }
     public void listenForPeers() {
         while (true) {
             try {
@@ -81,13 +94,12 @@ public class Node {
                 }
             }
         } catch (IOException e) {
-            BeanLoggerManager.BeanLoggerFPrint("Connection lost with peer: " + peer.getInetAddress());
-            peers.remove(peer);
+            removePeer(peer);
         } finally {
             try {
                 peer.close();
             } catch (IOException ignored) {}
-            peers.remove(peer);
+            removePeer(peer);
         }
     }
 
@@ -98,16 +110,15 @@ public class Node {
                     PrintWriter out = new PrintWriter(peer.getOutputStream(), true);
                     out.println(message);
                 } else {
-                    peers.remove(peer);
+                    removePeer(peer);
                 }
             } catch (IOException e) {
-                System.err.println("Failed to broadcast message to peer: " + peer.getInetAddress());
-                peers.remove(peer);
+                removePeer(peer);
             }
         }
     }
 
-    public void broadcastGossip(String message, ArrayList<Socket> peersToSendTo, String senderIP) {
+    public void broadcastGossip(String message, ArrayList<Socket> peersToSendTo, String senderIP) throws UnknownHostException, IOException {
         if (senderIP == null) {
             broadcast(message, peersToSendTo);
             return;
@@ -126,11 +137,10 @@ public class Node {
                     PrintWriter out = new PrintWriter(peer.getOutputStream(), true);
                     out.println(message);
                 } else {
-                    peers.remove(peer);
+                    removePeer(peer);
                 }
             } catch (IOException e) {
-                System.err.println("Failed to gossip to peer: " + peerIP);
-                peers.remove(peer);
+                removePeer(peer);
             }
         }
     }
@@ -274,9 +284,9 @@ public class Node {
         
 
         String address = info.getAddress();
-        String bootsrapIP = ConfigLoader.getBootstrapIp();
+        //String bootsrapIP = ConfigLoader.getBootstrapIp();
 
-        if (peersByAddress.containsKey(address) || ip.equals(bootsrapIP))  {
+        if (peersByAddress.containsKey(address))  {
             BeanLoggerManager.BeanLoggerFPrint("[PEER] Duplicate wallet already connected: " + address);
             return;
         }
