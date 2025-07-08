@@ -47,6 +47,10 @@ public class ConfigLoader {
             System.out.println("Config stuck in runtime encryption*");
             System.out.println("ENTER DECRYPT PASS TO UNLOCK");
             String pass = scan.nextLine().trim();
+            WizCryptHandler.setPassword(pass);
+            WizCryptHandler.setWizFileEnc("wiz.txt.enc");
+            WizCryptHandler.setConfigFolder(new File("config.docs/"));
+            WizCryptHandler.setKeyPath(ConfigLoader.getPrivateKeyPath());
             WizCryptHandler.bootWizCrypt(pass);
             WizCryptHandler.decryptConfig();
             File fi = new File("config.docs/", "beanchain.config.properties");
