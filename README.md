@@ -6,22 +6,33 @@ This project is maintained by the **BeanChain Core Team** under **Outlandish Tec
 
 > Actively in development — live, synced nodes (GPN, PN, PRN) are currently operating across the testnet.
 
+---
 
+### ⚠️ Version Notice
+
+This build is part of the **v0.1.0 development cycle** and includes breaking changes that are **not compatible with nodes or networks running versions below v0.1.0**.
+
+The current **TestNet** is still running a pre-v0.1.0 version. Once the network is upgraded to **v0.1.0**, this build will be fully compatible.
+
+Use this version for testing, dev syncing, and preparing your node for the upcoming transition.
 
 ---
 
-## 🚀 New in `v0.0.3`
+## 🗂 Documentation & Guides
 
-This version introduces new features, dev tools, and a critical bug fix:
+This project includes additional guides to help you get up and running quickly, whether you're a developer, node operator, or contributor.
 
-- 🧪 **Dev Suite Internal (Beta)** – When no config is found, the node auto-prompts CLI questions and builds a minimal valid config file on startup.
-- 🔐 **Encrypted Wiz Key Support** – When no `wiz.key` file is found, the node prompts the user via the `wizHelper` CLI to either:
-  - Generate a new key and save to disk.
-  - Paste a private key and save as an encrypted or plaintext wizkey.
-- 💻 **CLI Enhancements** – Interactive CLI wizards now streamline setup and startup for developers and early node ops.
-- 🛠️ **Bug Fix** – Fixed a rejection/mempool cleaning bug that allowed invalid TX `type`s to infinitely gossip through the network.
+Check the `.guides/` folder for:
 
-> Tip: Remove your existing `wiz.key` file to trigger the new `wizHelper` key setup flow.
+- `DEVELOPER.md` – Makefile commands and local dev setup
+- `HEADLESSGUIDE.md` – Running your node in headless mode
+- `LOCALCLIGUIDE.md` – Using the local CLI API to control your node
+
+Check `BeanNode/config.docs/` for:
+
+- `WIZ-README.md` – Details on the WizKey system for managing encrypted private keys
+
+These files will be updated as the system evolves. If you're contributing, start with `DEVELOPER.md`.
 
 ---
 
@@ -107,10 +118,18 @@ Includes:
 
 > A full deployment guide is coming soon.
 
-To join the team or get involved:  
-📬 [team@limabean.xyz](mailto:team@limabean.xyz)
+### 🔐 Encrypted WizKey Support
 
-[👉 Join our Discord](https://discord.gg/t64HF9B33T)
+If you choose to encrypt your private key using **WizCrypt**, you’ll need to adjust your `config.properties` file accordingly:
+
+- Set `isEncrypted=true`
+- **Headless Mode:**
+  - Set `adminPass=yourpassword` (hardcoded password used at launch)
+  - Set `requirePass=false`
+- **Interactive Prompt Mode:**
+  - Set `requirePass=true` to receive a decryption prompt at launch
+
+> A future update will allow passing the password as a CLI argument for full headless use without config edits.
 
 ---
 
@@ -146,16 +165,22 @@ MIT License — See [`LICENSE`](LICENSE)
 
 ## Part of the BeanChain Ecosystem
 
-- **LimaBean Wallet** — [github.com/BeanChain-Core/LimaBeanWallet](https://github.com/BeanChain-Core/LimaBeanWallet)
-- **beanchain.io** — [github.com/BeanChain-Core/BeanChain.io](https://github.com/BeanChain-Core/BeanChain.io)
-- **Reward Node (RN)** — [github.com/BeanChain-Core/RN](https://github.com/BeanChain-Core/RN)
-- **Contract Execution Node (CEN)** — *(repo coming soon)*
-- **Historical Node** — *(repo coming soon)*
-- **BaseNode** — [github.com/BeanChain-Core/BaseNode](https://github.com/BeanChain-Core/BaseNode)
+BeanNode is one of several official projects within the network:
+
+- **LimaBean Wallet** — Wallet interface  
+  [github.com/BeanChain-Core/LimaBeanWallet](https://github.com/BeanChain-Core/LimaBeanWallet)
+
+- **beanchain.io** — Network visualizer and explorer  
+  [github.com/BeanChain-Core/BeanChain.io](https://github.com/BeanChain-Core/BeanChain.io)
+
+- **Reward Node (RN)** — System reward engine  
+  [github.com/BeanChain-Core/RN](https://github.com/BeanChain-Core/RN)
+
+- **Contract Execution Node (CEN)** — Contract processor *(repo coming soon)*  
+- **Historical Node** — High-throughput query node *(repo coming soon)*  
+- **BaseNode** — Lightweight modular tool node *(repo coming soon)*
 
 ---
 
 Crafted with ☕ by the **BeanChain Core Team**  
 Under **Outlandish Tech**, powered by **Outlandish Creative LLC**
-
-
