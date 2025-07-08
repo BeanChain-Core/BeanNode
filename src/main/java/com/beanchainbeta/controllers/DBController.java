@@ -7,10 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
+import com.beanchainbeta.helpers.HolderBalance;
 import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.services.Layer2DBService;
@@ -24,6 +26,7 @@ import com.beanpack.Models.Layer2Wallet;
 import com.beanpack.Models.TokenStorage;
 import com.beanpack.TXs.CENCALL;
 import com.beanpack.TXs.TX;
+import com.beanpack.Utils.AddressUtils;
 import com.beanpack.Utils.beantoshinomics;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -63,6 +66,10 @@ public class DBController {
             Logger.error(e);
             //e.printStackTrace();
             return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\": \"Invalid transaction JSON\"}");
+        }
+
+        if (!AddressUtils.isValidAddress(tx.getTo())){
+            return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\": \"Invalid recipiant address format\"}");
         }
 
         if (!beantoshinomics.isValidAmount(String.valueOf(tx.getAmount()))) {
@@ -409,6 +416,37 @@ public class DBController {
         }
     }
 
+    @GetMapping("/tokens/all")
+    public List<TokenStorage> getAllTokens() {
+        return Layer2DBService.getAllTokens();
+    }
+
+    @GetMapping("/rejected/hash/{hash}")
+    public ResponseEntity<?> getRejectedByHash(@PathVariable String hash) {
+        TX rejectedTx = RejectedService.getRejectedTxByHash(hash);
+        if (rejectedTx != null) {
+            return ResponseEntity.ok(rejectedTx); // 👈 Let Jackson serialize properly
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("message", "No rejected transaction found for hash: " + hash));
+        }
+    }
+
+    @GetMapping("/{tokenHash}/holders")
+    public ResponseEntity<List<HolderBalance>> getTokenHolders(@PathVariable String tokenHash) {
+        try {
+            List<HolderBalance> holders = Layer2DBService.getTokenHolders(tokenHash);
+            return ResponseEntity.ok(holders);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @GetMapping("/rejected/all")
+    public ResponseEntity<Map<String, String>> getAllRejected() {
+        Map<String, String> rejected = RejectedService.getAllRejectedTxs();
+        return ResponseEntity.ok(rejected);
+    }
 
 
     

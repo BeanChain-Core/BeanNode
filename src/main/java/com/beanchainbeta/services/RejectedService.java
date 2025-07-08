@@ -11,6 +11,10 @@ import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.DBManager;
 import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanpack.TXs.*;
+import com.beanpack.Utils.MetaHelper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class RejectedService {
     private static DB getRejectedDB() {
@@ -45,5 +49,35 @@ public class RejectedService {
         }
         return result;
     }
+
+    public static TX getRejectedTxByHash(String hash) {
+        try {
+            byte[] data = getRejectedDB().get(hash.getBytes(StandardCharsets.UTF_8));
+            if (data != null) {
+                String json = new String(data, StandardCharsets.UTF_8);
+                return TX.fromJSON(json);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Map<String, String> getAllRejectedTxs() {
+        Map<String, String> result = new HashMap<>();
+        try (DBIterator iterator = getRejectedDB().iterator()) {
+            iterator.seekToFirst();
+            while (iterator.hasNext()) {
+                var entry = iterator.next();
+                String key = new String(entry.getKey(), StandardCharsets.UTF_8);
+                String txJson = new String(entry.getValue(), StandardCharsets.UTF_8);
+                result.put(key, txJson);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 }
 

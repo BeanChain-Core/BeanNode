@@ -21,6 +21,7 @@ import com.beanchainbeta.services.MempoolService;
 import com.beanchainbeta.services.blockchainDB;
 import com.beanchainbeta.validation.BlockBuilderV2;
 import com.beanpack.TXs.*;
+import com.beanpack.Utils.AddressUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -372,6 +373,10 @@ public class MessageRouter {
             TX tx = mapper.treeToValue(msg.get("payload"), TX.class);
             if(tx==null){
                 BeanLoggerManager.BeanLoggerError("INCOMING TX NULL");
+                return;
+            }
+            if(!AddressUtils.isValidAddress(tx.getTo())){
+                BeanLoggerManager.BeanLoggerError("INCOMING TX INVALID RECIEVER ADDRESS FORMAT");
                 return;
             }
             String txHash = tx.getTxHash();

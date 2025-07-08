@@ -5,6 +5,7 @@ import com.beanchainbeta.network.Node;
 import com.beanchainbeta.services.RejectedService;
 import com.beanchainbeta.services.WalletService;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.beanpack.Rejection.Flagger;
 import com.beanpack.TXs.*;
 import com.beanpack.crypto.*;
 import com.beanpack.Utils.*;
@@ -28,7 +29,13 @@ public class TXVerifier {
             if (!tx.getFrom().equals(RN_ADDRESS)) {
                 BeanLoggerManager.BeanLoggerError("** TX FAILED: " + tx.getTxHash() + " INVALID RN AIRDROP **");
                 tx.setStatus("rejected");
-                RejectedService.saveRejectedTransaction(tx);
+                try {
+                        Flagger.repackRejection(tx, "***Invalid attempt to spoof AIRDROP REWARD***");
+                        RejectedService.saveRejectedTransaction(tx);
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
+                        e.printStackTrace();
+                    }
                 Node.broadcastRejection(tx.getTxHash());
                 return false;
             } 
@@ -63,7 +70,13 @@ public class TXVerifier {
             } else {
                 BeanLoggerManager.BeanLoggerError("** TX FAILED: " + tx.getTxHash() + " VERIFICATION FAILURE **");
                 tx.setStatus("rejected");
-                RejectedService.saveRejectedTransaction(tx);
+                try {
+                        Flagger.repackRejection(tx, "Failed to verify wallet owner credentials");
+                        RejectedService.saveRejectedTransaction(tx);
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
+                        //e.printStackTrace();
+                    }
                 Node.broadcastRejection(tx.getTxHash());
                 return false;
             }
@@ -71,7 +84,13 @@ public class TXVerifier {
         } else {
             BeanLoggerManager.BeanLoggerError("** TX FAILED: " + tx.getTxHash() + " INFO MISMATCH **");
             tx.setStatus("rejected");
-            RejectedService.saveRejectedTransaction(tx);
+            try {
+                        Flagger.repackRejection(tx, "Information mixmatch or credential failure.");
+                        RejectedService.saveRejectedTransaction(tx);
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
+                        //e.printStackTrace();
+                    }
             Node.broadcastRejection(tx.getTxHash());
             return false;
 

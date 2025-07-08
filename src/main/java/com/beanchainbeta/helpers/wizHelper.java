@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import com.beanchainbeta.config.ConfigLoader;
+import com.beanpack.Wizard.WizCryptHandler;
 import com.beanpack.Wizard.wizard;
+import com.beanpack.beanify.Color;
 import com.beanpack.crypto.WalletGenerator;
 
 /**
@@ -17,6 +19,9 @@ public class wizHelper {
     
     
     static String path = ConfigLoader.getPrivateKeyPath();
+
+    public static WizCryptHandler wizCrypt;
+
 
     public static void genWizAndSave() throws Exception{
         String privateKey = WalletGenerator.generatePrivateKey();
@@ -34,7 +39,6 @@ public class wizHelper {
             if (keyCheck(key)){
                 wizard.saveKeyToWizard(key, path);
                 System.out.println("Key saved successfully.");
-                break;
             } else {
                 userWizAndSave();
             }
@@ -45,8 +49,10 @@ public class wizHelper {
         System.out.println("Enter Encryption Pass");
         String encryptionPass = scanner.nextLine().trim();
         String privateKey = WalletGenerator.generatePrivateKey();
-        String encryptedWizKey = wizard.getEncryptedWizardKey(privateKey, encryptionPass);
-        wizard.saveEncryptedWizKey(encryptedWizKey, path);
+        WizCryptHandler.initializeWizCrypt();
+        WizCryptHandler.showLoadingBarDynamic("WORKING", 5000);
+        WizCryptHandler.encryptPrivateKeyHexRaw(privateKey);
+
     }
 
     public static void userWizAndSaveEncrypted() throws Exception{
@@ -59,11 +65,12 @@ public class wizHelper {
 
             // Check if it's exactly 64 characters
             if (keyCheck(encryptedKey)){
-                String encryptedWizKey = wizard.getEncryptedWizardKey(encryptedKey, adminEncryptPass);
-                wizard.saveEncryptedWizKey(encryptedWizKey, path);
+                WizCryptHandler.initializeWizCrypt();
+                WizCryptHandler.encryptPrivateKeyHexRaw(encryptedKey);
                 System.out.println("Key saved successfully.");
                 return;
             } else {
+                System.out.println("Invalid Key Length");
                 userWizAndSaveEncrypted();
             }
         }
@@ -81,8 +88,9 @@ public class wizHelper {
     public static void displayUnencryptedKey() throws Exception{
         System.out.println("Enter Admin Pass");
         String pass = scanner.nextLine().trim();
-        String encrypted = wizard.wizardRead(path);
-        String unEncrypted = wizard.decryptWizKey(encrypted, pass);
+        WizCryptHandler.bootWizCrypt(pass);
+        String unEncrypted = WizCryptHandler.readL2EncWizKey();
+
         System.out.println("Private Key Hex: " +  unEncrypted);
     }
 
@@ -92,7 +100,22 @@ public class wizHelper {
 
     
 
-    public static void main(String[] args) {
+
+    public static void startCLI() {
+        System.out.println(Color.YELLOW + """
+            ============================================================
+                          WIZ HELPER — SETUP TOOL ONLY
+            ============================================================
+            This setup tool is intended for local, private use only.
+
+            During setup, your password and private key will be visible
+            in plaintext. Do not use this tool in shared or production
+            environments.
+
+            Once setup is complete, your WizKey will be encrypted and
+            usable in secure, headless mode.
+            ============================================================
+            """ + Color.RESET);
         try  {
             while (true) {
                 System.out.println("\nWizKey Utility:");

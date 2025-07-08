@@ -1,6 +1,7 @@
 package com.beanchainbeta.nodePortal;
 
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.Scanner;
 
@@ -8,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.controllers.CLIManager;
+import com.beanchainbeta.helpers.SecureInputHelper;
 import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.services.MempoolSyncService;
@@ -15,6 +17,9 @@ import com.beanchainbeta.services.blockchainDB;
 import com.beanchainbeta.startScripts.autoStartGPN;
 import com.beanchainbeta.startScripts.autoStartPrivate;
 import com.beanchainbeta.startScripts.autoStartPublic;
+import com.beanpack.Wizard.WizCryptHandler;
+import com.beanpack.beanify.Color;
+
 import org.tinylog.Logger;
 
 @SpringBootApplication
@@ -23,30 +28,47 @@ public class portal {
         try{
             Logger.info("NODE BOOT");
             ConfigLoader.loadConfig(); // runs BEFORE static fields or main()
-            System.out.println("Config-----------loaded");
+            System.out.println("[*] CONFIG FILE LOADED ............ SUCCESS");
         } catch (Exception e){
-            System.out.println("Config-----------failed");
+            System.out.println("[!] CONFIG LOAD FAILED ............ ERROR");
             e.printStackTrace();
         }
     }
 
     public static adminCube admin;
+    
     public static blockchainDB beanchainTest = new blockchainDB();
     public static volatile boolean isSyncing = false;
     public static final long BOOT_TIME = System.currentTimeMillis();
 
 
     public static void setIsSyncing(boolean bool) {isSyncing = bool;}
+    
 
 
     public static void main(String[] args) throws Exception {
 
         if(ConfigLoader.getRequirePass()){
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("ENTER ADMIN PASS");
-            String adminPass = scanner.nextLine().trim(); 
+
+            //Scanner scanner = new Scanner(System.in);
+            //System.out.println("ENTER ADMIN PASS");
+
+            //String adminPass = scanner.nextLine().trim(); 
+            String adminPass = SecureInputHelper.promptHidden("ENTER ADMIN PASS");
             ConfigLoader.setAdminPass(adminPass);
         }
+
+        if(ConfigLoader.getEncryptedWiz()){
+            WizCryptHandler.setPassword(ConfigLoader.getAdminPass());
+            WizCryptHandler.setWizFileEnc("wiz.txt.enc");
+            WizCryptHandler.setConfigFolder(new File("config.docs/"));
+            WizCryptHandler.setKeyPath(ConfigLoader.getPrivateKeyPath());
+            WizCryptHandler.bootWizCrypt(ConfigLoader.getAdminPass());
+        }
+
+        
+
+
 
         if(ConfigLoader.isBootstrapNode()) {
             autoStartGPN.nodeStart();
@@ -69,7 +91,14 @@ public class portal {
         CLIManager.startConsole(); //starts CLIManager in new thread
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Shutting down... saving peers.");
+            System.out.println(Color.GREEN);
+            System.out.println("╔══════════════════════════════════════╗");
+            System.out.println("║   Shutting down BeanNode...         ║");
+            System.out.println("║   Saving peers and closing threads. ║");
+            System.out.println("║   GBean!, and thank you for using   ║");
+            System.out.println("║   BeanChain.                        ║");
+            System.out.println("╚══════════════════════════════════════╝");
+            System.out.println(Color.RESET);
             Node.savePeers(); // or node.savePeers() if not static
         }));
     }

@@ -3,6 +3,7 @@ package com.beanchainbeta.genesis;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
+import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanpack.TXs.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -38,7 +39,7 @@ public class GenesisTX extends TX{
 
     public String generateHash() {
         try {
-            String formattedAmount = String.format("%.8f", amount); // Force 8 decimal places
+            String formattedAmount = String.format("%.6f", amount); // Force 6 decimal places
             String data = from + to + formattedAmount;
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(data.getBytes(StandardCharsets.UTF_8));
@@ -59,7 +60,7 @@ public class GenesisTX extends TX{
             ObjectMapper objectMapper = new ObjectMapper();
             jsonString = objectMapper.writeValueAsString(this);
         } catch (Exception e) {
-            System.out.println(e);
+            BeanLoggerManager.BeanLoggerError("EXCEPTION: " + e.getMessage());
         }
         return jsonString;
     }

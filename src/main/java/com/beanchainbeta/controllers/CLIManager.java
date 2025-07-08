@@ -11,8 +11,6 @@ import java.util.Scanner;
 import com.beanchainbeta.config.ConfigLoader;
 import com.beanchainbeta.factories.InternalTXFactory;
 import com.beanchainbeta.helpers.DevConfig;
-import com.beanchainbeta.helpers.wizHelper;
-import com.beanchainbeta.logger.BeanLoggerManager;
 import com.beanchainbeta.network.Node;
 import com.beanchainbeta.nodePortal.portal;
 import com.beanchainbeta.services.Layer2DBService;
@@ -35,6 +33,10 @@ public class CLIManager {
         }
         Thread cliThread = new Thread(() -> {
             Scanner scanner = new Scanner(System.in);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                System.out.println("\nClean UP your SCANNERS! #GBEAN");
+                scanner.close();
+            }));
             while (true) {
                 System.out.println("\u001B[32m");
                 System.out.print(rootUserName + ">> \u001B[0m");
@@ -74,7 +76,6 @@ public class CLIManager {
 
                     case "exit":
                         System.out.println("Shutting down...");
-                        scanner.close();
                         System.exit(0);
                         break;
 
