@@ -19,7 +19,9 @@ public class wizHelper {
     
     
     static String path = ConfigLoader.getPrivateKeyPath();
+
     public static WizCryptHandler wizCrypt;
+
 
     public static void genWizAndSave() throws Exception{
         String privateKey = WalletGenerator.generatePrivateKey();
@@ -50,6 +52,7 @@ public class wizHelper {
         WizCryptHandler.initializeWizCrypt();
         WizCryptHandler.showLoadingBarDynamic("WORKING", 5000);
         WizCryptHandler.encryptPrivateKeyHexRaw(privateKey);
+
     }
 
     public static void userWizAndSaveEncrypted() throws Exception{
@@ -87,6 +90,7 @@ public class wizHelper {
         String pass = scanner.nextLine().trim();
         WizCryptHandler.bootWizCrypt(pass);
         String unEncrypted = WizCryptHandler.readL2EncWizKey();
+
         System.out.println("Private Key Hex: " +  unEncrypted);
     }
 
@@ -95,6 +99,7 @@ public class wizHelper {
     }
 
     
+
 
     public static void startCLI() {
         System.out.println(Color.YELLOW + """

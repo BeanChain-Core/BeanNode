@@ -6,6 +6,23 @@ This project is maintained by the **BeanChain Core Team** under **Outlandish Tec
 
 > Actively in development — live, synced nodes (GPN, PN, PRN) are currently operating across the testnet.
 
+
+
+---
+
+## 🚀 New in `v0.0.3`
+
+This version introduces new features, dev tools, and a critical bug fix:
+
+- 🧪 **Dev Suite Internal (Beta)** – When no config is found, the node auto-prompts CLI questions and builds a minimal valid config file on startup.
+- 🔐 **Encrypted Wiz Key Support** – When no `wiz.key` file is found, the node prompts the user via the `wizHelper` CLI to either:
+  - Generate a new key and save to disk.
+  - Paste a private key and save as an encrypted or plaintext wizkey.
+- 💻 **CLI Enhancements** – Interactive CLI wizards now streamline setup and startup for developers and early node ops.
+- 🛠️ **Bug Fix** – Fixed a rejection/mempool cleaning bug that allowed invalid TX `type`s to infinitely gossip through the network.
+
+> Tip: Remove your existing `wiz.key` file to trigger the new `wizHelper` key setup flow.
+
 ---
 
 ## Node Types
@@ -21,7 +38,7 @@ The BeanNode software supports multiple operation modes based on configuration:
 - **PRN – Private Node**  
   A sync-only node with no exposed APIs, used internally for redundancy and mirroring.
 
-> Note: While PNs (including the GPN) expose REST endpoints, high-volume query traffic should eventually be routed to the **Historical Node** system, which is optimized for data serving at scale.
+> While PNs expose REST endpoints, high-volume query traffic should eventually be routed to the **Historical Node** system for scale.
 
 ---
 
@@ -29,26 +46,22 @@ The BeanNode software supports multiple operation modes based on configuration:
 
 The **Bean Cluster** is the coordinated group of core nodes operated and maintained by the **BeanChain Core Team**. It defines and supports the official state of the chain.
 
-### Components:
+### Components
 
 - **GPN – Genesis Public Node**  
   Bootstrap sync anchor and core gossip source.
 
 - **PN – Public Node**  
-  Supports the LimaBean Wallet and other first-party DApps by relaying transactions into the network.
+  Supports the LimaBean Wallet and other first-party DApps.
 
 - **RN – Reward Node** *(Live, expanding)*  
-  Issues faucet payouts, airdrops, and validator gas rewards. Also being developed to track **validator trust scores** via ping/pong behavior monitoring.
+  Handles faucet payouts, airdrops, and validator gas rewards. Will also monitor validator trust scores via ping/pong signals.
 
 - **CEN – Contract Execution Node** *(In Development)*  
-  Executes off-chain smart contracts and Layer 2 logic. Hosts team-built contracts (e.g., staking) and will be released in **barebones form** to allow third-party customization and CEN development.  
-  Devs can connect their CENs to open PNs to extend the network.
+  Executes off-chain smart contracts and Layer 2 logic. Will be released in **barebones** form for third-party contract execution.
 
 - **Historical Node** *(In Development)*  
-  Peripheral node that stores validated blocks in a SQL database and exposes high-performance endpoints via a **Kubernetes-powered cluster of fetch nodes**.  
-  Will be released in **barebones, pluggable form** for community use in DApps, explorers, or analytics tools.
-
-> This modularity and peripheral flexibility is a major strength of BeanChain — empowering developers to extend, customize, and scale the network.
+  High-throughput, SQL-based query node exposed through a Kubernetes-powered fetch node cluster.
 
 ---
 
@@ -61,6 +74,7 @@ The **Bean Cluster** is the coordinated group of core nodes operated and maintai
 - System TX generation via RN
 - LevelDB storage for state, mempool, and blocks
 - Configurable, extensible architecture
+- CLI-driven auto-config and key setup
 
 ---
 
@@ -75,7 +89,7 @@ Includes:
 - Merkle root utilities
 - Shared constants and builders
 
-> Additional SDKs (Go, Python, JavaScript) are planned to enable multi-language support across the ecosystem.
+> Additional SDKs (Go, Python, JavaScript) are planned.
 
 ---
 
@@ -94,61 +108,54 @@ Includes:
 > A full deployment guide is coming soon.
 
 To join the team or get involved:  
-[team@limabean.xyz](mailto:team@limabean.xyz)
+📬 [team@limabean.xyz](mailto:team@limabean.xyz)
+
+[👉 Join our Discord](https://discord.gg/t64HF9B33T)
 
 ---
 
 ## BaseNode (Developer Toolkit)
 
-A lightweight, network-ready **BaseNode** project is also in development. It will provide a minimal Java node that connects to the BeanChain network and receives messages — ready to:
+A lightweight, network-ready **BaseNode** is also in development — perfect for:
 
-- Run custom logic or automation
-- Act as an oracle or external data gateway
-- Serve as the base for wallet apps, dashboard tools, or backend utilities
+- Oracles and automation
+- Custom node logic
+- Wallet backends or dashboard tools
 
-> Designed for modular integrations — BaseNode will simplify the creation of custom, event-driven logic on the BeanChain network.
+> BaseNode is modular and ready for custom events or data flows.
 
 ---
 
 ## Contributing
 
-We welcome forks and pull requests:
+We welcome forks and pull requests!
 
 1. Fork this repo
 2. Create a new branch
 3. Submit a pull request with a clear summary of your changes
 
-Issues are open for bugs, ideas, and feature suggestions.
+   
 
 ---
 
 ## License
 
-MIT License — See [`LICENSE`](LICENSE) for full details.
+MIT License — See [`LICENSE`](LICENSE)
 
 ---
 
 ## Part of the BeanChain Ecosystem
 
-BeanNode is one of several official projects within the network:
-
-- **LimaBean Wallet** — Wallet interface  
-  [github.com/BeanChain-Core/LimaBeanWallet](https://github.com/BeanChain-Core/LimaBeanWallet)
-
-- **beanchain.io** — Network visualizer and explorer  
-  [github.com/BeanChain-Core/BeanChain.io](https://github.com/BeanChain-Core/BeanChain.io)
-
-- **Reward Node (RN)** — System reward engine 
-  [github.com/BeanChain-Core/RN](https://github.com/BeanChain-Core/RN)
-
-- **Contract Execution Node (CEN)** — Contract processor *(repo coming soon)*  
-- **Historical Node** — High-throughput query node *(repo coming soon)*  
-- **BaseNode** — Lightweight modular tool node 
-  
+- **LimaBean Wallet** — [github.com/BeanChain-Core/LimaBeanWallet](https://github.com/BeanChain-Core/LimaBeanWallet)
+- **beanchain.io** — [github.com/BeanChain-Core/BeanChain.io](https://github.com/BeanChain-Core/BeanChain.io)
+- **Reward Node (RN)** — [github.com/BeanChain-Core/RN](https://github.com/BeanChain-Core/RN)
+- **Contract Execution Node (CEN)** — *(repo coming soon)*
+- **Historical Node** — *(repo coming soon)*
+- **BaseNode** — [github.com/BeanChain-Core/BaseNode](https://github.com/BeanChain-Core/BaseNode)
 
 ---
 
-Crafted by the **BeanChain Core Team**  
+Crafted with ☕ by the **BeanChain Core Team**  
 Under **Outlandish Tech**, powered by **Outlandish Creative LLC**
 
 

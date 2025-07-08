@@ -49,6 +49,7 @@ public class portal {
     public static void main(String[] args) throws Exception {
 
         if(ConfigLoader.getRequirePass()){
+
             //Scanner scanner = new Scanner(System.in);
             //System.out.println("ENTER ADMIN PASS");
 
@@ -66,6 +67,7 @@ public class portal {
         }
 
         
+
 
 
         if(ConfigLoader.isBootstrapNode()) {

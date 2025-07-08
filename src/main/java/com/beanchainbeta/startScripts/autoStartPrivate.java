@@ -61,6 +61,7 @@ public class autoStartPrivate {
                 String input = scanner.nextLine().trim();
                 if(input.equals("wiz")){
                     wizHelper.startCLI();
+
                 }
                 Thread.sleep(3000); // pause before retrying
             }
