@@ -46,7 +46,8 @@ public class CLIManager {
                     System.out.print(rootUserName + ">> \u001B[0m");
 
                     if (!scanner.hasNextLine()) {
-                        System.out.println("\n[CLI] Input stream closed. Exiting CLI thread...");
+                        WizCryptHandler.decryptConfig();
+                        System.out.println("\n[CLI] Input stream closed. Exiting CLI thread... decrypting config");
                         break;
                     }
 
@@ -188,11 +189,11 @@ public class CLIManager {
                     }
                 }
             } catch (Exception cli){
-                WizCryptHandler.decryptConfig();
+                //WizCryptHandler.decryptConfig();
                 BeanLoggerManager.BeanLoggerFPrint("EXCEPTION: " + cli.getMessage());
             }
             finally {
-                WizCryptHandler.decryptConfig();
+                //WizCryptHandler.decryptConfig();
                 System.out.println("[CLI] Cleanup triggered from finally block.");
                 scanner.close();
             }
