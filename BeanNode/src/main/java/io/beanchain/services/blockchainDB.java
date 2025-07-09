@@ -141,12 +141,12 @@ public class blockchainDB {
     }
 
     private void loadGenBlock() throws Exception{
-        GenesisTX genTX1 = new GenesisTX("BEANX:0xFAUCETWALLET", 5000000); //handled by RN
-        GenesisTX genTX2 = new GenesisTX("BEANX:0xEARLYWALLET", 5000000);  //handled by RN
-        GenesisTX genTX3 = new GenesisTX("BEANX:0xSTAKEREWARD", 15000000); //need funds released programatically
-        GenesisTX genTX4 = new GenesisTX("BEANX:0xNODEREWARD", 30000000); //handled by RN 
-        GenesisTX genTX5 = new GenesisTX("BEANX:0x1c8496175b3f4802e395db5fab4dd66e09c431b2", 2500000); // released to the Team Wallet at Genesis 
-        GenesisTX genTX6 = new GenesisTX("BEANX:0xLIQUIDITY", 12500000); // held by the team promised to be used for liquidity or aborted and transfered to rewards based on future vote
+        GenesisTX genTX1 = new GenesisTX("BEANX:0xFAUCETWALLET", 10000000); //handled by RN
+        GenesisTX genTX2 = new GenesisTX("BEANX:0xEARLYWALLET", 10000000);  //handled by RN
+        GenesisTX genTX3 = new GenesisTX("BEANX:0xSTAKEREWARD", 14000000); //handled by RN
+        GenesisTX genTX4 = new GenesisTX("BEANX:0xNODEREWARD", 40000000); //handled by RN 
+        GenesisTX genTX5 = new GenesisTX("BEANX:0x1c8496175b3f4802e395db5fab4dd66e09c431b2", 6000000); // released to the Team Wallet at Genesis 
+        GenesisTX genTX6 = new GenesisTX("BEANX:0xLIQUIDITY", 20000000); // left untouched until either used for liquidity pools or transfered to community DOA
 
         new WalletService();
         WalletService.genBlock();
