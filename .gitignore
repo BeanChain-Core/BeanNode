@@ -44,5 +44,8 @@ devTests/
 #copy of your build 
 FreshBeans/
 
+# your bean cluster 
+.cluster/
+
 
 

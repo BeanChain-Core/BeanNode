@@ -275,4 +275,27 @@ init-unix:
 win-gpn:
 	@if exist $(FRESHB) xcopy $(FRESHB) TEAM\GPNTEST /E /I /Y
 
+config:
+	@powershell -Command "(Get-Content NodePK\\config.docs\\beanchain.config.properties) -replace '^$(KEY)=.*', '$(KEY)=$(VALUE)' | Set-Content NodePK\\config.docs\\beanchain.config.properties"
+
+NAME=sprout.evo
+
+cluster-fresh: win-pack clust-me 
+
+clust-me:
+	@if not exist .cluster mkdir .cluster
+	@for %%i in (1 2 3 4) do ( \
+		xcopy /E /I /Y "$(NODEPK)" ".cluster\\$(NAME)%%i" >nul \
+	)
+	@powershell -NoProfile -Command " \
+		Invoke-Expression 'cd .cluster\\$(NAME)1; make private port PORT=6442'; \
+		Invoke-Expression 'cd ..\\$(NAME)2; make private port PORT=6443'; \
+		Invoke-Expression 'cd ..\\$(NAME)3; make private port PORT=6444'; \
+		Invoke-Expression 'cd ..\\$(NAME)4; make private port PORT=6446'"
+
+clear-clust:
+	@if exist .cluster rmdir /S /Q .cluster
+
+
+
 
