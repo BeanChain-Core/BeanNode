@@ -1,10 +1,11 @@
+
 # BeanNode
 
 **BeanNode** is the official Java-based node software that powers the decentralized **BeanChain** network. It validates blocks, gossips transactions, manages peer sync, and coordinates with system-level and contract execution nodes.
 
 This project is maintained by the **BeanChain Core Team** under **Outlandish Tech**, a division of **Outlandish Creative LLC**.
 
-> Actively in development — live, synced nodes (GPN, PN, PRN) are currently operating across the testnet.
+> Actively in development — live, synced nodes (GPN, PN, PRN) are currently operating across the TestNet.
 
 ---
 
@@ -20,19 +21,20 @@ Use this version for testing, dev syncing, and preparing your node for the upcom
 
 ## 🗂 Documentation & Guides
 
-This project includes additional guides to help you get up and running quickly, whether you're a developer, node operator, or contributor.
+This project includes extended guides to help you get started or dive deeper:
 
-Check the `.guides/` folder for:
+### `.guides/` Folder
 
-- `DEVELOPER.md` – Makefile commands and local dev setup
-- `HEADLESSGUIDE.md` – Running your node in headless mode
-- `LOCALCLIGUIDE.md` – Using the local CLI API to control your node
+- [CONFIG_GUIDE.md](.guides/CONFIG_GUIDE.md) – How to structure and customize your `config.properties` file
+- [DEVELOPER.md](.guides/DEVELOPER.md) – Makefile commands and local dev setup
+- [HEADLESS_GUIDE.md](.guides/HEADLESS_GUIDE.md) – Running your node in headless mode
+- [LOCALCLIGUIDE.md](.guides/LOCALCLIGUIDE.md) – Using the local CLI API to control your node
 
-Check `BeanNode/config.docs/` for:
+### `BeanNode/config.docs/` Folder
 
-- `WIZ-README.md` – Details on the WizKey system for managing encrypted private keys
+- [WIZ-README.md](BeanNode/config.docs/WIZ-README.md) – Setup and usage of the Wizard Keys (WizKey encryption system)
 
-These files will be updated as the system evolves. If you're contributing, start with `DEVELOPER.md`.
+> These guides are evolving. Check out DEVELOPER.md to quickly set up a NodePK folder and get started running a Node.
 
 ---
 
@@ -110,7 +112,7 @@ Includes:
 - Maven (for build and dependency management)
 - Open Ports:
   - `6442` – P2P communication
-  - `8080` – Optional REST API (for PNs only)
+  - `8080` – Optional REST API (for PNs only/ or local CLI)
 
 ---
 
@@ -152,8 +154,6 @@ We welcome forks and pull requests!
 1. Fork this repo
 2. Create a new branch
 3. Submit a pull request with a clear summary of your changes
-
-   
 
 ---
 
