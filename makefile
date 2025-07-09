@@ -278,6 +278,9 @@ win-gpn:
 config:
 	@powershell -Command "(Get-Content NodePK\\config.docs\\beanchain.config.properties) -replace '^$(KEY)=.*', '$(KEY)=$(VALUE)' | Set-Content NodePK\\config.docs\\beanchain.config.properties"
 
+
+# stalk cluster commands 
+
 NAME=sprout.evo
 
 cluster-fresh: win-pack clust-me 

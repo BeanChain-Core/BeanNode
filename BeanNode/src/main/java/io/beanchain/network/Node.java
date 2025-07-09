@@ -541,33 +541,26 @@ public class Node {
     }
 
     public static void broadcastPing(String pingNumber, String excludeIp) {
-        ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = new ObjectMapper();
 
-        try {
-            ObjectNode message = mapper.createObjectNode();
-            message.put("type", "ping");
-            message.put("payload", pingNumber);
+    try {
+        ObjectNode message = mapper.createObjectNode();
+        message.put("type", "ping");
+        message.put("payload", pingNumber);
 
-            String json = mapper.writeValueAsString(message);
+        String json = mapper.writeValueAsString(message);
 
-            for (Map.Entry<Socket, PeerInfo> entry : peers.entrySet()) {
-                Socket peerSocket = entry.getKey();
-                String peerIp = peerSocket.getInetAddress().getHostAddress();
+        // Convert peer map to list
+        ArrayList<Socket> peerList = new ArrayList<>(peers.keySet());
 
-                if (peerIp.equals(excludeIp)) continue;
+        // Use unified gossip method
+        Node.getInstance().broadcastGossip(json, peerList, excludeIp);
 
-                try {
-                    PrintWriter out = new PrintWriter(peerSocket.getOutputStream(), true);
-                    out.println(json);
-                    BeanLoggerManager.BeanLogger("[PING] Gossip forwarded to " + peerIp);
-                } catch (Exception e) {
-                    BeanLoggerManager.BeanLoggerError("[PING] Failed to send to peer " + peerIp);
-                }
-            }
-        } catch (Exception e) {
-            BeanLoggerManager.BeanLoggerError("[PING] Failed to broadcast ping:");
-            e.printStackTrace();
-        }
+        BeanLoggerManager.BeanLogger("[PING] Gossip message dispatched through broadcastGossip");
+    } catch (Exception e) {
+        BeanLoggerManager.BeanLoggerError("[PING] Failed to broadcast ping:");
+        e.printStackTrace();
     }
+}
 }
 
