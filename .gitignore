@@ -24,11 +24,25 @@ Thumbs.db
 .idea/
 
 # Local config files (do NOT commit private keys!)
-/config.docs/wiz.txt
-/config.docs/nodeOp.properties
-/src/main/java/com/beanchainbeta/devTests
-/docker/bootstrap/config.docs/wizard.txt
-/docker/peer/config.docs/wizard.txt
+*/config.docs/wiz.txt
+*/config.docs/nodeOp.properties
+*/src/main/java/com/beanchainbeta/devTests
+
 
 # data
-data/
+*data/
+*logs/
+
+#temporary build
+NodePk/
+NodePK/makefile
+
+#Team Builds and Keys
+TEAM/
+devTests/
+
+#copy of your build 
+FreshBeans/
+
+
+

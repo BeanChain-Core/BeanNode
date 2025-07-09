@@ -1,0 +1,206 @@
+package io.beanchain.services;
+
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.DBIterator;
+import org.springframework.stereotype.Service;
+
+import com.beanpack.Rejection.Flagger;
+import com.beanpack.TXs.*;
+import com.beanpack.Utils.AddressUtils;
+
+import io.beanchain.config.ConfigLoader;
+import io.beanchain.controllers.DBManager;
+import io.beanchain.logger.BeanLoggerManager;
+import io.beanchain.network.Node;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.iq80.leveldb.impl.Iq80DBFactory.*;
+
+@Service
+public class MempoolService {
+    private static ConcurrentHashMap<String, String> transactions = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, TX> rejectedTransactions = new ConcurrentHashMap<>();
+    private static DB db;
+    
+    public MempoolService() {
+        try {
+            db = DBManager.getDB(ConfigLoader.getMempoolDB());
+            loadMempoolFromDB();
+        } catch (Exception e) {
+            throw new RuntimeException("Error initializing mempool DB", e);
+        }
+    }
+    
+    public static boolean addTransaction(String txHash, String transactionJson) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode txNode = mapper.readTree(transactionJson);
+            TX tx = mapper.treeToValue(txNode, TX.class);
+
+            if (txNode.has("signature") && "GENESIS-SIGNATURE".equals(txNode.get("signature").asText())) {
+                BeanLoggerManager.BeanLogger("Skipping Genesis TX, not adding to mempool: " + txHash);
+                return false;
+            }
+
+            if (txNode.has("to") && !AddressUtils.isValidAddress((txNode.get("to").asText()))) {
+                if(txNode.has("txHash")){
+                    try {
+                        Flagger.repackRejection(tx, "Invalid TX Type Field");
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag " + tx.getTxHash());
+                        e.printStackTrace();
+                    }
+                    Node.broadcastRejection(txNode.get("txHash").asText(), tx);
+                }
+                return false;
+            }
+            
+
+            if (!transactions.containsKey(txHash)) {
+                transactions.put(txHash, transactionJson);
+                try {
+                    db.put(bytes(txHash), bytes(transactionJson));
+                } catch (Exception e) {
+                    System.err.println("Error saving transaction to DB: " + e.getMessage());
+                }
+                return true;
+            }
+        } catch (Exception e) {
+            BeanLoggerManager.BeanLoggerError("Error parsing transaction JSON: " + e.getMessage());
+        }
+
+        return false;
+    }
+
+        
+
+        public static void removeTXs(ArrayList<TX> acceptedTxs, ConcurrentHashMap<String, TX> rejectedTxs) {
+            for (TX tx : acceptedTxs) {
+                String txHash = tx.getTxHash();
+                if (transactions.containsKey(txHash)) {
+                    transactions.remove(txHash);
+                    try {
+                        db.delete(bytes(txHash));
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Error deleting accepted TX from DB: " + e.getMessage());
+                    }
+                } else {
+                    BeanLoggerManager.BeanLogger(txHash + ": not found in mempool");
+                }
+            }
+        
+            for (String txHash : rejectedTxs.keySet()) {
+                if (transactions.containsKey(txHash)) {
+                    transactions.remove(txHash);
+                    try {
+                        db.delete(bytes(txHash));
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Error deleting rejected TX from DB: " + e.getMessage());
+                    }
+                } else {
+                    BeanLoggerManager.BeanLoggerError(txHash + ": not found in mempool");
+                }
+            }
+        }
+
+        public static void removeSingleTx(String txHash) {
+            if (transactions.containsKey(txHash)) {
+                transactions.remove(txHash);
+                try {
+                    db.delete(bytes(txHash));
+                    BeanLoggerManager.BeanLogger("Removed TX from mempool DB and memory: " + txHash);
+                } catch (Exception e) {
+                    System.err.println("Error deleting TX from DB: " + txHash);
+                    e.printStackTrace();
+                }
+            } else {
+                BeanLoggerManager.BeanLoggerError("TX not found in mempool: " + txHash);
+            }
+        }
+        
+        
+    
+    public ConcurrentHashMap<String, String> getTransactions() {
+        return transactions;
+    }
+    
+    private void loadMempoolFromDB() {
+        int restoredCount = 0; 
+        try (DBIterator iterator = db.iterator()) {
+            iterator.seekToFirst();
+            while (iterator.hasNext()) {
+                java.util.Map.Entry<byte[], byte[]> entry = iterator.next();
+                String txHash = new String(entry.getKey(), StandardCharsets.UTF_8);
+                String transactionJson = new String(entry.getValue(), StandardCharsets.UTF_8);
+                transactions.put(txHash, transactionJson);
+                restoredCount++; // increment for each TX loaded
+            }
+            System.out.printf("%s  INFO --- [Bean-Load-Protocol] Mempool restored from LevelDB (%d transactions)%n",
+                java.time.LocalDateTime.now(), restoredCount);
+        } catch (Exception e) {
+            BeanLoggerManager.BeanLoggerError("Error loading mempool from DB: " + e.getMessage());
+        }
+    }
+    
+    public static ArrayList<TX> getTxFromPool(){
+        ArrayList<TX> txList = new ArrayList<>();
+        for( String d: transactions.values()) {
+        txList.add(TX.fromJSON(d));
+        //BeanLoggerManager.BeanLogger(TX.fromJSON(d));
+    }
+    return txList; 
+    }
+
+    public static ArrayList<TX> getPending(String addy) {
+        ArrayList<TX> pendingTX = new ArrayList<>();
+    
+        for (String d : transactions.values()) {
+            TX tx = TX.fromJSON(d);
+            if (tx != null && tx.getFrom().equals(addy)) {
+                pendingTX.add(tx);
+            }
+        }
+    
+        return pendingTX;
+    }
+
+    public static boolean contains(String txHash) {
+        return transactions.containsKey(txHash);
+    }
+
+    public static TX getTransaction(String txHash) {
+        String json = transactions.get(txHash);
+        if (json == null) return null;
+    
+        try {
+            return TX.fromJSON(json);
+        } catch (Exception e) {
+            System.err.println("Failed to parse TX from mempool: " + txHash);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Set<String> getAllTXHashes() {
+        return transactions.keySet();
+    }
+
+    public static void removeTxByHash(String txHash) {
+        TX tx = getTransaction(txHash); // get the full object before it’s removed
+        if (tx != null) {
+            tx.setStatus("rejected");
+            RejectedService.saveRejectedTransaction(tx);
+        }
+        removeSingleTx(txHash);
+    }
+
+
+}
+

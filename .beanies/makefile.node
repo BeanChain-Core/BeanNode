@@ -1,0 +1,23 @@
+# === NodePK Makefile (Linux/macOS) ===
+
+VERSION       = v0.1.0
+
+run:
+	java -jar BeanNode-$(VERSION).jar
+
+wiz:
+	java -jar WizCrypt.jar
+
+reset:
+	rm -rf data logs
+
+screen-bean:
+	screen -S beannode -dm java -jar BeanNode-$(VERSION).jar
+
+help:
+	@echo "Available Commands (Linux/macOS):"
+	@echo "  make run          - Launch the BeanNode"
+	@echo "  make wiz          - Run the WizCrypt CLI"
+	@echo "  make reset        - Delete ./data and ./logs"
+	@echo "  make screen-bean   - Run the Node in a dettachable screen (must have screen installed)"
+	@echo "  make help         - Show this help menu"
