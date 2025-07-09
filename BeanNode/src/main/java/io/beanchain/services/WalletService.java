@@ -381,6 +381,8 @@ public class WalletService {
             BeanLoggerManager.BeanLoggerError("Invalid gas fee in payGasOnly: " + gasFee);
             return;
         }
+
+        
     
         byte[] fromJsonWallet = db.get(fromKey.getBytes(StandardCharsets.UTF_8));
     
@@ -401,6 +403,11 @@ public class WalletService {
     
             String updatedSender = mapper.writeValueAsString(walletNode);
             db.put(fromKey.getBytes(StandardCharsets.UTF_8), updatedSender.getBytes(StandardCharsets.UTF_8));
+
+            if (gasFee > 0) {
+                InBeanTx("BEANX:0xGASPOOL", beantoshinomics.toBean(gasFee));
+                //BeanLoggerManager.BeanLogger("Credited " + tx.getGasFee() + " beantoshi to GASPOOL from " + tx.getFrom());
+            }
     
             BeanLoggerManager.BeanLogger("Gas fee of " + gasFee + " paid by: " + from);
         } else {

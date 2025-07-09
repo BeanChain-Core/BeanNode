@@ -93,104 +93,94 @@ public class TXExecutor {
     private static boolean executeTokenTX(TX tx) throws Exception {
         JsonNode metaNode = MetaHelper.getMetaNode(tx);
 
-        
-    
         if (!metaNode.has("tokenHash")) {
             System.err.println("Missing tokenHash in meta.");
             return false;
         }
 
-        if(metaNode.has("execute") && metaNode.get("execute").asText().equals("burn") && !metaNode.has("isCen")) {
-            boolean check = Layer2DBService.burnToken(tx.getFrom(), metaNode.get("tokenHash").asText(), tx.getAmount());
-            if(check){
-                WalletService.payGasOnly(tx.getFrom(), tx.getGasFee());
-            }
-            return check; 
+        boolean success = false;
+
+        //  Burn TX (non-CEN)
+        if (metaNode.has("execute") && metaNode.get("execute").asText().equals("burn") && !metaNode.has("isCen")) {
+            success = Layer2DBService.burnToken(tx.getFrom(), metaNode.get("tokenHash").asText(), tx.getAmount());
         }
 
-        try {
-            boolean isCenTx = metaNode.has("isCen") && metaNode.get("isCen") != null && metaNode.get("isCen").asBoolean();
-    
-            if (isCenTx) {
-                BeanLoggerManager.BeanLogger("**TOKEN TX (CEN)**");
-    
-                if (!metaNode.has("caller") || metaNode.get("caller") == null) {
-                    System.err.println("Missing caller field in CEN token TX meta.");
-                    return false;
-                }
+        // CEN token TX
+        else if (metaNode.has("isCen") && metaNode.get("isCen").asBoolean()) {
+            BeanLoggerManager.BeanLogger("**TOKEN TX (CEN)**");
 
-                if (metaNode.has("execute") && metaNode.get("execute").asText().equals("burn")){
-                    boolean check = Layer2DBService.burnToken(metaNode.get("caller").asText(), metaNode.get("tokenHash").asText(), tx.getAmount());
-                    if(check){
-                        WalletService.payGasOnly(tx.getFrom(), tx.getGasFee());
-                    }
-                    return check; 
-                }
-    
-                return Layer2DBService.transferToken(
-                    metaNode.get("caller").asText(),
-                    tx.getTo(),
-                    metaNode.get("tokenHash").asText(),
-                    tx.getAmount()
-                );
+            if (!metaNode.has("caller")) {
+                System.err.println("Missing caller field in CEN token TX meta.");
+                return false;
+            }
+
+            String caller = metaNode.get("caller").asText();
+            String tokenHash = metaNode.get("tokenHash").asText();
+
+            if (metaNode.has("execute") && metaNode.get("execute").asText().equals("burn")) {
+                success = Layer2DBService.burnToken(caller, tokenHash, tx.getAmount());
             } else {
-                BeanLoggerManager.BeanLogger("**TOKEN TX (USER)**");
-                boolean yes = Layer2DBService.transferToken(
-                    tx.getFrom(),
-                    tx.getTo(),
-                    metaNode.get("tokenHash").asText(),
-                    tx.getAmount()
-                );
-                if(yes){
-                    WalletService.payGasOnly(tx.getFrom(), tx.getGasFee());
-                    Layer2DBService.refreshWallet(tx.getFrom());
-                    Layer2DBService.refreshWallet(tx.getTo());
-                }
-                return yes;
+                success = Layer2DBService.transferToken(caller, tx.getTo(), tokenHash, tx.getAmount());
             }
-        } catch (Exception e) {
-            BeanLoggerManager.BeanLoggerError("TOKEN TX EXECUTION FAILED");
-            e.printStackTrace();
-            return false;
         }
 
-        
+        //  Standard user token TX
+        else {
+            BeanLoggerManager.BeanLogger("**TOKEN TX (USER)**");
+
+            success = Layer2DBService.transferToken(
+                tx.getFrom(),
+                tx.getTo(),
+                metaNode.get("tokenHash").asText(),
+                tx.getAmount()
+            );
+
+            if (success) {
+                Layer2DBService.refreshWallet(tx.getFrom());
+                Layer2DBService.refreshWallet(tx.getTo());
+            }
+        }
+
+        //  Always pay gas if successful
+        if (success) {
+            WalletService.payGasOnly(tx.getFrom(), tx.getGasFee());
+        }
+
+        return success;
     }
 
     private static boolean executeMint(TX tx) {
         try {
             JsonNode metaNode = MetaHelper.getMetaNode(tx);
-    
+
             if (!metaNode.has("mode") || !metaNode.has("tokenHash")) {
                 System.err.println("Mint TX missing required fields.");
                 return false;
             }
-    
-            String token;
+
             String mode = metaNode.get("mode").asText();
             String tokenHash = metaNode.get("tokenHash").asText();
-            if(metaNode.has("token")){
-                token = metaNode.get("token").asText();
-            }
-            boolean check = false;
-    
+
+            boolean success = false;
+
             if (mode.equals("create")) {
-                check =  Layer2DBService.newMint(tx);
-    
+                success = Layer2DBService.newMint(tx);
             } else if (mode.equals("mintMore")) {
                 long formattedAmount = beantoshinomics.toBeantoshi(tx.getAmount());
-                check = Layer2DBService.mintToTokenSupply(tokenHash, tx.getFrom(), formattedAmount);
+                success = Layer2DBService.mintToTokenSupply(tokenHash, tx.getFrom(), formattedAmount);
             } else {
                 BeanLoggerManager.BeanLoggerError("Can't find mint mode: " + mode);
                 return false;
             }
 
-            if(check) {
+            // 💰 Always pay gas and refresh if successful
+            if (success) {
                 WalletService.payGasOnly(tx.getFrom(), tx.getGasFee());
                 Layer2DBService.refreshWallet(tx.getFrom());
             }
-            return check;
-    
+
+            return success;
+
         } catch (Exception e) {
             System.err.println("Error executing Mint TX:");
             e.printStackTrace();
