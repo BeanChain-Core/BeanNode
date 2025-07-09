@@ -1,0 +1,16 @@
+# 'makefile.cluster.win'
+
+
+NAME=sprout.evo
+PORT?=6442
+
+private-init:
+	@powershell -NoProfile -Command " \
+		$base = $(PORT); \
+		for ($i = 0; $i -lt 4; $i++) { \
+			$dir = '$(NAME)' + ($i + 1); \
+			$port = $base + $i; \
+			cd $dir; \
+			make private port=$port; \
+			cd ..; \
+		}"

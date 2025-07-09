@@ -15,14 +15,68 @@ reset:
 	@if exist data rmdir /S /Q data
 	@if exist logs rmdir /S /Q logs
 
+
+config:
+	@powershell -Command "(Get-Content config.docs\\beanchain.config.properties) -replace '^$(KEY)=.*', '$(KEY)=$(VALUE)' | Set-Content config.docs\\beanchain.config.properties"
+
+local-on:
+	@powershell -Command "(Get-Content config.docs\\beanchain.config.properties) -replace '^openLocal=.*', 'openLocal=true' | Set-Content config.docs\\beanchain.config.properties"
+
+local-off:
+	@powershell -Command "(Get-Content config.docs\\beanchain.config.properties) -replace '^openLocal=.*', 'openLocal=false' | Set-Content config.docs\\beanchain.config.properties"
+
+token:
+	@powershell -Command "(Get-Content config.docs\\beanchain.config.properties) -replace '^token.CLI=.*', 'token.CLI=$(TOKEN)' | Set-Content config.docs\\beanchain.config.properties"
+
+headless:
+	@powershell -Command "(Get-Content config.docs\\beanchain.config.properties) -replace '^mode=.*', 'mode=headless' | Set-Content config.docs\\beanchain.config.properties"
+
+portal:
+	@powershell -Command "(Get-Content config.docs\\beanchain.config.properties) -replace '^mode=.*', 'mode=portal' | Set-Content config.docs\\beanchain.config.properties"
+
+encrypted:
+	@powershell -Command "(Get-Content config.docs\\beanchain.config.properties) -replace '^encryptedWiz=.*', 'encryptedWiz=true' | Set-Content config.docs\\beanchain.config.properties"
+
+encrypted-off:
+	@powershell -Command "(Get-Content config.docs\\beanchain.config.properties) -replace '^encryptedWiz=.*', 'encryptedWiz=false' | Set-Content config.docs\\beanchain.config.properties"
+
+peer:
+	@powershell -Command "(Get-Content config.docs\\beanchain.config.properties) -replace '^peerPort=.*', 'peerPort=$(PORT)' | Set-Content config.docs\\beanchain.config.properties"
+
+port:
+	@powershell -Command "(Get-Content config.docs\\beanchain.config.properties) -replace '^networkPort=.*', 'networkPort=$(PORT)' | Set-Content config.docs\\beanchain.config.properties"
+
+public:
+	@powershell -Command "(Get-Content config.docs\\beanchain.config.properties) -replace '^isPublicNode=.*', 'isPublicNode=true' | Set-Content config.docs\\beanchain.config.properties"
+
+private:
+	@powershell -Command "(Get-Content config.docs\\beanchain.config.properties) -replace '^isPublicNode=.*', 'isPublicNode=false' | Set-Content config.docs\\beanchain.config.properties"
+
+
 # === Help Menu ===
 help:
 	@echo.
-	@echo ====================
-	@echo NodePK Makefile Menu
-	@echo ====================
-	@echo make run     - Launch BeanNode
-	@echo make wiz     - Run WizCrypt CLI
-	@echo make reset   - Delete /data and /logs
-	@echo make help    - Show this menu
+	@echo ==========================
+	@echo NodePK Makefile (Windows)
+	@echo ==========================
+	@echo make run             - Launch the BeanNode JAR
+	@echo make wiz             - Run the WizCrypt CLI
+	@echo make reset           - Delete /data and /logs folders
 	@echo.
+	@echo === Config Update Commands ===
+	@echo make config KEY=name VALUE=val     - Set a config key manually
+	@echo make token TOKEN=abc123            - Set the CLI token
+	@echo make peer PORT=6442                - Set the peerPort
+	@echo make port PORT=8080                - Set the networkPort
+	@echo.
+	@echo === Mode Toggles ===
+	@echo make headless       - Set mode=headless
+	@echo make portal         - Set mode=portal
+	@echo make local-on       - Set openLocal=true
+	@echo make local-off      - Set openLocal=false
+	@echo make public         - Set isPublicNode=true
+	@echo make private        - Set isPublicNode=false
+	@echo make encrypted      - Set encryptedWiz=true
+	@echo make encrypted-off  - Set encryptedWiz=false
+	@echo.
+	@echo ==========================

@@ -14,10 +14,81 @@ reset:
 screen-bean:
 	screen -S beannode -dm java -jar BeanNode-$(VERSION).jar
 
+# === Config Modifiers for Linux/macOS ===
+
+# Generic key update: make config KEY=mode VALUE=portal
+config:
+	@sed -i '' 's/^$(KEY)=.*/$(KEY)=$(VALUE)/' config.docs/beanchain.config.properties || \
+		echo "$(KEY)=$(VALUE)" >> config.docs/beanchain.config.properties
+
+# openLocal toggle
+local-on:
+	@sed -i '' 's/^openLocal=.*/openLocal=true/' config.docs/beanchain.config.properties
+
+local-off:
+	@sed -i '' 's/^openLocal=.*/openLocal=false/' config.docs/beanchain.config.properties
+
+# Set CLI Token: make token TOKEN=abc123
+token:
+	@sed -i '' 's/^token.CLI=.*/token.CLI=$(TOKEN)/' config.docs/beanchain.config.properties
+
+# Mode: headless or portal
+headless:
+	@sed -i '' 's/^mode=.*/mode=headless/' config.docs/beanchain.config.properties
+
+portal:
+	@sed -i '' 's/^mode=.*/mode=portal/' config.docs/beanchain.config.properties
+
+# Encryption toggle
+encrypted:
+	@sed -i '' 's/^encryptedWiz=.*/encryptedWiz=true/' config.docs/beanchain.config.properties
+
+encrypted-off:
+	@sed -i '' 's/^encryptedWiz=.*/encryptedWiz=false/' config.docs/beanchain.config.properties
+
+# Port settings
+peer:
+	@sed -i '' 's/^peerPort=.*/peerPort=$(PORT)/' config.docs/beanchain.config.properties
+
+port:
+	@sed -i '' 's/^networkPort=.*/networkPort=$(PORT)/' config.docs/beanchain.config.properties
+
+# Public/private node toggle
+public:
+	@sed -i '' 's/^isPublicNode=.*/isPublicNode=true/' config.docs/beanchain.config.properties
+
+private:
+	@sed -i '' 's/^isPublicNode=.*/isPublicNode=false/' config.docs/beanchain.config.properties
+
+# View current config
+show-config:
+	@cat config.docs/beanchain.config.properties
+
+
 help:
 	@echo "Available Commands (Linux/macOS):"
-	@echo "  make run          - Launch the BeanNode"
-	@echo "  make wiz          - Run the WizCrypt CLI"
-	@echo "  make reset        - Delete ./data and ./logs"
-	@echo "  make screen-bean   - Run the Node in a dettachable screen (must have screen installed)"
-	@echo "  make help         - Show this help menu"
+	@echo ""
+	@echo "=== Basic Commands ==="
+	@echo "  make run           - Launch the BeanNode"
+	@echo "  make wiz           - Run the WizCrypt CLI"
+	@echo "  make reset         - Delete ./data and ./logs"
+	@echo "  make screen-bean   - Run the node in a detachable screen session"
+	@echo ""
+	@echo "=== Config Update Commands ==="
+	@echo "  make config KEY=name VALUE=val     - Set a config key manually"
+	@echo "  make token TOKEN=abc123            - Set the CLI token"
+	@echo "  make peer PORT=6442                - Set the peerPort"
+	@echo "  make port PORT=6442                - Set your port"
+	@echo ""
+	@echo "=== Mode Toggles ==="
+	@echo "  make headless       - Set mode=headless"
+	@echo "  make portal         - Set mode=portal"
+	@echo "  make local-on       - Set openLocal=true"
+	@echo "  make local-off      - Set openLocal=false"
+	@echo "  make public         - Set isPublicNode=true"
+	@echo "  make private        - Set isPublicNode=false"
+	@echo "  make encrypted      - Set encryptedWiz=true"
+	@echo "  make encrypted-off  - Set encryptedWiz=false"
+	@echo ""
+	@echo "=== View Current Config ==="
+	@echo "  make show-config    - Print the current beanchain.config.properties file"
