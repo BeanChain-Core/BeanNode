@@ -9,7 +9,7 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBIterator;
 import org.springframework.stereotype.Service;
 
-
+import com.beanpack.Rejection.Flagger;
 import com.beanpack.TXs.*;
 import com.beanpack.Utils.AddressUtils;
 
@@ -42,6 +42,7 @@ public class MempoolService {
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode txNode = mapper.readTree(transactionJson);
+            TX tx = mapper.treeToValue(txNode, TX.class);
 
             if (txNode.has("signature") && "GENESIS-SIGNATURE".equals(txNode.get("signature").asText())) {
                 BeanLoggerManager.BeanLogger("Skipping Genesis TX, not adding to mempool: " + txHash);
@@ -50,7 +51,13 @@ public class MempoolService {
 
             if (txNode.has("to") && !AddressUtils.isValidAddress((txNode.get("to").asText()))) {
                 if(txNode.has("txHash")){
-                    Node.broadcastRejection(txNode.get("txHash").asText());
+                    try {
+                        Flagger.repackRejection(tx, "Invalid TX Type Field");
+                    } catch (Exception e) {
+                        BeanLoggerManager.BeanLoggerError("Failed to flag " + tx.getTxHash());
+                        e.printStackTrace();
+                    }
+                    Node.broadcastRejection(txNode.get("txHash").asText(), tx);
                 }
                 return false;
             }

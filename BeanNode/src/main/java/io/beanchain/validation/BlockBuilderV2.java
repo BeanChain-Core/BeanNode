@@ -49,7 +49,7 @@ public class BlockBuilderV2 {
         for(TX tx: rejectedTXs){
             tx.setStatus("rejected");
             System.out.print("TX REJECTED NOT VALID (INVALID 'TYPE'): " + tx.getTxHash());
-            Node.broadcastRejection(tx.getTxHash());
+            
             try {
                 Flagger.repackRejection(tx, "Invalid TX Type Field");
                 RejectedService.saveRejectedTransaction(tx);
@@ -58,6 +58,7 @@ public class BlockBuilderV2 {
                 e.printStackTrace();
             }
             MempoolService.removeSingleTx(tx.getTxHash());
+            Node.broadcastRejection(tx.getTxHash(), tx);
         }
     
         blockSize = processTXs(txTransfer, false, simulatedL1, accepted, blockSize, maxSize);
@@ -132,7 +133,7 @@ public class BlockBuilderV2 {
                     BeanLoggerManager.BeanLoggerError("Nonce mismatch: " + tx.getTxHash() + " actual=" + actualNonce + " expected=" + expectedNonce + " sender=" + sender);
                     tx.setStatus("rejected");
                     BeanLoggerManager.BeanLoggerError("TX REJECTED NOT VALID: " + tx.getTxHash());
-                    Node.broadcastRejection(tx.getTxHash());
+                    
                     try {
                         Flagger.repackRejection(tx, "Information mixmatch or credential failure.");
                         RejectedService.saveRejectedTransaction(tx);
@@ -141,6 +142,7 @@ public class BlockBuilderV2 {
                         e.printStackTrace();
                     }
                     MempoolService.removeSingleTx(tx.getTxHash());
+                    Node.broadcastRejection(tx.getTxHash(), tx);
                     continue;
                 }
             }
@@ -174,7 +176,7 @@ public class BlockBuilderV2 {
             if (!isValid) {
                 tx.setStatus("rejected");
                 System.out.print("TX REJECTED NOT VALID: " + tx.getTxHash());
-                Node.broadcastRejection(tx.getTxHash());
+                
                 try {
                         Flagger.repackRejection(tx, "INVALID SIGNATURE");
                         RejectedService.saveRejectedTransaction(tx);
@@ -183,6 +185,7 @@ public class BlockBuilderV2 {
                         e.printStackTrace();
                     }
                 MempoolService.removeSingleTx(tx.getTxHash());
+                Node.broadcastRejection(tx.getTxHash(), tx);
                 continue;
             }
 
@@ -192,7 +195,7 @@ public class BlockBuilderV2 {
             if (!TXExecutor.execute(tx)) {
                 tx.setStatus("rejected");
                 BeanLoggerManager.BeanLoggerError("TX REJECTED NOT EXECUTED: " + tx.getTxHash());
-                Node.broadcastRejection(tx.getTxHash());
+                //TODO:LOG MORE REJECTIONS
                 try {
                         Flagger.repackRejection(tx, "TX failed during Execution");
                         RejectedService.saveRejectedTransaction(tx);
@@ -201,6 +204,7 @@ public class BlockBuilderV2 {
                         e.printStackTrace();
                     }
                 MempoolService.removeSingleTx(tx.getTxHash());
+                Node.broadcastRejection(tx.getTxHash(), tx);
                 continue;
             } else {
                 tx.setStatus("complete");

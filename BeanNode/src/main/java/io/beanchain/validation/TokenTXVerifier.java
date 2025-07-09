@@ -26,7 +26,7 @@ public class TokenTXVerifier {
             BeanLoggerManager.BeanLoggerError("TOKEN WALLET NOT FOUND FOR: " + tx.getFrom());
             tx.setStatus("rejected");
             RejectedService.saveRejectedTransaction(tx);
-            Node.broadcastRejection(tx.getTxHash());
+            Node.broadcastRejection(tx.getTxHash(), tx);
             return false;
         }
 
@@ -34,7 +34,7 @@ public class TokenTXVerifier {
             System.err.println("TOKEN TX REJECTED: Missing tokenHash");
             tx.setStatus("rejected");
             RejectedService.saveRejectedTransaction(tx);
-            Node.broadcastRejection(tx.getTxHash());
+            Node.broadcastRejection(tx.getTxHash(), tx);
             return false;
         }
         
@@ -86,7 +86,7 @@ public class TokenTXVerifier {
                         BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
                         a.printStackTrace();
                     }
-                    Node.broadcastRejection(tx.getTxHash());
+                    Node.broadcastRejection(tx.getTxHash(), tx);
                     return false;
             }
             if(addyMatch && validOwner && senderHasEnoughGas && senderHasEnoughTokens) {
@@ -101,7 +101,7 @@ public class TokenTXVerifier {
                         BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
                         e.printStackTrace();
                     }
-                Node.broadcastRejection(tx.getTxHash());
+                Node.broadcastRejection(tx.getTxHash(), tx);
                 return false;
             }
 
@@ -109,7 +109,7 @@ public class TokenTXVerifier {
             BeanLoggerManager.BeanLoggerError("** TX FAILED: " + tx.getTxHash() + " INFO MISMATCH **");
             tx.setStatus("rejected");
             RejectedService.saveRejectedTransaction(tx);
-            Node.broadcastRejection(tx.getTxHash());
+            Node.broadcastRejection(tx.getTxHash(), tx);
             return false;
 
         }

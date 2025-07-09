@@ -30,7 +30,7 @@ public class TokenCENTXVerifier {
             BeanLoggerManager.BeanLoggerError("TOKEN WALLET NOT FOUND FOR: " + tx.getFrom());
             tx.setStatus("rejected");
             RejectedService.saveRejectedTransaction(tx);
-            Node.broadcastRejection(tx.getTxHash());
+            Node.broadcastRejection(tx.getTxHash(), tx);
             return false;
         }
 
@@ -38,7 +38,7 @@ public class TokenCENTXVerifier {
             System.err.println("TOKEN TX REJECTED: Missing tokenHash");
             tx.setStatus("rejected");
             RejectedService.saveRejectedTransaction(tx);
-            Node.broadcastRejection(tx.getTxHash());
+            Node.broadcastRejection(tx.getTxHash(), tx);
             return false;
         }
         
@@ -61,7 +61,7 @@ public class TokenCENTXVerifier {
                 BeanLoggerManager.BeanLoggerError("** TX FAILED: " + tx.getTxHash() + "CEN CONTRACT VERIFICATION FAILURE **");
                 tx.setStatus("rejected");
                 RejectedService.saveRejectedTransaction(tx);
-                Node.broadcastRejection(tx.getTxHash());
+                Node.broadcastRejection(tx.getTxHash(), tx);
                 return false;
             }
 
@@ -69,7 +69,7 @@ public class TokenCENTXVerifier {
             BeanLoggerManager.BeanLoggerError("** TX FAILED: " + tx.getTxHash() + " CEN CONTRACT INFO MISMATCH **");
             tx.setStatus("rejected");
             RejectedService.saveRejectedTransaction(tx);
-            Node.broadcastRejection(tx.getTxHash());
+            Node.broadcastRejection(tx.getTxHash(), tx);
             return false;
 
         }
@@ -99,7 +99,7 @@ public class TokenCENTXVerifier {
                 BeanLoggerManager.BeanLoggerError("** TX FAILED: " + tx.getTxHash() + "CALLER VERIFICATION FAILURE **");
                 tx.setStatus("rejected");
                 RejectedService.saveRejectedTransaction(tx);
-                Node.broadcastRejection(tx.getTxHash());
+                Node.broadcastRejection(tx.getTxHash(), tx);
                 return false;
             }
 
@@ -107,7 +107,7 @@ public class TokenCENTXVerifier {
             BeanLoggerManager.BeanLoggerError("** TX FAILED: " + tx.getTxHash() + " CALLER INFO MISTMATCH");
             tx.setStatus("rejected");
             RejectedService.saveRejectedTransaction(tx);
-            Node.broadcastRejection(tx.getTxHash());
+            Node.broadcastRejection(tx.getTxHash(), tx);
             return false;
         }
     }

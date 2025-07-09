@@ -18,6 +18,7 @@ import io.beanchain.helpers.DevConfig;
 import io.beanchain.logger.BeanLoggerManager;
 import io.beanchain.nodePortal.portal;
 import io.beanchain.services.MempoolService;
+import io.beanchain.services.RejectedService;
 import io.beanchain.services.blockchainDB;
 import io.beanchain.validation.BlockBuilderV2;
 import com.beanpack.TXs.*;
@@ -69,10 +70,17 @@ public class MessageRouter {
                 handleTxBatch(message.get("payload"));
                 break;
             case "tx_rejected": 
-                String txHash = message.get("payload").get("txHash").asText();
-                BeanLoggerManager.BeanLogger("Rejection gossip received for TX: " + txHash);
-                MempoolService.removeTxByHash(txHash);
-                Node.gossipRejectionStatic(txHash, senderIP);
+                JsonNode payload = message.get("payload");
+                TX tx = TX.fromJSON(payload.get("txJson").asText());
+                String txHash = payload.get("txHash").asText();
+                if (RejectedService.getRejectedTxByHash(txHash) == null) {
+                    RejectedService.saveRejectedTransaction(tx);
+                    MempoolService.removeTxByHash(txHash);
+                    Node.gossipRejectionStatic(txHash, senderIP, tx);  // Keep gossiping outward
+                    BeanLoggerManager.BeanLogger("Rejection gossip accepted and saved: " + txHash);
+                } else {
+                    BeanLoggerManager.BeanLogger("Duplicate rejection received. Ignoring: " + txHash);
+                }
                 break;    
             default:
                 BeanLoggerManager.BeanLoggerError("Unknown message type: " + type);

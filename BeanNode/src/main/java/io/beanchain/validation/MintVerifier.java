@@ -26,7 +26,7 @@ public class MintVerifier {
                         BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
                         e.printStackTrace();
                     }
-            Node.broadcastRejection(tx.getTxHash());
+            Node.broadcastRejection(tx.getTxHash(), tx);
             return false;
         }
 
@@ -47,7 +47,7 @@ public class MintVerifier {
                         BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
                         e.printStackTrace();
                     }
-            Node.broadcastRejection(tx.getTxHash());
+            Node.broadcastRejection(tx.getTxHash(), tx);
             return false;
         }
 
@@ -79,7 +79,7 @@ public class MintVerifier {
                         BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
                         e.printStackTrace();
                     }
-                Node.broadcastRejection(tx.getTxHash());
+                Node.broadcastRejection(tx.getTxHash(), tx);
                 return false;
             }
 
@@ -93,7 +93,7 @@ public class MintVerifier {
                         BeanLoggerManager.BeanLoggerError("Failed to flag/save rejected TX: " + tx.getTxHash());
                         e.printStackTrace();
                     }
-            Node.broadcastRejection(tx.getTxHash());
+            Node.broadcastRejection(tx.getTxHash(), tx);
             return false;
 
         }

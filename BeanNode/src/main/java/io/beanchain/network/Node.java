@@ -331,13 +331,13 @@ public class Node {
 
     
 
-    public static void broadcastRejection(String txHash) {
+    public static void broadcastRejection(String txHash, TX tx) {
         if (instance != null) {
-            instance.broadcastRejectionInternal(txHash);
+            instance.broadcastRejectionInternal(txHash, tx);
         }
     }
 
-    private void broadcastRejectionInternal(String txHash) {
+    private void broadcastRejectionInternal(String txHash, TX tx) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode message = mapper.createObjectNode();
@@ -345,6 +345,8 @@ public class Node {
     
             ObjectNode payload = mapper.createObjectNode();
             payload.put("txHash", txHash);
+
+            payload.put("txJson", tx.createJSON());
     
             message.set("payload", payload);
             String jsonMessage = mapper.writeValueAsString(message);
@@ -357,13 +359,13 @@ public class Node {
         }
     }
 
-    public static void gossipRejectionStatic(String txHash, String senderIP) {
+    public static void gossipRejectionStatic(String txHash, String senderIP, TX tx) {
         if (instance != null) {
-            instance.gossipRejection(txHash, senderIP);
+            instance.gossipRejection(txHash, senderIP, tx);
         }
     }
 
-    public void gossipRejection(String txHash, String senderIP){
+    public void gossipRejection(String txHash, String senderIP, TX tx){
         try {
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode message = mapper.createObjectNode();
@@ -371,6 +373,8 @@ public class Node {
     
             ObjectNode payload = mapper.createObjectNode();
             payload.put("txHash", txHash);
+
+            payload.put("txJson", tx.createJSON());
     
             message.set("payload", payload);
             String jsonMessage = mapper.writeValueAsString(message);
