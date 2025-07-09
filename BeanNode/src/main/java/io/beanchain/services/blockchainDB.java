@@ -148,7 +148,7 @@ public class blockchainDB {
         GenesisTX genTX5 = new GenesisTX("BEANX:0x1c8496175b3f4802e395db5fab4dd66e09c431b2", 2500000); // released to the Team Wallet at Genesis 
         GenesisTX genTX6 = new GenesisTX("BEANX:0xLIQUIDITY", 12500000); // held by the team promised to be used for liquidity or aborted and transfered to rewards based on future vote
 
-        WalletService walletService = new WalletService();
+        new WalletService();
         WalletService.genBlock();
         
         List<String> genesisTransactions = Arrays.asList(

@@ -1,5 +1,8 @@
 package io.beanchain.startScripts;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.boot.SpringApplication;
 
 import io.beanchain.BeanChainApi;
@@ -53,19 +56,28 @@ public class autoStartGPN {
         if(ConfigLoader.getEncryptedWiz()){
            WizCryptHandler.encryptConfig(); 
         }
+        System.out.println(":: BeanChain :: Node startup sequence initiated...");
+        //System.out.println("▶ IP : " + ConfigLoader.getBindAddress());
         Thread springThread = new Thread(() -> {
-                    SpringApplication.run(BeanChainApi.class);
-                }, "SpringThread");
+            SpringApplication app = new SpringApplication(BeanChainApi.class);
+            
+            Map<String, Object> props = new HashMap<>();
+            props.put("server.port", ConfigLoader.getSpringPort());
+            
+            app.setDefaultProperties(props);
+            app.run();
+        }, "SpringThread");
 
         springThread.setDaemon(false);
         springThread.start();
-        System.out.println("SIGN IN SUCCESS");
 
         try {
-            Thread.sleep(4000);
+            Thread.sleep(8000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        
+        System.out.println("SIGN IN SUCCESS");
 
         System.out.print("\033[H\033[2J");  
         System.out.flush();
