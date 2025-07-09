@@ -1,6 +1,6 @@
 # Makefile.node.win - Internal NodePK Helper for Windows
 
-VERSION       = v0.0.4.2
+VERSION       = v0.1.0
 
 # === Launch Node JAR ===
 run:

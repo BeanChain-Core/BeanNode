@@ -6,7 +6,7 @@
 
     <groupId>io.beanchain</groupId>
     <artifactId>BeanNodePK</artifactId>
-    <version>v0.0.4.2</version>
+    <version>v0.1.0</version>
     <packaging>pom</packaging>
 
     <name>BeanChain Multi-Module</name>

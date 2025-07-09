@@ -1,10 +1,10 @@
 ############################################################
 # BeanNode Build & Setup Toolchain - Multi-Platform Manual
-# Version: v0.0.4.2
+# Version: v0.1.0
 # Author: Outlandish Creative / BeanChain Core Team
 ############################################################
 
-VERSION       = v0.0.4.2
+VERSION       = v0.1.0
 NODE_MODULE   = BeanNode
 DEV_MODULE    = WizCrypt
 NODEPK        = NodePK

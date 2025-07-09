@@ -1,6 +1,6 @@
 # === NodePK Makefile (Linux/macOS) ===
 
-VERSION       = v0.0.4.2
+VERSION       = v0.1.0
 
 run:
 	java -jar BeanNode-$(VERSION).jar

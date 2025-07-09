@@ -9,13 +9,13 @@
     <parent>
         <groupId>io.beanchain</groupId>
         <artifactId>BeanNodePK</artifactId>
-        <version>v0.0.4.2</version>
+        <version>v0.1.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>io.beanchain</groupId>
     <artifactId>BeanNode</artifactId>
-    <version>v0.0.4.2</version>
+    <version>v0.1.0</version>
     <packaging>jar</packaging>
 
     <name>BeanNode Core Node</name>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.beanchain</groupId>
             <artifactId>bean-pack-java</artifactId>
-            <version>0.1.1</version>
+            <version>0.1.3</version>
         </dependency>
 
         <!-- Cryptography -->

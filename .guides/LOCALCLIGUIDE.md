@@ -16,7 +16,7 @@ This guide explains how to interact with the LocalAdminController `/cli` API in 
 2. **Node Running**: Launch your node with environment token set:
    ```bash
    export BEAN_ADMIN_PASS="YOUR_TOKEN"
-   nohup java -jar BeanNode-v0.0.4.2.jar > node.log 2>&1 &
+   nohup java -jar BeanNode-v0.1.0.jar > node.log 2>&1 &
    ```
 
 ---
@@ -76,7 +76,7 @@ curl "http://localhost:8080/cli/wallet?token=YOUR_TOKEN"
 
 Return admin wallet’s token balances.
 ```bash
-curl "http://localhost:8080/cli/tokens?token=YOUR_TOKEN"
+curl "http://localhost:6480/cli/tokens?token=YOUR_TOKEN"
 ```
 
 ---
