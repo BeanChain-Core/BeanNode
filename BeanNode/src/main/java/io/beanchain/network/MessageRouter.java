@@ -12,6 +12,7 @@ import org.iq80.leveldb.DBIterator;
 
 import com.beanpack.Block.Block;
 import io.beanchain.config.ConfigLoader;
+import io.beanchain.factories.PongSender;
 import io.beanchain.helpers.DevConfig;
 import io.beanchain.logger.BeanLoggerManager;
 import io.beanchain.nodePortal.portal;
@@ -79,7 +80,13 @@ public class MessageRouter {
                 } else {
                     BeanLoggerManager.BeanLogger("Duplicate rejection received. Ignoring: " + txHash);
                 }
-                break;    
+                break;
+            case "ping":
+                Node.getInstance();
+                String pingNumber = message.get("payload").asText();
+                PongSender.sendPongToRN(pingNumber);
+                Node.broadcastPing(pingNumber, peer.getInetAddress().getHostAddress());
+                break;
             default:
                 BeanLoggerManager.BeanLoggerError("Unknown message type: " + type);
         }

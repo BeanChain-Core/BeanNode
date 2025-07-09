@@ -539,5 +539,35 @@ public class Node {
             e.printStackTrace();
         }
     }
+
+    public static void broadcastPing(String pingNumber, String excludeIp) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            ObjectNode message = mapper.createObjectNode();
+            message.put("type", "ping");
+            message.put("payload", pingNumber);
+
+            String json = mapper.writeValueAsString(message);
+
+            for (Map.Entry<Socket, PeerInfo> entry : peers.entrySet()) {
+                Socket peerSocket = entry.getKey();
+                String peerIp = peerSocket.getInetAddress().getHostAddress();
+
+                if (peerIp.equals(excludeIp)) continue;
+
+                try {
+                    PrintWriter out = new PrintWriter(peerSocket.getOutputStream(), true);
+                    out.println(json);
+                    BeanLoggerManager.BeanLogger("[PING] Gossip forwarded to " + peerIp);
+                } catch (Exception e) {
+                    BeanLoggerManager.BeanLoggerError("[PING] Failed to send to peer " + peerIp);
+                }
+            }
+        } catch (Exception e) {
+            BeanLoggerManager.BeanLoggerError("[PING] Failed to broadcast ping:");
+            e.printStackTrace();
+        }
+    }
 }
 

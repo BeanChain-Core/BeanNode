@@ -1,7 +1,7 @@
 package io.beanchain.startScripts;
 
-import java.util.Scanner;
-
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import org.springframework.boot.SpringApplication;
@@ -23,18 +23,6 @@ public class autoStartPublic {
         
         System.out.println(":: BeanChain :: Node startup sequence initiated...");
         //System.out.println("▶ IP : " + ConfigLoader.getBindAddress());
-        Thread springThread = new Thread(() -> {
-                    SpringApplication.run(BeanChainApi.class);
-                }, "SpringThread");
-
-        springThread.setDaemon(false);
-        springThread.start();
-
-        try {
-            Thread.sleep(8000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         
 
         boolean signedIn = false;
@@ -69,6 +57,25 @@ public class autoStartPublic {
     }
 
     private static void signInSuccess(){
+        Thread springThread = new Thread(() -> {
+            SpringApplication app = new SpringApplication(BeanChainApi.class);
+            
+            Map<String, Object> props = new HashMap<>();
+            props.put("server.port", ConfigLoader.getSpringPort());
+            
+            app.setDefaultProperties(props);
+            app.run();
+        }, "SpringThread");
+
+        springThread.setDaemon(false);
+        springThread.start();
+
+        try {
+            Thread.sleep(8000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         System.out.println("SIGN IN SUCCESS");
         if(ConfigLoader.getEncryptedWiz()){
            WizCryptHandler.encryptConfig(); 

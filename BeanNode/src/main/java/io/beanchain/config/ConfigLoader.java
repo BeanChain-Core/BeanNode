@@ -38,6 +38,7 @@ public class ConfigLoader {
     private static String keyName;
     private static String token;
     private static Boolean openLocal;
+    private static int springPort;
     private static String mode;
 
     public static void loadConfig() {
@@ -95,6 +96,7 @@ public class ConfigLoader {
             layer2DB = props.getProperty("layer2DB", "layer2DB");
 
             mode = props.getProperty("mode", "portal");
+            springPort = Integer.parseInt(props.getProperty("springPort", "8080"));
             
 
         } catch (IOException e) {
@@ -225,6 +227,8 @@ public class ConfigLoader {
     public static String getRejectedDB() { return rejectedDB; }
     public static String getLayer2DB() { return layer2DB; }
     public static String getKeyName() { return keyName; }
+
+    public static int getSpringPort() { return springPort; }
 
     public static void setAdminPass(String pass) {adminPass = pass;}
     public static void setRequirePass(Boolean require) {requirePass = require; }
