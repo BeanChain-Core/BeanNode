@@ -82,10 +82,9 @@ public class MessageRouter {
                 }
                 break;
             case "ping":
-                Node.getInstance();
                 String pingNumber = message.get("payload").asText();
-                PongSender.sendPongToRN(pingNumber);
                 Node.broadcastPing(pingNumber, peer.getInetAddress().getHostAddress());
+                PongSender.sendPongToRN(pingNumber);
                 break;
             default:
                 BeanLoggerManager.BeanLoggerError("Unknown message type: " + type);
