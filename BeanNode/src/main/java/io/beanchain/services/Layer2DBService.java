@@ -231,14 +231,20 @@ public class Layer2DBService {
             // Parse metadata
             JsonNode meta = token.getTokenMetaAsJson();
             boolean mintable = meta.has("capped") ? meta.get("capped").asBoolean() : false;
-            boolean open = meta.has("openMint") ? meta.get("openMint").asBoolean() : false;
+            boolean open = meta.has("openMint") ? meta.get("openMint").asBoolean() : true;
             String minter = meta.has("minter") ? meta.get("minter").asText() : null;
 
+            if (!mintable) {
+                System.err.println("Unauthorized mint attempt by: " + callerAddress + " on CAPPED token: " + tokenHash);
+                return false;
+            }
 
             if (!open && (minter == null || !minter.equals(callerAddress))) {
                 System.err.println("Unauthorized mint attempt by: " + callerAddress + " on token: " + tokenHash);
                 return false;
             }
+
+            
 
             // Add to supply
             long currentSupply = meta.has("supply") ? meta.get("supply").asLong() : 0;
