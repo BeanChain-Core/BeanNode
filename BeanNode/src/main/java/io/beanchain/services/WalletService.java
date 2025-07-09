@@ -50,31 +50,53 @@ public class WalletService {
     }
 
     public static void genBlock() throws IOException {
+        // Team Wallet
         String teamWallet = "BEANX:0x1c8496175b3f4802e395db5fab4dd66e09c431b2";
-        double teamAllocation = 2500000;
+        double teamAllocation = 6000000;
         StateWallet team = new StateWallet();
+        team.setAddy(teamWallet);
+        team.setBeantoshi(beantoshinomics.toBeantoshi(teamAllocation));
         InBeanTx(teamWallet, teamAllocation);
-    
+
+        // Early Wallet
         String earlyWallet = "BEANX:0xEARLYWALLET";
-        double earlyWalletAllocation = 5000000;
+        double earlyWalletAllocation = 10000000;
         StateWallet early = new StateWallet();
         early.setAddy(earlyWallet);
         early.setBeantoshi(beantoshinomics.toBeantoshi(earlyWalletAllocation));
         InBeanTx(earlyWallet, earlyWalletAllocation);
-    
+
+        // Faucet Wallet
         String faucetWallet = "BEANX:0xFAUCETWALLET";
-        double faucetWalletAllocation = 5000000;
+        double faucetWalletAllocation = 10000000;
         StateWallet faucet = new StateWallet();
         faucet.setAddy(faucetWallet);
         faucet.setBeantoshi(beantoshinomics.toBeantoshi(faucetWalletAllocation));
         InBeanTx(faucetWallet, faucetWalletAllocation);
-    
+
+        // Node Reward Wallet
         String nodeReward = "BEANX:0xNODEREWARD";
-        double nodeRewardAllocation = 30000000;
-        StateWallet node = new StateWallet();   // <-- this was missing
+        double nodeRewardAllocation = 40000000;
+        StateWallet node = new StateWallet();
         node.setAddy(nodeReward);
         node.setBeantoshi(beantoshinomics.toBeantoshi(nodeRewardAllocation));
         InBeanTx(nodeReward, nodeRewardAllocation);
+
+        // Stake Reward Wallet
+        String stakeReward = "BEANX:0xSTAKEREWARD";
+        double stakeRewardAllocation = 14000000;
+        StateWallet stake = new StateWallet();
+        stake.setAddy(stakeReward);
+        stake.setBeantoshi(beantoshinomics.toBeantoshi(stakeRewardAllocation));
+        InBeanTx(stakeReward, stakeRewardAllocation);
+
+        // Liquidity Wallet
+        String liquidityWallet = "BEANX:0xLIQUIDITY";
+        double liquidityAllocation = 20000000;
+        StateWallet liquidity = new StateWallet();
+        liquidity.setAddy(liquidityWallet);
+        liquidity.setBeantoshi(beantoshinomics.toBeantoshi(liquidityAllocation));
+        InBeanTx(liquidityWallet, liquidityAllocation);
     }
 
     public static void genTxProcess(TX tx) throws IOException{
