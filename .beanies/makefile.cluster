@@ -1,0 +1,12 @@
+# makefile.cluster
+
+NAME=sprout.evo
+PORT?=6442
+
+private-init:
+	@base=$(PORT); \
+	for i in 1 2 3 4; do \
+		dir="$(NAME)$$i"; \
+		port=$$((base + i - 1)); \
+		cd $$dir && make private port=$$port && cd ..; \
+	done

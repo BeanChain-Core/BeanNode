@@ -11,59 +11,59 @@ wiz:
 reset:
 	rm -rf data logs
 
+
 screen-bean:
-	screen -S beannode -dm java -jar BeanNode-$(VERSION).jar
+	screen -S $(STALK) -dm java -jar BeanNode-$(VERSION).jar
 
 # === Config Modifiers for Linux/macOS ===
 
 # Generic key update: make config KEY=mode VALUE=portal
 config:
-	@sed -i '' 's/^$(KEY)=.*/$(KEY)=$(VALUE)/' config.docs/beanchain.config.properties || \
+	@sed -i 's/^$(KEY)=.*/$(KEY)=$(VALUE)/' config.docs/beanchain.config.properties || \
 		echo "$(KEY)=$(VALUE)" >> config.docs/beanchain.config.properties
 
 # openLocal toggle
 local-on:
-	@sed -i '' 's/^openLocal=.*/openLocal=true/' config.docs/beanchain.config.properties
+	@sed -i 's/^openLocal=.*/openLocal=true/' config.docs/beanchain.config.properties
 
 local-off:
-	@sed -i '' 's/^openLocal=.*/openLocal=false/' config.docs/beanchain.config.properties
+	@sed -i 's/^openLocal=.*/openLocal=false/' config.docs/beanchain.config.properties
 
 # Set CLI Token: make token TOKEN=abc123
 token:
-	@sed -i '' 's/^token.CLI=.*/token.CLI=$(TOKEN)/' config.docs/beanchain.config.properties
+	@sed -i 's/^token.CLI=.*/token.CLI=$(TOKEN)/' config.docs/beanchain.config.properties
 
 # Mode: headless or portal
 headless:
-	@sed -i '' 's/^mode=.*/mode=headless/' config.docs/beanchain.config.properties
+	@sed -i 's/^mode=.*/mode=headless/' config.docs/beanchain.config.properties
 
 portal:
-	@sed -i '' 's/^mode=.*/mode=portal/' config.docs/beanchain.config.properties
+	@sed -i 's/^mode=.*/mode=portal/' config.docs/beanchain.config.properties
 
 # Encryption toggle
 encrypted:
-	@sed -i '' 's/^encryptedWiz=.*/encryptedWiz=true/' config.docs/beanchain.config.properties
+	@sed -i 's/^encryptedWiz=.*/encryptedWiz=true/' config.docs/beanchain.config.properties
 
 encrypted-off:
-	@sed -i '' 's/^encryptedWiz=.*/encryptedWiz=false/' config.docs/beanchain.config.properties
+	@sed -i 's/^encryptedWiz=.*/encryptedWiz=false/' config.docs/beanchain.config.properties
 
 # Port settings
 peer:
-	@sed -i '' 's/^peerPort=.*/peerPort=$(PORT)/' config.docs/beanchain.config.properties
+	@sed -i 's/^peerPort=.*/peerPort=$(PORT)/' config.docs/beanchain.config.properties
 
 port:
-	@sed -i '' 's/^networkPort=.*/networkPort=$(PORT)/' config.docs/beanchain.config.properties
+	@sed -i 's/^networkPort=.*/networkPort=$(PORT)/' config.docs/beanchain.config.properties
 
 # Public/private node toggle
 public:
-	@sed -i '' 's/^isPublicNode=.*/isPublicNode=true/' config.docs/beanchain.config.properties
+	@sed -i 's/^isPublicNode=.*/isPublicNode=true/' config.docs/beanchain.config.properties
 
 private:
-	@sed -i '' 's/^isPublicNode=.*/isPublicNode=false/' config.docs/beanchain.config.properties
+	@sed -i 's/^isPublicNode=.*/isPublicNode=false/' config.docs/beanchain.config.properties
 
 # View current config
 show-config:
 	@cat config.docs/beanchain.config.properties
-
 
 help:
 	@echo "Available Commands (Linux/macOS):"

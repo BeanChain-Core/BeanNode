@@ -38,7 +38,8 @@ NodePk/
 NodePK/makefile
 
 #Team Builds and Keys
-TEAM/
+TEAM
+TEAM/Makefile
 devTests/
 
 #copy of your build 

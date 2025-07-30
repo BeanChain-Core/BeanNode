@@ -24,43 +24,37 @@ SUITE_JAR_PATH_UNIX = $(DEV_MODULE)/target/$(SUITE_JAR)
 help:
 	@echo
 	@echo ############################################################
-	@echo # BeanNode Toolchain - Linux/macOS Command Reference
+	@echo "# BeanNode Toolchain - Linux/macOS Command Reference"
 	@echo ############################################################
-
 	@echo
-	@echo === Core Build Commands ===
-	@echo make gBean             - Full build w/WizCrypt, config, and run DevSuite
-	@echo make pack              - Full build: node JAR, DevSuite, and config
-	@echo make build             - Clean Maven build of all modules
-
+	@echo "=== Core Build Commands ==="
+	@echo "make gBean             - Full build w/WizCrypt, config, and run DevSuite"
+	@echo "make pack              - Full build: node JAR, DevSuite, and config"
+	@echo "make build             - Clean Maven build of all modules"
 	@echo
-	@echo === File/Config Management ===
-	@echo make node              - Copy node JAR to NodePK folder
-	@echo make copy-crypt        - Copy WizCrypt JAR to NodePK folder
-	@echo make load-config       - Copy config.docs into NodePK folder
-	@echo make fresh-config      - Reset only the beanchain.config.properties file
-	@echo make prep-beans        - Copy NodePK to FreshBeans (safe copy)
-
+	@echo "=== File/Config Management ==="
+	@echo "make node              - Copy node JAR to NodePK folder"
+	@echo "make copy-crypt        - Copy WizCrypt JAR to NodePK folder"
+	@echo "make load-config       - Copy config.docs into NodePK folder"
+	@echo "make fresh-config      - Reset only the beanchain.config.properties file"
+	@echo "make prep-beans        - Copy NodePK to FreshBeans (safe copy)"
 	@echo
-	@echo === Run / Launch ===
-	@echo make run-wiz           - Run the WizCrypt CLI JAR from NodePK
-	@echo make init-node         - Run WizCrypt, then launch node
-	@echo make launch-node       - Launch the node JAR from NodePK
-
+	@echo "=== Run / Launch ==="
+	@echo "make run-wiz           - Run the WizCrypt CLI JAR from NodePK"
+	@echo "make init-node         - Run WizCrypt, then launch node"
+	@echo "make launch-node       - Launch the node JAR from NodePK"
 	@echo
-	@echo === Cleanup and Reset ===
-	@echo make clean             - Clean build and delete NodePK folder
-	@echo make delete-node       - Force delete NodePK folder
-	@echo make reset             - Delete NodePK/data and NodePK/logs
-
+	@echo "=== Cleanup and Reset ==="
+	@echo "make clean             - Clean build and delete NodePK folder"
+	@echo "make delete-node       - Force delete NodePK folder"
+	@echo "make reset             - Delete NodePK/data and NodePK/logs"
 	@echo
-	@echo === Dev Environment Setup ===
-	@echo make install-deps-lin  - Install Java and Maven on Linux
-	@echo make install-deps-mac  - Install Java and Maven on macOS
-
+	@echo "=== Dev Environment Setup ==="
+	@echo "make install-deps-lin  - Install Java and Maven on Linux"
+	@echo "make install-deps-mac  - Install Java and Maven on macOS"
 	@echo
-	@echo === Help ===
-	@echo make help              - Show this help list
+	@echo "=== Help ==="
+	@echo "make help              - Show this help list"
 	@echo
 
 # === Command Help (Windows) ===
@@ -151,7 +145,7 @@ reset:
 # === Windows-Specific Versions ===
 win-gBean: win-pack win-run-wiz
 win-pack: win-clean win-build win-node win-load-config win-copy-crypt
-
+win-cluster-pack: win-clean win-build win-node win-load-config win-copy-crypt win-switch
 win-serve: win-pack win-switch win-dewiz
 
 win-build:
@@ -278,9 +272,12 @@ win-gpn:
 config:
 	@powershell -Command "(Get-Content NodePK\\config.docs\\beanchain.config.properties) -replace '^$(KEY)=.*', '$(KEY)=$(VALUE)' | Set-Content NodePK\\config.docs\\beanchain.config.properties"
 
+
+# stalk cluster commands 
+
 NAME=sprout.evo
 
-cluster-fresh: win-pack clust-me 
+cluster-fresh: clear-clust win-cluster-pack fresh-clust clust-commander
 
 clust-me:
 	@if not exist .cluster mkdir .cluster
@@ -293,8 +290,21 @@ clust-me:
 		Invoke-Expression 'cd ..\\$(NAME)3; make private port PORT=6444'; \
 		Invoke-Expression 'cd ..\\$(NAME)4; make private port PORT=6446'"
 
+fresh-clust: 
+	@if not exist .cluster mkdir .cluster
+	@for %%i in (1 2 3 4) do ( \
+		xcopy /E /I /Y "$(NODEPK)" ".cluster\\$(NAME)%%i" >nul \
+	)
+
 clear-clust:
 	@if exist .cluster rmdir /S /Q .cluster
+
+clust-commander:
+	@powershell -NoProfile -Command " \
+		if (Test-Path '.beanies/makefile.cluster') { \
+			Copy-Item '.beanies/makefile.cluster' -Destination '.cluster/Makefile' -Force \
+		}"
+
 
 
 
