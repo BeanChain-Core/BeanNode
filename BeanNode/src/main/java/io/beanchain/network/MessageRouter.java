@@ -102,8 +102,16 @@ public class MessageRouter {
             boolean isPublicNode = msg.has("isPublicNode") && msg.get("isPublicNode").asBoolean(); 
             boolean isReply = msg.has("reply") && msg.get("reply").asBoolean();
             String nodeType = msg.has("nodeType") ? msg.get("nodeType").asText() : "BEANNODE";
-
-            int listeningPort = msg.has("networkPort") ? msg.get("networkPort").asInt() : 6442;
+            int listeningPort;
+            if(nodeType.equals("CEN")){
+                if(msg.has("networkPort")){
+                    listeningPort = msg.get("networkPort").asInt();
+                } else {
+                    listeningPort = 6444;
+                }
+            } else {
+                listeningPort = msg.has("networkPort") ? msg.get("networkPort").asInt() : 6442;
+            }
     
             BeanLoggerManager.BeanLoggerFPrint("Rceived handshake from " + peerAddress +
                 " (height=" + peerHeight + ", wantsSync=" + requestSync +
